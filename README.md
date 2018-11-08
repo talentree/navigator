@@ -11,3 +11,8 @@ Il progetto utilizza alcune librerie a supporto dello sviluppo.
 
 Nota installare [lite-server](https://github.com/johnpapa/lite-server) globalmente: `npm install -g lite-server`
 
+
+cose da fare
+- sono un player e inserisco nome gioco e squadra -> console di gioco
+- sono un admin e inserisco user e password -> creazione gioco, squadre -> start/stop
+- sono un admin e inserisco user e password -> mappa 
