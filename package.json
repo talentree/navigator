@@ -1,0 +1,16 @@
+{
+  "name": "navigator",
+  "version": "1.0.0",
+  "description": "Navigator by Talentree ",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "game",
+    "talentree",
+    "coderdojo"
+  ],
+  "author": "Roberto Grossa, Andrea Roveroni, Davide Peron, Edoardo Bortolozzo, Nicola Valentini",
+  "license": "ISC"
+}
