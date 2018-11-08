@@ -4,6 +4,9 @@
   "description": "Navigator by Talentree ",
   "main": "src/main.js",
   "scripts": {
+    "start": "./node_modules/.bin/concurrently \"npm run watch\" \"npm run serve\"",
+    "watch": "./node_modules/.bin/rollup -c -w",
+    "serve": "lite-server --baseDir=dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -14,6 +17,7 @@
   "author": "Roberto Grossa, Andrea Roveroni, Davide Peron, Edoardo Bortolozzo, Nicola Valentini",
   "license": "ISC",
   "devDependencies": {
+    "concurrently": "^4.0.1",
     "rollup": "^0.67.0"
   }
 }
