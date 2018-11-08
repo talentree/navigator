@@ -1,7 +1,7 @@
 {
   "name": "navigator",
   "version": "1.0.0",
-  "description": "Navigator by Talentree ",
+  "description": "Navigator by Talentree",
   "main": "src/main.js",
   "scripts": {
     "start": "./node_modules/.bin/concurrently \"npm run watch\" \"npm run serve\"",
@@ -17,9 +17,9 @@
   "author": "Roberto Grossa, Andrea Roveroni, Davide Peron, Edoardo Bortolozzo, Nicola Valentini",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^4.0.1",
     "rollup": "^0.67.0",
-    "rollup-plugin-node-resolve": "^3.4.0"
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "concurrently": "^4.0.1"
   },
   "dependencies": {
     "@polymer/lit-element": "^0.6.2"
