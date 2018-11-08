@@ -1,4 +1,5 @@
 import { NavElement, html } from '../nav-element';
+import { setGameContent } from '../utils';
 
 export class LoginPlayer extends NavElement {
 
@@ -7,6 +8,10 @@ export class LoginPlayer extends NavElement {
     super();
     this.game = 'GIOCO';
     this.player = 'SQUADRA';
+  }
+
+  login() {
+    setGameContent('login-admin');
   }
 
   render() {
@@ -23,7 +28,7 @@ export class LoginPlayer extends NavElement {
           <input class="input" type="text" .value=${this.player} @input=${e => this.player = e.target.value}/>
         </div>
       </div>
-      <a @click=${(e) => console.log(`game: ${this.game}, player ${this.player}`)} class="button is-primary">Login</a>
+      <a @click=${(e) => this.login()} class="button is-primary">Login</a>
     `;
   }
 }
