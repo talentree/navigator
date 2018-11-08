@@ -6,3 +6,6 @@ node_modules/
 
 # GIT
 .git
+
+# Distribution
+dist/

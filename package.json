@@ -12,5 +12,8 @@
     "coderdojo"
   ],
   "author": "Roberto Grossa, Andrea Roveroni, Davide Peron, Edoardo Bortolozzo, Nicola Valentini",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "rollup": "^0.67.0"
+  }
 }

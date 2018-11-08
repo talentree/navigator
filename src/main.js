@@ -1,4 +1,3 @@
+import { testClick } from "./click.js"
 
-function testClick() {
-    alert("Hai cliccato")
-}
+document.querySelector("#pulsante").addEventListener("click", testClick);
