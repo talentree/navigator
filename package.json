@@ -18,6 +18,10 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^4.0.1",
-    "rollup": "^0.67.0"
+    "rollup": "^0.67.0",
+    "rollup-plugin-node-resolve": "^3.4.0"
+  },
+  "dependencies": {
+    "@polymer/lit-element": "^0.6.2"
   }
 }
