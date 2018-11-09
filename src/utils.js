@@ -13,7 +13,6 @@ export function setGameContent(element) {
     }
     oldElement = newElement;
 
-    console.log(oldElement);
     //cambio il sottotitolo in base a dove voglio andare
     if (element === "schermata-console") { infoScheda = "Console della nave" }
     if (element === "schermata-mappa") { infoScheda = "Visualizza la mappa" }
