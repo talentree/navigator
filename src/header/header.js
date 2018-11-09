@@ -1,5 +1,5 @@
 import { NavElement, html } from "../nav-element";
-import { backToMainMenu } from "../utils";
+import { backToMainMenu, infoScheda } from "../utils";
 
 export class HeaderTalentree extends NavElement {
     constructor() {
@@ -15,7 +15,7 @@ export class HeaderTalentree extends NavElement {
                             Talentsea
                         </h1>
                         <h2 class="subtitle">
-                            Info scheda
+                            mostra valore infoScheda
                         </h2>
                         <a class="button is-link" @click=${(e)=>backToMainMenu()}>Main menu</a>
                     </div>

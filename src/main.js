@@ -6,6 +6,8 @@ import { HeaderTalentree } from './header/header';
 customElements.define('login-console', LoginConsole);
 customElements.define('schermata-console', SchermataConsole);
 customElements.define('header-talentree', HeaderTalentree);
+
+//imposto al menù principale
 backToMainMenu();
 
 
