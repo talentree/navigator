@@ -1,7 +1,7 @@
 import { NavElement, html } from '../nav-element';
 import { setGameContent } from '../utils';
 
-export class LoginPlayer extends NavElement {
+export class LoginConsole extends NavElement {
 
 
   constructor() {
@@ -11,7 +11,7 @@ export class LoginPlayer extends NavElement {
   }
 
   login() {
-    setGameContent('login-admin');
+    setGameContent('schermata-console');
   }
 
   render() {

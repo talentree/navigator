@@ -12,3 +12,11 @@ export function setGameContent(element) {
     oldElement = newElement;
 
 }
+
+export function backToMainMenu(){
+    if(oldElement){
+        document.querySelector("#game-content").removeChild(oldElement);
+        oldElement = null;
+    }
+    setGameContent("login-console");
+}
