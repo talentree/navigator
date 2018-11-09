@@ -22,7 +22,7 @@ export class MainMenu extends NavElement {
             </div>
             <div class="tile is-4 is-parent">
                 <div class="tile box is-child">
-                    <p>Crea nuova partita</p>
+                <a class="button is-primary" @click=${(e)=>setGameContent("schermata-crea-partita")}>Crea una nuova partita</a>
                 </div>
             </div>
         </div>

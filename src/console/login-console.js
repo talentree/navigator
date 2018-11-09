@@ -28,7 +28,7 @@ export class LoginConsole extends NavElement {
           <input class="input" type="text" .value=${this.player} @input=${e => this.player = e.target.value}/>
         </div>
       </div>
-      <a @click=${(e) => this.login()} class="button is-primary">Login</a>
+      <a class="button is-primary" @click=${(e) => this.login()}>Login</a>
     `;
   }
 }
