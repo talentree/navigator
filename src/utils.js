@@ -15,7 +15,8 @@ export function setGameContent(element) {
 
     //cambio il sottotitolo in base a dove voglio andare
     if (element === "schermata-console") { infoScheda = "Console della nave" }
-
+    if (element === "schermata-mappa") { infoScheda = "Visualizza la mappa" }
+    if (element === "main-menu") { infoScheda = "Home" }
 }
 
 export function backToMainMenu() {
@@ -24,7 +25,6 @@ export function backToMainMenu() {
         document.querySelector("#game-content").removeChild(oldElement);
         oldElement = null;
     }
-    infoScheda = "Main menù";
     //vado al menù pricipale
-    setGameContent("login-console");
+    setGameContent("main-menu");
 }
