@@ -28,7 +28,7 @@ export class SchermataCreaPartita extends NavElement {
                     <input type="text" class="input" placeholder="Mantienilo segreto!">
                 </div>
             </div>
-            <div class="field is-grouped">
+            <div class="field">
                 <div class="control">
                     <a class="button is-primary" @click=${(e)=> this.creaPartita()}>Crea partita!</a>
                 </div>
@@ -39,7 +39,7 @@ export class SchermataCreaPartita extends NavElement {
         
     creaPartita(){
         //ottengo i dati
-        console.log("cambio");
+
         //passo alla schermata dell'engine
         setGameContent("schermata-engine");
     }
