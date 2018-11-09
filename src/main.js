@@ -1,11 +1,14 @@
-import { LoginPlayer } from './login/login-player';
-import { LoginAdmin } from './login/login-admin';
-import { setGameContent } from './utils';
+import { LoginConsole } from './console/login-console';
+import { SchermataConsole } from './console/schermata-console';
+import { backToMainMenu } from './utils';
+import { HeaderTalentree } from './header/header';
 
-customElements.define('login-player', LoginPlayer);
-customElements.define('login-admin', LoginAdmin);
+customElements.define('login-console', LoginConsole);
+customElements.define('schermata-console', SchermataConsole);
+customElements.define('header-talentree', HeaderTalentree);
 
-setGameContent('login-player');
+//imposto al menù principale
+backToMainMenu();
 
 
 
