@@ -12,7 +12,7 @@ export class HeaderTalentree extends NavElement {
                 <div class="hero-body">
                     <div class="container">
                         <h1 class="title">
-                            Talentsea
+                            Talentsea/Navigator
                         </h1>
                         <h2 class="subtitle">
                             mostra valore infoScheda
