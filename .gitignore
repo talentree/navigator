@@ -8,4 +8,4 @@ node_modules/
 .git
 
 # Distribution
-dist/
+dist/bundle.js
