@@ -6,7 +6,6 @@ import { MainMenu } from './main-menu/main-menu';
 import { SchermataMappa } from './mappa/mappa';
 import { SchermataCreaPartita } from './engine/crea-partita';
 import { SchermataEngine } from './engine/schermata-engine';
-//import * as firebase from 'firebase';
 
 // Inizializzo Firebase
 var config = {
