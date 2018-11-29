@@ -1,6 +1,6 @@
 let oldElement = null;
-
 export let infoScheda = "";
+
 
 export function setGameContent(element) {
     //elimino oldElement se esiste e aggiungo element passato
@@ -28,4 +28,14 @@ export function backToMainMenu() {
     }
     //vado al menù pricipale
     setGameContent("main-menu");
+}
+
+//quando cambia lo stato di autenticazione (login/logout) va ricreato l'header
+export function resetHeader(){
+    //console.log("resetto header");
+    //rimuovo il vecchio header e lo rimpiazzo aggiornato
+    let oldHeader = document.querySelector("#headerTalentree");
+    let newHeader = document.createElement("header-Talentree");
+    newHeader.id = "headerTalentree";
+    oldHeader.replaceWith(newHeader);
 }
