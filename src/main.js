@@ -6,6 +6,7 @@ import { MainMenu } from './main-menu/main-menu';
 import { SchermataMappa } from './mappa/mappa';
 import { SchermataCreaPartita } from './engine/crea-partita';
 import { SchermataEngine } from './engine/schermata-engine';
+import { LoginRegistrazione } from './login-registrazione/login-registrazione';
 
 export let tokenUtente = "";
 export let mailUtente = "";
@@ -44,12 +45,15 @@ customElements.define("schermata-engine", SchermataEngine);
 customElements.define('header-talentree', HeaderTalentree);
 customElements.define('main-menu', MainMenu);
 
+//schermata di login
+customElements.define('login-register', LoginRegistrazione);
+
 //imposto al menù principale
 backToMainMenu();
 
 //gestisco cambio di utente
 firebase.auth().onAuthStateChanged(user => {
-    //se l'utente è connesso
+    //se l'utente è connesso (quindi ho fatto il login)
     if (user) {
         mailUtente = user.email;
         //chiedo il token
@@ -60,13 +64,16 @@ firebase.auth().onAuthStateChanged(user => {
                 tokenUtente = token;
                 //resetto header
                 resetHeader();
+                backToMainMenu();
             })
     }
+    //se ho fatto il logout
     else {
         mailUtente = "";
         tokenUtente = "";
         //resetto header
         resetHeader();
+        backToMainMenu();
     }
 
 

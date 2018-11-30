@@ -1,25 +1,23 @@
 import { NavElement, html } from "../nav-element";
-import { backToMainMenu, infoScheda } from "../utils";
+import { backToMainMenu, infoScheda, setGameContent } from "../utils";
 import { tokenUtente, mailUtente } from "../main";
 
 export class HeaderTalentree extends NavElement {
     constructor() {
         super();
-
-        //quando premo il tasto per login
-        this.effettuaLogin = function(){
-            firebase.auth().signInWithEmailAndPassword("roveroniandrea@gmail.com", "123456");
+        //quando premo login cambio schermata
+        this.vaiALogin = function(){
+            setGameContent("login-register");
         }
-
         //quando premo logout
-        this.effettuaLogout = function(){
+        this.effettuaLogout = function () {
             firebase.auth().signOut();
         }
 
         //stringa contenente l'html per far comparire il tasto login
         this.loginButton = html`
-        <p>Non sei connesso!</p>
-        <a class="button is-link" @click=${(e) => this.effettuaLogin()}>Login</a>
+        <p class="subtitle">Non sei connesso!</p>
+        <a class="button is-link is-pulled-right" @click=${(e) => this.vaiALogin()}>Vai al login</a>
         `
     }
 
@@ -28,16 +26,16 @@ export class HeaderTalentree extends NavElement {
         //contiene o tasto login o tasto logout
         let displayAutenticazione = this.loginButton;
         //se sono connesso mostro il tasto logout
-        if(tokenUtente){
+        if (tokenUtente) {
             displayAutenticazione = html`
-            <p>Benvenuto ${mailUtente}!!</p>
-            <a class="button is-link" @click=${(e) => this.effettuaLogout()}>Logout</a>
+            <p class="subtitle">Benvenuto ${mailUtente}!!</p>
+            <a class="button is-link is-pulled-right" @click=${(e) => this.effettuaLogout()}>Logout</a>
             `
         }
         return html`
             <section class="hero is-primary">
-                <div class="hero-body">
-                    <div class="container">
+                <div class="hero-body columns">
+                    <div class="column">
                         <h1 class="title">
                             Progetto Talentsea / Navigator
                         </h1>
@@ -45,8 +43,12 @@ export class HeaderTalentree extends NavElement {
                             mostra valore infoScheda
                         </h2>
                         <a class="button is-link" @click=${(e) => backToMainMenu()}>Main menu</a>
-                        <!--Mostro il tasto corretto-->
-                        ${displayAutenticazione}
+                    </div>
+                    <div class="column">
+                        <div class="is-pulled-right">
+                            <!--Mostro il tasto corretto-->
+                            ${displayAutenticazione}
+                        </div>
                     </div>
                 </div>
             </section>
