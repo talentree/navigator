@@ -11,34 +11,31 @@ export class LoginConsole extends NavElement {
   }
 
   login(e) {
-    //controllo che il pulsante non sia disabilitato
-    if (!e.target.hasAttribute("disabled")) {
-      //disattivo il pulsante
-      e.target.toggleAttribute("disabled", true);
+    //disattivo il pulsante
+    e.target.classList.add("is-loading");
+    //contatto firestore
+    this.db.collection("partite").doc(this.game).get()
+      .catch(err => {
+        console.log("WOOOPS, qualcosa è andato storto!", err);
+      })
+      .then(res => {
+        //se la partita esiste
+        if (res && res.exists) {
+          //controllo che la squadra inserita sia giusta
+          var squadre = res.data().squadre;
 
-      //contatto firestore
-      this.db.collection("partite").doc(this.game).get()
-        .catch(err => {
-          console.log("WOOOPS, qualcosa è andato storto!", err);
-        })
-        .then(res => {
-          //console.log("la partita esiste? " + res.exists);
-          if (res && res.exists) {
-            //controllo che la squadra inserita sia giusta
-            var squadre = res.data().squadre;
-            console.log(squadre);
-            for (var i = 0; i < squadre.length; i++) {
-              if (squadre[i].nomeSquadra === this.player) {
-                //cambio schermata
-                setGameContent('schermata-console');
-              }
+          for (var i = 0; i < squadre.length; i++) {
+            if (squadre[i].nomeSquadra === this.player) {
+              //una squadra corrisponde, cambio schermata
+              setGameContent('schermata-console');
             }
           }
-          console.log("Partita inesistente o squadra errata");
-          //riabilito il pulsante
-          e.target.toggleAttribute("disabled", false);
-        })
-    }
+        }
+        //mostro che le credenziali sono sbagliate (LO DICE ANCHE SE IL LOGIN E' CORRETTO, NON CAMBIA SU ITO SCHERMATA)
+        console.log("Partita inesistente o squadra errata");
+        //riabilito il pulsante
+        e.target.classList.remove("is-loading");
+      })
   }
 
   render() {
