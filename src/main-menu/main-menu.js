@@ -4,7 +4,6 @@ import {setGameContent} from "../utils";
 export class MainMenu extends NavElement {
     constructor() {
         super();
-
     }
 
     render() {

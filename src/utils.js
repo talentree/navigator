@@ -3,6 +3,12 @@ export let infoScheda = "";
 
 
 export function setGameContent(element) {
+    //se esiste, elimino il container per p5
+    let p5Container = document.querySelector("#defaultCanvas0");
+    if(p5Container){
+        p5Container.remove();
+    }
+
     //elimino oldElement se esiste e aggiungo element passato
     let parent = document.querySelector('#game-content');
     const newElement = document.createElement(element);
