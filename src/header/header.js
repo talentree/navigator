@@ -3,6 +3,7 @@ import { backToMainMenu, infoScheda, setGameContent } from "../utils";
 import { tokenUtente, mailUtente } from "../main";
 
 export class HeaderTalentree extends NavElement {
+
     constructor() {
         super();
         //quando premo login cambio schermata
@@ -40,7 +41,7 @@ export class HeaderTalentree extends NavElement {
                             Progetto Talentsea / Navigator
                         </h1>
                         <h2 class="subtitle">
-                            mostra valore infoScheda
+                            ${infoScheda}
                         </h2>
                         <a class="button is-link" @click=${(e) => backToMainMenu()}>Main menu</a>
                     </div>

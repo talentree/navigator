@@ -62,8 +62,7 @@ firebase.auth().onAuthStateChanged(user => {
             .then(token => {
                 //console.log("token cambiato", token);
                 tokenUtente = token;
-                //resetto header
-                resetHeader();
+                //resetto header e torno al main menù
                 backToMainMenu();
             })
     }
@@ -71,8 +70,7 @@ firebase.auth().onAuthStateChanged(user => {
     else {
         mailUtente = "";
         tokenUtente = "";
-        //resetto header
-        resetHeader();
+        //resetto header e torno al main menù
         backToMainMenu();
     }
 

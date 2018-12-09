@@ -4,11 +4,10 @@ export let istanzeP5 = [];
 
 export function setGameContent(element) {
     /*
-    LE CANVAS DI P5 NON APPARTENGONO AI CUSTOM ELEMENTS
-    VANNO QUINDI ELIMINATE MANUALMENTE
+    ANCHE SE ELIMINATO IL CANVAS, IL DRAW DI P5 RESTERA' IN ESECUZIONE
     */
     //elimino tutte le istanze di p5 chiamando il loro metodo remove
-    istanzeP5.forEach(istanza=>{
+    istanzeP5.forEach(istanza => {
         istanza.remove();
     })
     //le rimuovo dall'array
@@ -25,10 +24,20 @@ export function setGameContent(element) {
     oldElement = newElement;
 
     //cambio il sottotitolo in base a dove voglio andare
-    if (element === "schermata-console") { infoScheda = "Console della nave" }
-    if (element === "schermata-mappa") { infoScheda = "Visualizza la mappa" }
-    if (element === "schermata-crea-partita") { infoScheda = "Creazione partita" }
-    if (element === "main-menu") { infoScheda = "Home" }
+    //console
+    if (element === "schermata-console") { infoScheda = "Console della nave" };
+    //mappa
+    if (element === "schermata-mappa") { infoScheda = "Visualizza la mappa" };
+    //engine
+    if (element === "schermata-crea-partita") { infoScheda = "Creazione partita" };
+    if (element === "schermata-engine") { infoScheda = "Motore di gioco" };
+    //main menù
+    if (element === "main-menu") { infoScheda = "Home" };
+    //login
+    if (element === "login-register") { infoScheda = "Accedi" };
+
+    //resetto l'header per aggiornare infoScheda e stato login
+    resetHeader();
 }
 
 export function backToMainMenu() {
@@ -42,7 +51,7 @@ export function backToMainMenu() {
 }
 
 //quando cambia lo stato di autenticazione (login/logout) va ricreato l'header
-export function resetHeader(){
+export function resetHeader() {
     //console.log("resetto header");
     //rimuovo il vecchio header e lo rimpiazzo aggiornato
     let oldHeader = document.querySelector("#headerTalentree");
