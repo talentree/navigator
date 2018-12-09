@@ -1,4 +1,5 @@
 import { NavElement, html } from "../nav-element";
+import { istanzeP5 } from '../utils';
 
 export class SchermataEngine extends NavElement{
     constructor(){
@@ -14,7 +15,7 @@ export class SchermataEngine extends NavElement{
                 console.log("funzione di draw")
             }
           };
-        new p5(sketch, 'container-p5')
+        istanzeP5.push(new p5(sketch, 'container-p5'));
     }
 
     render(){

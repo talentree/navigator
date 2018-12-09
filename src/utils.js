@@ -1,13 +1,13 @@
 let oldElement = null;
 export let infoScheda = "";
-
+export let istanzeP5 = [];
 
 export function setGameContent(element) {
     //se esiste, elimino il container per p5
-    let p5Container = document.querySelector("#defaultCanvas0");
-    if(p5Container){
-        p5Container.remove();
-    }
+    istanzeP5.forEach(istanza=>{
+        istanza.remove();
+    })
+    istanzeP5.length = 0;
 
     //elimino oldElement se esiste e aggiungo element passato
     let parent = document.querySelector('#game-content');
