@@ -3,10 +3,11 @@ export let infoScheda = "";
 export let istanzeP5 = [];
 
 export function setGameContent(element) {
-    //se esiste, elimino il container per p5
+    //elimino tutte le istanze di p5
     istanzeP5.forEach(istanza=>{
         istanza.remove();
     })
+    //le rimuovo dall'array
     istanzeP5.length = 0;
 
     //elimino oldElement se esiste e aggiungo element passato
