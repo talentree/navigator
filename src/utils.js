@@ -1,8 +1,19 @@
 let oldElement = null;
 export let infoScheda = "";
-
+export let istanzeP5 = [];
 
 export function setGameContent(element) {
+    /*
+    LE CANVAS DI P5 NON APPARTENGONO AI CUSTOM ELEMENTS
+    VANNO QUINDI ELIMINATE MANUALMENTE
+    */
+    //elimino tutte le istanze di p5 chiamando il loro metodo remove
+    istanzeP5.forEach(istanza=>{
+        istanza.remove();
+    })
+    //le rimuovo dall'array
+    istanzeP5.length = 0;
+
     //elimino oldElement se esiste e aggiungo element passato
     let parent = document.querySelector('#game-content');
     const newElement = document.createElement(element);

@@ -76,5 +76,4 @@ firebase.auth().onAuthStateChanged(user => {
         backToMainMenu();
     }
 
-
 })
