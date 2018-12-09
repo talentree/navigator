@@ -24,10 +24,20 @@ export function setGameContent(element) {
     oldElement = newElement;
 
     //cambio il sottotitolo in base a dove voglio andare
-    if (element === "schermata-console") { infoScheda = "Console della nave" }
-    if (element === "schermata-mappa") { infoScheda = "Visualizza la mappa" }
-    if (element === "schermata-crea-partita") { infoScheda = "Creazione partita" }
-    if (element === "main-menu") { infoScheda = "Home" }
+    //console
+    if (element === "schermata-console") { infoScheda = "Console della nave" };
+    //mappa
+    if (element === "schermata-mappa") { infoScheda = "Visualizza la mappa" };
+    //engine
+    if (element === "schermata-crea-partita") { infoScheda = "Creazione partita" };
+    if (element === "schermata-engine") { infoScheda = "Motore di gioco" };
+    //main menù
+    if (element === "main-menu") { infoScheda = "Home" };
+    //login
+    if (element === "login-register") { infoScheda = "Accedi" };
+
+    //resetto l'header per aggiornare infoScheda e stato login
+    resetHeader();
 }
 
 export function backToMainMenu() {
