@@ -26,7 +26,9 @@ export class SchermataEngine extends NavElement{
     render(){
         return html`
             <h1 class="title is-4">Engine vero e proprio</h1>
-            <!--p5-->
+            <!--P5 FINALE NON SARA' FIGLIO DI QUESTO ELEMENTO MA
+            FIGLIO DIRETTO DEL BODY. VA QUINDI ELIMINATO NELL'UTILS
+            -->
             <div id="container-p5"></div>
         `;
     }

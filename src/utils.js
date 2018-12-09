@@ -3,7 +3,11 @@ export let infoScheda = "";
 export let istanzeP5 = [];
 
 export function setGameContent(element) {
-    //elimino tutte le istanze di p5
+    /*
+    LE CANVAS DI P5 NON APPARTENGONO AI CUSTOM ELEMENTS
+    VANNO QUINDI ELIMINATE MANUALMENTE
+    */
+    //elimino tutte le istanze di p5 chiamando il loro metodo remove
     istanzeP5.forEach(istanza=>{
         istanza.remove();
     })
