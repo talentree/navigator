@@ -8,6 +8,7 @@ import { SchermataCreaPartita } from './engine/crea-partita';
 import { SchermataEngine } from './engine/schermata-engine';
 import { LoginRegistrazione } from './login-registrazione/login-registrazione';
 
+//è l'uid dell'utente
 export let tokenUtente = "";
 export let mailUtente = "";
 
@@ -56,15 +57,9 @@ firebase.auth().onAuthStateChanged(user => {
     //se l'utente è connesso (quindi ho fatto il login)
     if (user) {
         mailUtente = user.email;
-        //chiedo il token
-        user.getIdToken()
-            .catch(err=>{console.log("Errore nel recuper del token utente", err)})
-            .then(token => {
-                //console.log("token cambiato", token);
-                tokenUtente = token;
-                //resetto header e torno al main menù
-                backToMainMenu();
-            })
+        tokenUtente = user.uid;
+        //resetto header e torno al main menù
+        backToMainMenu();
     }
     //se ho fatto il logout
     else {

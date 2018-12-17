@@ -1,6 +1,14 @@
 let oldElement = null;
+//contiene la descrizione di dove ci troviamo
 export let infoScheda = "";
+//contiene l'elenco di tutte le istanze di p5 attive
 export let istanzeP5 = [];
+//contiene il path della nave da controllare sul database
+export let referenceNaveDaControllare = "";
+//imposta il valore del path (da errore assegnandolo direttamente)
+export function setReferenceNaveDaControllare(val){
+    referenceNaveDaControllare = val;
+}
 
 export function setGameContent(element) {
     /*
