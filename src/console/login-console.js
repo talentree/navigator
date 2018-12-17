@@ -1,12 +1,12 @@
 import { NavElement, html } from '../nav-element';
-import { setGameContent } from '../utils';
+import { setGameContent, setReferenceNaveDaControllare } from '../utils';
 
 export class LoginConsole extends NavElement {
 
   constructor() {
     super();
     this.game = 'PartitaProva';
-    this.player = 'SQUADRA';
+    this.squadra = 'SQUADRA';
     this.db = firebase.firestore();
   }
 
@@ -14,28 +14,31 @@ export class LoginConsole extends NavElement {
     //disattivo il pulsante
     e.target.classList.add("is-loading");
     //contatto firestore
-    this.db.collection("partite").doc(this.game).get()
+    this.db.collection("partite").where("nomePartita", "==", this.game).limit(1).get()
       .catch(err => {
         console.log("WOOOPS, qualcosa è andato storto!", err);
       })
       .then(res => {
-        //se la partita esiste
-        if (res && res.exists) {
-          //controllo che la squadra inserita sia giusta
-          var squadre = res.data().squadre;
+        //res è un array ma limit(1) fa si che abbia un solo valore
+        if (res && res.size) {
+          //ottengo l'elenco delle squadre di questa partita
+          var squadre = res.docs[0].data().squadre;
 
           for (var i = 0; i < squadre.length; i++) {
-            if (squadre[i].nomeSquadra === this.player) {
+            //controllo se esiste una squadra col nome che ho inserito
+            if (squadre[i].nome === this.squadra) {
+              //se esiste assegno la reference e cambio schermata
+              setReferenceNaveDaControllare(squadre[i].reference.id);
               //una squadra corrisponde, cambio schermata
               setGameContent('schermata-console');
             }
           }
         }
-        //mostro che le credenziali sono sbagliate (LO DICE ANCHE SE IL LOGIN E' CORRETTO, NON CAMBIA SU ITO SCHERMATA)
+        //mostro che le credenziali sono sbagliate (LO DICE ANCHE SE IL LOGIN E' CORRETTO, NON CAMBIA SUBITO SCHERMATA)
         console.log("Partita inesistente o squadra errata");
         //riabilito il pulsante
         e.target.classList.remove("is-loading");
-      })
+      });
   }
 
   render() {
@@ -49,7 +52,7 @@ export class LoginConsole extends NavElement {
       <div class="field">
         <label class="label">Nome della squadra:</label>
         <div class="control">
-          <input class="input" type="text" .value=${this.player} @input=${e => this.player = e.target.value}/>
+          <input class="input" type="text" .value=${this.squadra} @input=${e => this.squadra = e.target.value}/>
         </div>
       </div>
       <div class="field">
