@@ -23,7 +23,6 @@ export class HeaderTalentree extends NavElement {
     }
 
     render() {
-        //console.log("renderizzo con ",tokenUtente)
         //contiene o tasto login o tasto logout
         let displayAutenticazione = this.loginButton;
         //se sono connesso mostro il tasto logout
