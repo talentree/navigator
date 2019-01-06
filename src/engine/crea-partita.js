@@ -3,10 +3,22 @@ import { setGameContent } from "../utils";
 
 export class SchermataCreaPartita extends NavElement {
 
+    static get properties() {
+        return {
+            prop: { type: Number },
+            numeroSquadre: { type: Number }
+        }
+    }
     constructor() {
         super();
         this.db = firebase.firestore();
         this.partitaValida = false;
+        this.numeroSquadre = 2;
+        this.ciao = function () {
+            this.prop = 55;
+            //this.requestUpdate("prop",45);
+        }
+        //console.log("reload");
     }
 
     render() {
@@ -19,25 +31,16 @@ export class SchermataCreaPartita extends NavElement {
                     this.controllaNomePartita(e.target)}>
                 </div>
             </div>
-            <div class="field">
-                <label class="label">Codice squadra 1</label>
-                <div class="control">
-                    <input type="text" class="input" placeholder="Mantienilo segreto!">
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">Codice squadra 2</label>
-                <div class="control">
-                    <input type="text" class="input" placeholder="Mantienilo segreto!">
-                </div>
-            </div>
+            <div id="elencoPartite"></div>
             <div class="field">
                 <div class="control">
                     <a class="button is-primary" @click=${(e)=> this.creaPartita()}>Crea partita!</a>
+                    <a class="button is-primary" @click=${(e)=> this.ciao()}>reload</a>
                 </div>
             </div>
-        `;
+            `;
     }
+
 
 
     creaPartita() {
@@ -74,5 +77,21 @@ export class SchermataCreaPartita extends NavElement {
             //non ho inserito niente nel campo, la partita deve avere un nome
             this.partitaValida = false;
         }
+    }
+
+    updated() {
+        console.log("ciaoo", this.prop)
+    }
+
+    firstUpdated() {
+        this.inserireInput = document.querySelector("#elencoPartite");
+        for (var i = 0; i < this.numeroSquadre; i++) {
+            this.inserireInput.innerHTML += `<div class="field">
+            <label class="label">Codice squadra 1</label>
+            <div class="control">
+                <input type="text" class="input" placeholder="Mantienilo segreto!" @input=${(e) => this.cod1 = e.target.value}>
+            </div>
+        </div>`
+        };
     }
 }
