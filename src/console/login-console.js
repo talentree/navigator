@@ -60,6 +60,12 @@ export class LoginConsole extends NavElement {
           <a class="button is-primary" @click=${(e) => this.login(e)}>Login</a>
         </div>
       </div>
+      <div class="field">
+        <div class="control">
+          <a @click=${console.log("lista squadre")}>Non ricordi ild nome, la squadra o il codice?</a>
+        </div>
+
+      </div>
     `;
   }
 }
