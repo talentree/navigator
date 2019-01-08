@@ -3,6 +3,7 @@ import { NavElement, html } from "../nav-element";
 export class LoginRegistrazione extends NavElement {
     constructor() {
         super();
+        //questa modifica l'ha fatta Andrea
         //dati per il login
         this.mail = "roveroniandrea@gmail.com";
         this.password = "123456";
