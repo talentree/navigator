@@ -5,7 +5,6 @@ export class SchermataCreaPartita extends NavElement {
 
     static get properties() {
         return {
-            prop: { type: Number },
             numeroSquadre: { type: Number }
         }
     }
@@ -13,17 +12,26 @@ export class SchermataCreaPartita extends NavElement {
         super();
         this.db = firebase.firestore();
         this.partitaValida = false;
-        this.numeroSquadre = 2;
-        this.ciao = function () {
-            this.prop = 55;
-            //this.requestUpdate("prop",45);
+        this.numeroSquadre = 1;
+        this.squadre = [];
+        this.nomePartita = "";
+        this.aggiungiSquadra = function () {
+            this.numeroSquadre++;
         }
-        //console.log("reload");
+
+        this.controllaValiditaCampo = function (target) {
+            if (!target.value) {
+                target.classList.add("is-danger");
+            }
+            else {
+                target.classList.remove("is-danger");
+            }
+        }
     }
 
     render() {
         return html`
-            <h1 class="title is-4">Creazione partita</h1>
+            <h1 class="title is-4">Dati generali</h1>
             <div class="field">
                 <label class="label">Inserisci nome della partita <b id="partitaGiaPresente" style="color: red"></b></label>
                 <div class="control">
@@ -31,30 +39,40 @@ export class SchermataCreaPartita extends NavElement {
                     this.controllaNomePartita(e.target)}>
                 </div>
             </div>
-            <div id="elencoPartite"></div>
+            <div id="elencoPartite" class="field"></div>
             <div class="field">
                 <div class="control">
                     <a class="button is-primary" @click=${(e)=> this.creaPartita()}>Crea partita!</a>
-                    <a class="button is-primary" @click=${(e)=> this.ciao()}>reload</a>
+                    <a class="button is-primary" @click=${(e)=> this.aggiungiSquadra()}>Aggiungi squadra+</a>
                 </div>
             </div>
             `;
     }
 
-
-
     creaPartita() {
-        //ottengo i dati
-
-        //passo alla schermata dell'engine
-        setGameContent("schermata-engine");
+        let campiInseriti = true;
+        //controllo che tuti i campi siano presenti
+        this.squadre.forEach(squadra => {
+            if (!squadra.nome || !squadra.codice) {
+                campiInseriti = false;
+            }
+        })
+        //procedo al caricamento dei dati su firebase
+        if (this.partitaValida && campiInseriti) {
+            this.completaInfoSquadre();
+            this.caricamentoNaviSuFirebase();
+        }
+        else {
+            console.log("mancano dati!");
+        }
     }
 
     controllaNomePartita(target) {
         this.partitaValida = false;
-        var labelPartitaGiaPresente = document.querySelector("#partitaGiaPresente")
-        if (target.value) {
-            this.db.collection("partite").where("nomePartita", "==", target.value).get()
+        var labelPartitaGiaPresente = document.querySelector("#partitaGiaPresente");
+        this.nomePartita = target.value;
+        if (this.nomePartita) {
+            this.db.collection("partite").where("nomePartita", "==", this.nomePartita).get()
                 .catch(err => {
                     console.log("Errore nel recupero delle partite", err);
                 })
@@ -76,22 +94,106 @@ export class SchermataCreaPartita extends NavElement {
         else {
             //non ho inserito niente nel campo, la partita deve avere un nome
             this.partitaValida = false;
+            target.classList.add("is-danger");
         }
     }
 
     updated() {
-        console.log("ciaoo", this.prop)
+        //console.log(this.squadre);
+        //creo un div per ogni squadra
+        this.inserireInput = document.querySelector("#elencoPartite");
+        this.inserireInput.innerHTML = "";
+        for (let i = 0; i < this.numeroSquadre; i++) {
+            this.inserireInput.innerHTML += `
+            <h1 class="title is-4">Squadra ${i + 1}</h1>
+            <label class="label">Inserisci nome e codice</label>
+            <div class="field is-grouped">
+                <div class="control">
+                    <input id="nomeSquadra${i}" class="input" type="text" placeholder="Nome squadra ${i + 1}">
+                </div>
+                <div class="control">
+                    <input id="codiceSquadra${i}" class="input" type="text" placeholder="Codice squadra ${i + 1}">
+                </div>
+                <a id="squadra${i}" class="button is-primary">Rimuovi</a>
+            </div>`
+        };
+
+        for (let i = 0; i < this.numeroSquadre; i++) {
+            //se l'elemento dell'array non esiste lo imposto a {}
+            this.squadre[i] = this.squadre[i] || {};
+            //ottengo reference per gli input di una squadra
+            let nomeSquadra = document.querySelector("#nomeSquadra" + i);
+            let codiceSquadra = document.querySelector("#codiceSquadra" + i);
+
+            //aggiungo i listener
+            nomeSquadra.addEventListener("input", (e) => {
+                this.squadre[i].nome = e.target.value;
+                //controllo anche se il campo non è vuoto
+                this.controllaValiditaCampo(e.target);
+            })
+            codiceSquadra.addEventListener("input", (e) => {
+                this.squadre[i].codice = e.target.value;
+                this.controllaValiditaCampo(e.target);
+            })
+
+            //imposto ai valori prima dell'update per non perdere dati inseriti precedentemente
+            nomeSquadra.value = this.squadre[i].nome || "";
+            codiceSquadra.value = this.squadre[i].codice || "";
+
+            //ottengo reference alla squadra e aggiungo l'evento click
+            let squadra = document.querySelector("#squadra" + i);
+            squadra.addEventListener("click", (e) => {
+                //rimuovo la squadra corrispondente
+                this.squadre.splice(i, 1);
+                //diminuisco il numero di squadre lanciando quindi l'update
+                this.numeroSquadre--;
+            })
+            //elimino il pulsante per rimuovere la squadra in caso ce ne sia una sola
+            if (this.numeroSquadre <= 1) {
+                squadra.remove();
+            }
+        }
     }
 
-    firstUpdated() {
-        this.inserireInput = document.querySelector("#elencoPartite");
-        for (var i = 0; i < this.numeroSquadre; i++) {
-            this.inserireInput.innerHTML += `<div class="field">
-            <label class="label">Codice squadra 1</label>
-            <div class="control">
-                <input type="text" class="input" placeholder="Mantienilo segreto!" @input=${(e) => this.cod1 = e.target.value}>
-            </div>
-        </div>`
-        };
+    completaInfoSquadre() {
+        this.squadre.forEach(squadra => {
+            squadra.isUsed = false;
+            squadra.reference = "";
+        });
+    }
+
+    caricamentoNaviSuFirebase() {
+        let naviCaricate = 0;
+        this.squadre.forEach(squadra => {
+            this.db.collection("navi").add({
+                posx: "100",
+                posy: "100"
+            })
+                .catch(err => {
+                    console.log("Errore nel caricamento della nave: ", err);
+                })
+                .then(res => {
+                    squadra.reference = res.id;
+                    naviCaricate++;
+                    if (naviCaricate == this.squadre.length) {
+                        console.log("Tutte le navi sono state caricate! Procedo caricando la partita")
+                        this.caricamentoPartitaSuFirebase();
+                    }
+                })
+        })
+    }
+
+    caricamentoPartitaSuFirebase() {
+        this.db.collection("partite").add({
+            nomePartita: this.nomePartita,
+            squadre: this.squadre
+        })
+            .catch(err => {
+                console.log("errore nel caricamento della partita!", err);
+            })
+            .then(res => {
+                console.log("Partita caricata correttamente, cambio schermata");
+                setGameContent("schermata-engine");
+            })
     }
 }
