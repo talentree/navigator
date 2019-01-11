@@ -24,7 +24,9 @@ export class SchermataCreaPartita extends NavElement {
         this.pulsanteCreaPartita = "";
         //incrementa il numero di squadre e causa l'upload
         this.aggiungiSquadra = function () {
-            this.numeroSquadre++;
+            if(!this.stoCaricandoSuFirebase){
+                this.numeroSquadre++;
+            }
         }
 
         //aggiunge bordi rossi se il campo è vuoto
@@ -54,7 +56,7 @@ export class SchermataCreaPartita extends NavElement {
             <div class="field">
                 <div class="control">
                     <a id="pulsanteCreaPartita" class="button is-primary" @click=${(e)=> this.creaPartita()}>Crea partita!</a>
-                    <a class="button is-primary" @click=${(e)=> this.aggiungiSquadra()}>Aggiungi squadra+</a>
+                    <a class="button is-primary" @click=${(e)=> this.aggiungiSquadra()}>Aggiungi squadra</a>
                 </div>
             </div>
             `;
@@ -84,22 +86,30 @@ export class SchermataCreaPartita extends NavElement {
         this.partitaValida = false;
         //ottengo la reference per far comparire eventuale messaggio di partita duplicata
         let labelPartitaGiaPresente = document.querySelector("#partitaGiaPresente");
+        let divLoading = target.parentElement;
+        divLoading.classList.add("is-loading");
         this.nomePartita = target.value;
         //se ho inserito un nome
         if (this.nomePartita) {
             this.db.collection("partite").where("nomePartita", "==", this.nomePartita).get()
                 .catch(err => {
                     console.log("Errore nel recupero delle partite", err);
+                    divLoading.classList.remove("is-loading");
+                    target.classList.add("is-danger");
+                    labelPartitaGiaPresente.innerText = "(errore nel recupero delle partite, riprova!)";
+                    this.partitaValida = false;
                 })
                 .then(res => {
                     if (res.size == 0) {
                         //allora non esiste nessuna partita con questo nome
+                        divLoading.classList.remove("is-loading");
                         target.classList.remove("is-danger");
                         labelPartitaGiaPresente.innerText = "";
                         this.partitaValida = true;
                     }
                     else {
                         //segnalo che esiste già una partita con questo nome
+                        divLoading.classList.remove("is-loading");
                         target.classList.add("is-danger");
                         labelPartitaGiaPresente.innerText = "(partita già presente! Scegli un altro nome)";
                         this.partitaValida = false;
@@ -160,10 +170,13 @@ export class SchermataCreaPartita extends NavElement {
             //ottengo reference alla squadra e aggiungo l'evento click
             let squadra = document.querySelector("#squadra" + i);
             squadra.addEventListener("click", (e) => {
-                //rimuovo la squadra corrispondente
-                this.squadre.splice(i, 1);
-                //diminuisco il numero di squadre lanciando quindi l'update
-                this.numeroSquadre--;
+                if(!this.stoCaricandoSuFirebase){
+                    //rimuovo la squadra corrispondente
+                    this.squadre.splice(i, 1);
+                    //diminuisco il numero di squadre lanciando quindi l'update
+                    this.numeroSquadre--;                
+                }
+
             })
             //elimino il pulsante per rimuovere la squadra in caso ce ne sia una sola
             if (this.numeroSquadre <= 1) {
@@ -183,6 +196,7 @@ export class SchermataCreaPartita extends NavElement {
         //aggiorno lo stato e disabilito pulsante
         this.stoCaricandoSuFirebase = true;
         this.pulsanteCreaPartita.classList.add("is-loading");
+        this.disabilitaTuttiInput(true);
         let naviCaricate = 0;
         //per ogni squadra creo la relativa nave
         this.squadre.forEach(squadra => {
@@ -194,6 +208,7 @@ export class SchermataCreaPartita extends NavElement {
                     console.log("Errore nel caricamento della nave: ", err);
                     this.stoCaricandoSuFirebase = false;
                     this.pulsanteCreaPartita.classList.remove("is-loading");
+                    this.disabilitaTuttiInput(false);
                 })
                 .then(res => {
                     //recupero id della nave
@@ -213,6 +228,7 @@ export class SchermataCreaPartita extends NavElement {
         //aggiorno gli stati
         this.stoCaricandoSuFirebase = true;
         this.pulsanteCreaPartita.classList.add("is-loading");
+        this.disabilitaTuttiInput(true);
         //carico la partita
         this.db.collection("partite").add({
             nomePartita: this.nomePartita,
@@ -222,13 +238,22 @@ export class SchermataCreaPartita extends NavElement {
                 console.log("errore nel caricamento della partita!", err);
                 this.stoCaricandoSuFirebase = false;
                 this.pulsanteCreaPartita.classList.remove("is-loading");
+                this.disabilitaTuttiInput(false);
             })
             .then(res => {
                 console.log("Partita caricata correttamente, cambio schermata");
                 this.stoCaricandoSuFirebase = false;
                 this.pulsanteCreaPartita.classList.remove("is-loading");
+                this.disabilitaTuttiInput(false);
                 //carico schermata successiva
                 setGameContent("schermata-engine");
             })
+    }
+
+    disabilitaTuttiInput(disabilitato){
+        let inputs = document.querySelectorAll("input");
+        inputs.forEach(input=>{
+            input.disabled = disabilitato;
+        })
     }
 }
