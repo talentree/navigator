@@ -5,9 +5,17 @@ import { tokenUtente } from '../main'
 export class MainMenu extends NavElement {
     constructor() {
         super();
+        //imposto cosa deve visualizzare l'utente per poter accedere alla creazione della partita
+        this.accediACreazionePartita = html`
+        <a class="button is-primary" @click=${(e) => setGameContent("schermata-crea-partita")}>
+        Crea una nuova partita</a>`
+
+        //creo reference a firebase
         this.db = firebase.firestore();
+
         //resetto il path della nave da controllare nella console
         setReferenceNaveDaControllare("");
+
         //quando clicco su "vai alla mappa"
         this.connettiMappa = function (e) {
             //disabilito il pulsante
@@ -33,6 +41,17 @@ export class MainMenu extends NavElement {
     }
 
     render() {
+        /*pannelloMappa conterrà l'html visualizzato dall'utente nel box creazione partita
+        Inizialmente informa l'utente di non essere connesso*/
+        this.pannelloMappa = html`
+        <p>Effettua l'accesso per poter creare una tua partita!</p>`
+
+        //controllo che l'utente abbia fatto il login
+        if(tokenUtente){
+            //l'utente ha fatto il login. Qui gestisco l'accesso alle schermate riservate agli utenti connessi
+            //mostro all'utente il pulsante per accedere alla partita
+            this.pannelloMappa = this.accediACreazionePartita;
+        }
         return html`
         <div class="tile is-ancestor">
             <div class="tile is-4 is-parent">
@@ -48,8 +67,7 @@ export class MainMenu extends NavElement {
             </div>
             <div class="tile is-4 is-parent">
                 <div class="tile box is-child">
-                    <a class="button is-primary" @click=${(e) => setGameContent("schermata-crea-partita")}>Crea una nuova
-                        partita</a>
+                    ${this.pannelloMappa}
                 </div>
             </div>
         </div>
