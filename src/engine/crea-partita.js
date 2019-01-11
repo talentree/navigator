@@ -4,6 +4,7 @@ import { setGameContent } from "../utils";
 export class SchermataCreaPartita extends NavElement {
 
     static get properties() {
+        //elenco delle proprietà che causano l'update quando cambiano valore
         return {
             numeroSquadre: { type: Number }
         }
@@ -11,14 +12,22 @@ export class SchermataCreaPartita extends NavElement {
     constructor() {
         super();
         this.db = firebase.firestore();
+        //true se il nome partita non esiste già su firebase
         this.partitaValida = false;
-        this.numeroSquadre = 1;
+        //numero di squadre e array con dati delle squadre
+        this.numeroSquadre = 2;
         this.squadre = [];
         this.nomePartita = "";
+        //se true blocca aggiornamento del nome partita
+        this.stoCaricandoSuFirebase = false;
+        //la reference serve a renderlo loading quandi si carica su firebase
+        this.pulsanteCreaPartita = "";
+        //incrementa il numero di squadre e causa l'upload
         this.aggiungiSquadra = function () {
             this.numeroSquadre++;
         }
 
+        //aggiunge bordi rossi se il campo è vuoto
         this.controllaValiditaCampo = function (target) {
             if (!target.value) {
                 target.classList.add("is-danger");
@@ -35,14 +44,16 @@ export class SchermataCreaPartita extends NavElement {
             <div class="field">
                 <label class="label">Inserisci nome della partita <b id="partitaGiaPresente" style="color: red"></b></label>
                 <div class="control">
-                    <input type="text" class="input" placeholder="Inserisci nome della partita" @input=${(e)=>
-                    this.controllaNomePartita(e.target)}>
+                    <input type="text" class="input" placeholder="Inserisci nome della partita" @input=${(e)=>{
+                    if(!this.stoCaricandoSuFirebase){
+                        this.controllaNomePartita(e.target)
+                    }}}>
                 </div>
             </div>
             <div id="elencoPartite" class="field"></div>
             <div class="field">
                 <div class="control">
-                    <a class="button is-primary" @click=${(e)=> this.creaPartita()}>Crea partita!</a>
+                    <a id="pulsanteCreaPartita" class="button is-primary" @click=${(e)=> this.creaPartita()}>Crea partita!</a>
                     <a class="button is-primary" @click=${(e)=> this.aggiungiSquadra()}>Aggiungi squadra+</a>
                 </div>
             </div>
@@ -57,9 +68,11 @@ export class SchermataCreaPartita extends NavElement {
                 campiInseriti = false;
             }
         })
-        //procedo al caricamento dei dati su firebase
+
         if (this.partitaValida && campiInseriti) {
+            //completo le info (isUsed e reference)
             this.completaInfoSquadre();
+            //procedo ai caricamenti
             this.caricamentoNaviSuFirebase();
         }
         else {
@@ -69,8 +82,10 @@ export class SchermataCreaPartita extends NavElement {
 
     controllaNomePartita(target) {
         this.partitaValida = false;
-        var labelPartitaGiaPresente = document.querySelector("#partitaGiaPresente");
+        //ottengo la reference per far comparire eventuale messaggio di partita duplicata
+        let labelPartitaGiaPresente = document.querySelector("#partitaGiaPresente");
         this.nomePartita = target.value;
+        //se ho inserito un nome
         if (this.nomePartita) {
             this.db.collection("partite").where("nomePartita", "==", this.nomePartita).get()
                 .catch(err => {
@@ -84,6 +99,7 @@ export class SchermataCreaPartita extends NavElement {
                         this.partitaValida = true;
                     }
                     else {
+                        //segnalo che esiste già una partita con questo nome
                         target.classList.add("is-danger");
                         labelPartitaGiaPresente.innerText = "(partita già presente! Scegli un altro nome)";
                         this.partitaValida = false;
@@ -99,6 +115,7 @@ export class SchermataCreaPartita extends NavElement {
     }
 
     updated() {
+        this.pulsanteCreaPartita = document.querySelector("#pulsanteCreaPartita");
         //console.log(this.squadre);
         //creo un div per ogni squadra
         this.inserireInput = document.querySelector("#elencoPartite");
@@ -163,7 +180,11 @@ export class SchermataCreaPartita extends NavElement {
     }
 
     caricamentoNaviSuFirebase() {
+        //aggiorno lo stato e disabilito pulsante
+        this.stoCaricandoSuFirebase = true;
+        this.pulsanteCreaPartita.classList.add("is-loading");
         let naviCaricate = 0;
+        //per ogni squadra creo la relativa nave
         this.squadre.forEach(squadra => {
             this.db.collection("navi").add({
                 posx: "100",
@@ -171,10 +192,15 @@ export class SchermataCreaPartita extends NavElement {
             })
                 .catch(err => {
                     console.log("Errore nel caricamento della nave: ", err);
+                    this.stoCaricandoSuFirebase = false;
+                    this.pulsanteCreaPartita.classList.remove("is-loading");
                 })
                 .then(res => {
+                    //recupero id della nave
                     squadra.reference = res.id;
+                    //incremento il contatore di navi caricate su firebase
                     naviCaricate++;
+                    //se tutte le navi sono caricate procedo
                     if (naviCaricate == this.squadre.length) {
                         console.log("Tutte le navi sono state caricate! Procedo caricando la partita")
                         this.caricamentoPartitaSuFirebase();
@@ -184,15 +210,24 @@ export class SchermataCreaPartita extends NavElement {
     }
 
     caricamentoPartitaSuFirebase() {
+        //aggiorno gli stati
+        this.stoCaricandoSuFirebase = true;
+        this.pulsanteCreaPartita.classList.add("is-loading");
+        //carico la partita
         this.db.collection("partite").add({
             nomePartita: this.nomePartita,
             squadre: this.squadre
         })
             .catch(err => {
                 console.log("errore nel caricamento della partita!", err);
+                this.stoCaricandoSuFirebase = false;
+                this.pulsanteCreaPartita.classList.remove("is-loading");
             })
             .then(res => {
                 console.log("Partita caricata correttamente, cambio schermata");
+                this.stoCaricandoSuFirebase = false;
+                this.pulsanteCreaPartita.classList.remove("is-loading");
+                //carico schermata successiva
                 setGameContent("schermata-engine");
             })
     }
