@@ -68,6 +68,8 @@ export class MainMenu extends NavElement {
             <div class="tile is-4 is-parent">
                 <div class="tile box is-child">
                     ${this.pannelloMappa}
+                    <p>TODO far comparire solo se l'utente ha fatto login</p>
+                    <a class="button is-primary" @click=${(e) => setGameContent("schermata-engine")}>Vai al motore della partita</a>
                 </div>
             </div>
         </div>

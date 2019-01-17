@@ -6,7 +6,7 @@ export let istanzeP5 = [];
 //contiene il path della nave da controllare sul database
 export let referenceNaveDaControllare = "";
 //imposta il valore del path (da errore assegnandolo direttamente)
-export function setReferenceNaveDaControllare(val){
+export function setReferenceNaveDaControllare(val) {
     referenceNaveDaControllare = val;
 }
 
@@ -66,4 +66,42 @@ export function resetHeader() {
     let newHeader = document.createElement("header-Talentree");
     newHeader.id = "headerTalentree";
     oldHeader.replaceWith(newHeader);
+}
+
+export class Partita {
+    constructor(data) {
+        this.nomePartita = data.nomePartita || "";
+        this.datigenerali = data.datigenerali || {};
+        this.squadre = data.squadre || [];
+    }
+}
+
+export class Nave {
+    /*
+    comandi = {
+        accel: 0,
+        barra: 0,
+        vel: 0
+    }
+    datiIniziali = {
+        carb: 1800,
+        posx: 10,
+        posy: 10
+    }
+    datiAttuali = {
+        carb: 1800,
+        posx: 10,
+        posy: 10,
+        direzione: 0
+    }
+    radar = {
+        statoNave: 0
+    }
+    */
+    constructor(nave) {
+        this.comandi = nave.comandi || {};
+        this.datiIniziali = nave.datiIniziali || {};
+        this.datiAttuali = nave.datiAttuali || {};
+        this.radar = nave.radar || {};
+    }
 }
