@@ -1,6 +1,6 @@
 import { NavElement, html } from "../nav-element";
 import { setGameContent } from "../utils";
-
+import { tokenUtente } from "../main";
 export class SchermataCreaPartita extends NavElement {
 
     static get properties() {
@@ -230,7 +230,7 @@ export class SchermataCreaPartita extends NavElement {
         this.pulsanteCreaPartita.classList.add("is-loading");
         this.disabilitaTuttiInput(true);
         //carico la partita
-        this.db.collection("partite").add({
+        this.db.collection("partite").doc(tokenUtente).set({
             nomePartita: this.nomePartita,
             squadre: this.squadre
         })
