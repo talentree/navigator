@@ -232,7 +232,12 @@ export class SchermataCreaPartita extends NavElement {
         //carico la partita
         this.db.collection("partite").doc(tokenUtente).set({
             nomePartita: this.nomePartita,
-            squadre: this.squadre
+            squadre: this.squadre,
+            datigenerali : {
+                gametime : 0,
+                windDir : 0,
+                windForce : 0
+            }
         })
             .catch(err => {
                 console.log("errore nel caricamento della partita!", err);
