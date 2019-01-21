@@ -5,10 +5,14 @@ import { tokenUtente } from '../main'
 export class MainMenu extends NavElement {
     constructor() {
         super();
-        //imposto cosa deve visualizzare l'utente per poter accedere alla creazione della partita
+        //imposto cosa deve visualizzare l'utente per poter accedere alla creazione della partita e alla mappa
         this.accediACreazionePartita = html`
         <a class="button is-primary" @click=${(e) => setGameContent("schermata-crea-partita")}>
         Crea una nuova partita</a>`
+
+        this.accediMappa = html`
+        <a class="button is-primary" @click=${(e) => setGameContent("schermata-mappa")}>
+        Vai alla mappa</a>`
 
         //creo reference a firebase
         this.db = firebase.firestore();
@@ -41,16 +45,21 @@ export class MainMenu extends NavElement {
     }
 
     render() {
-        /*pannelloMappa conterrà l'html visualizzato dall'utente nel box creazione partita
+        /*pannelloMappa e pannelloPartita conterranno l'html visualizzato 
+        dall'utente nei box creazione partita e schermata mappa
         Inizialmente informa l'utente di non essere connesso*/
-        this.pannelloMappa = html`
+        this.pannelloPartita = html`
         <p>Effettua l'accesso per poter creare una tua partita!</p>`
+
+        this.pannelloMappa = html`
+        <p>Effettua l'accesso per poter visualizzare la mappa!</p>`
 
         //controllo che l'utente abbia fatto il login
         if(tokenUtente){
             //l'utente ha fatto il login. Qui gestisco l'accesso alle schermate riservate agli utenti connessi
-            //mostro all'utente il pulsante per accedere alla partita
-            this.pannelloMappa = this.accediACreazionePartita;
+            //mostro all'utente il pulsante per accedere alla partita e alla mappa
+            this.pannelloPartita = this.accediACreazionePartita;
+            this.pannelloMappa = this.accediMappa;
         }
         return html`
         <div class="tile is-ancestor">
@@ -61,13 +70,12 @@ export class MainMenu extends NavElement {
             </div>
             <div class="tile is-4 is-parent">
                 <div class="tile box is-child">
-                    <p>TODO gestire quando l'utente non ha fatto login</p>
-                    <a class="button is-primary" @click=${(e) => this.connettiMappa(e)}>Vai alla mappa</a>
+                    ${this.pannelloMappa}
                 </div>
             </div>
             <div class="tile is-4 is-parent">
                 <div class="tile box is-child">
-                    ${this.pannelloMappa}
+                    ${this.pannelloPartita}
                 </div>
             </div>
         </div>
