@@ -88,7 +88,7 @@ export class Nave {
         posx: 10,
         posy: 10
     }
-    datiAttuali = {
+    pos = {
         carb: 1800,
         posx: 10,
         posy: 10,
@@ -101,7 +101,7 @@ export class Nave {
     constructor(nave) {
         this.comandi = nave.comandi || {};
         this.datiIniziali = nave.datiIniziali || {};
-        this.datiAttuali = nave.datiAttuali || {};
+        this.pos = nave.pos || {};
         this.radar = nave.radar || {};
     }
 }
