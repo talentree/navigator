@@ -7,8 +7,8 @@ export class MainMenu extends NavElement {
         super();
         //imposto cosa deve visualizzare l'utente per poter accedere alla creazione della partita e alla mappa
         this.accediACreazionePartita = html`
-        <a class="button is-primary" @click=${(e) => setGameContent("schermata-crea-partita")}>
-        Crea una nuova partita</a>`
+        <a class="button is-primary" @click=${(e) => setGameContent("controllo-partita-esistente")}>
+            Gestione partita</a>`
 
         this.accediMappa = html`
         <a class="button is-primary" @click=${(e) => setGameContent("schermata-mappa")}>
@@ -55,7 +55,7 @@ export class MainMenu extends NavElement {
         <p>Effettua l'accesso per poter visualizzare la mappa!</p>`
 
         //controllo che l'utente abbia fatto il login
-        if(tokenUtente){
+        if (tokenUtente) {
             //l'utente ha fatto il login. Qui gestisco l'accesso alle schermate riservate agli utenti connessi
             //mostro all'utente il pulsante per accedere alla partita e alla mappa
             this.pannelloPartita = this.accediACreazionePartita;

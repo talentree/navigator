@@ -7,6 +7,7 @@ import { SchermataMappa } from './mappa/mappa';
 import { SchermataCreaPartita } from './engine/crea-partita';
 import { SchermataEngine } from './engine/schermata-engine';
 import { LoginRegistrazione } from './login-registrazione/login-registrazione';
+import { ControlloPartitaEsistente } from './engine/controllo-partita-esistente';
 
 //è l'uid dell'utente
 export let tokenUtente = "";
@@ -41,6 +42,7 @@ customElements.define("schermata-mappa", SchermataMappa);
 //engine
 customElements.define("schermata-crea-partita", SchermataCreaPartita);
 customElements.define("schermata-engine", SchermataEngine);
+customElements.define("controllo-partita-esistente",ControlloPartitaEsistente);
 
 //header e main menu
 customElements.define('header-talentree', HeaderTalentree);

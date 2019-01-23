@@ -9,3 +9,6 @@ node_modules/
 
 # Distribution
 dist/bundle.js
+
+#Applicativi Roberto
+applicativi/
