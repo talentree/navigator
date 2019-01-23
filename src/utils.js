@@ -39,6 +39,7 @@ export function setGameContent(element) {
     //engine
     if (element === "schermata-crea-partita") { infoScheda = "Creazione partita" };
     if (element === "schermata-engine") { infoScheda = "Motore di gioco" };
+    if (element === "controllo-partita-esistente") { infoScheda = "Centro partita" };
     //main menù
     if (element === "main-menu") { infoScheda = "Home" };
     //login

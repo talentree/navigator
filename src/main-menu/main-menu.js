@@ -7,8 +7,8 @@ export class MainMenu extends NavElement {
         super();
         //imposto cosa deve visualizzare l'utente per poter accedere alla creazione della partita
         this.accediACreazionePartita = html`
-        <a class="button is-primary" @click=${(e) => setGameContent("schermata-crea-partita")}>
-        Crea una nuova partita</a>`
+        <a class="button is-primary" @click=${(e) => setGameContent("controllo-partita-esistente")}>
+            Gestione partita</a>`
 
         //creo reference a firebase
         this.db = firebase.firestore();
@@ -41,16 +41,16 @@ export class MainMenu extends NavElement {
     }
 
     render() {
-        /*pannelloMappa conterrà l'html visualizzato dall'utente nel box creazione partita
+        /*pannelloPartita conterrà l'html visualizzato dall'utente nel box creazione partita
         Inizialmente informa l'utente di non essere connesso*/
-        this.pannelloMappa = html`
+        this.pannelloPartita = html`
         <p>Effettua l'accesso per poter creare una tua partita!</p>`
 
         //controllo che l'utente abbia fatto il login
-        if(tokenUtente){
+        if (tokenUtente) {
             //l'utente ha fatto il login. Qui gestisco l'accesso alle schermate riservate agli utenti connessi
             //mostro all'utente il pulsante per accedere alla partita
-            this.pannelloMappa = this.accediACreazionePartita;
+            this.pannelloPartita = this.accediACreazionePartita;
         }
         return html`
         <div class="tile is-ancestor">
@@ -67,9 +67,7 @@ export class MainMenu extends NavElement {
             </div>
             <div class="tile is-4 is-parent">
                 <div class="tile box is-child">
-                    ${this.pannelloMappa}
-                    <p>TODO far comparire solo se l'utente ha fatto login</p>
-                    <a class="button is-primary" @click=${(e) => setGameContent("schermata-engine")}>Vai al motore della partita</a>
+                    ${this.pannelloPartita}
                 </div>
             </div>
         </div>
