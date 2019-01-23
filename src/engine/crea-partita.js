@@ -201,8 +201,25 @@ export class SchermataCreaPartita extends NavElement {
         //per ogni squadra creo la relativa nave
         this.squadre.forEach(squadra => {
             this.db.collection("navi").add({
-                posx: "100",
-                posy: "100"
+                comandi: {
+                    accel : 0,
+                    barra : 0,
+                    velocity : 0
+                },
+                datiIniziali : {
+                    carb : 1800,
+                    posx : 10,
+                    posy : 10
+                },
+                pos : {
+                    carb : 1800,
+                    direzione : 0,
+                    posx : 10,
+                    posy : 10
+                },
+                radar : {
+                    statoNave : 0
+                }
             })
                 .catch(err => {
                     console.log("Errore nel caricamento della nave: ", err);
