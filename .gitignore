@@ -12,3 +12,6 @@ dist/bundle.js
 
 #Applicativi Roberto
 applicativi/
+
+#Firebase
+.firebase
