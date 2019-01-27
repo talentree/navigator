@@ -11,6 +11,7 @@ export class SchermataMappa extends NavElement {
         return html`
             <h1 class="title is-4">Mappa</h1>
             <p class="subtitle">La partita si trova in path partite/${tokenUtente}</p>
+            <div id="container-p5"></div>
         `;
     }
 
@@ -68,8 +69,8 @@ export class SchermataMappa extends NavElement {
                                 .then(res => {
                                     // inserisco la nave nelle posizioni posx e posy del database
                                     // per mezzo di un puntino andrà tolto
-                                    p.point(res.get("posx"),res.get("posy"));
-                                })
+                                    p.point(res.get("datiIniziali").posx,res.get("datiIniziali").posy);
+                                })            
                         })
                     })   
             }
