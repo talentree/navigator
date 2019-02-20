@@ -17,9 +17,9 @@
   "author": "Roberto Grossa, Andrea Roveroni, Davide Peron, Edoardo Bortolozzo, Nicola Valentini",
   "license": "ISC",
   "devDependencies": {
-    "rollup": "^0.67.0",
-    "rollup-plugin-node-resolve": "^3.4.0",
-    "concurrently": "^4.0.1"
+    "concurrently": "^4.1.0",
+    "rollup": "^0.67.3",
+    "rollup-plugin-node-resolve": "^3.4.0"
   },
   "dependencies": {
     "@polymer/lit-element": "^0.6.2",
