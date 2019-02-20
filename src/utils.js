@@ -8,6 +8,16 @@ export let referenceNaveDaControllare = "";
 //imposta il valore del path (da errore assegnandolo direttamente)
 export function setReferenceNaveDaControllare(val){
     referenceNaveDaControllare = val;
+} 
+//contiene l'array di squadre della partita
+export let arraySquadrePartita = [];
+//contene l'id della partita
+export let idPartita = ""
+//imposta il valore dell'array
+export function  setArraySquadrePartita(val, val1){
+    arraySquadrePartita = val;
+    idPartita = val1;
+
 }
 
 export function setGameContent(element) {

@@ -1,5 +1,5 @@
 import { NavElement, html } from '../nav-element';
-import { setGameContent, setReferenceNaveDaControllare } from '../utils';
+import { setGameContent, setReferenceNaveDaControllare, setArraySquadrePartita } from '../utils';
 
 
 export class LoginConsole extends NavElement {
@@ -31,9 +31,13 @@ export class LoginConsole extends NavElement {
             //controllo se esiste una squadra col nome che ho inserito, che il codice sia corretto
             if (squadre[i].nome == this.squadra && squadre[i].codice == this.codice) {
               //controllo non ci siano altri giocatori già loggati
-              if(squadre[i].isUsed == false) {
-                //se esiste assegno la reference e cambio schermata
+              if(squadre[i].isUsed == false) {     
+                 //se esiste assegno la reference e cambio schermata
                 setReferenceNaveDaControllare(squadre[i].reference);
+                //aggiorno valeore isUsed
+                squadre[i].isUsed=true;
+                //passo valori arraySquadre e idPartita
+                 setArraySquadrePartita(squadre, res.docs[0].id);
                 console.log("Sqadra trovata");
                 //una squadra corrisponde, cambio schermata
                 setGameContent('schermata-console');
@@ -48,9 +52,7 @@ export class LoginConsole extends NavElement {
         }
         //riabilito il pulsante
        e.target.classList.remove("is-loading");
-      });
-
-    //<input class="input" type="text"  @input=${e => this.game = e.target.value}/>    
+      }); 
   }
 
   updated(){
