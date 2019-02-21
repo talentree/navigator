@@ -46,19 +46,20 @@ export class SchermataEngine extends NavElement {
             p.setup = function () {
                 p.createCanvas(300, 300);
                 p.background(0);
-                //console.log("setup completo");
+                console.log("setup completo");
                 //setto il frame rate
-                p.frameRate(1);    //per test
+                p.frameRate(10);    //per test
                 //fermo il loop per permettere di cercare i dati su firebase
                 p.noLoop();
                 _self.cercaPartita(p);
 
                 //TODO: migliora inizializzazione variabili
-                let t = _self.partita.datigenerali;
-                gtime = t.gametime;
-                wspeed = t.windForce;
-                wdir = t.windDir;
-
+                setTimeout( function() {
+                    let t = _self.partita.datigenerali;
+                    gtime = t.gametime;
+                    wspeed = t.windForce;
+                    wdir = t.windDir;
+                }, 1000);
             }
 
             /*
@@ -70,15 +71,14 @@ export class SchermataEngine extends NavElement {
             * plotta navi
             */
             p.draw = function () {
-                //console.log("funzione di draw");
+                console.log("funzione di draw");
 
                 //aggiorno clock
-                _self.partita.datigenerali.gtime
                 gtime++;
                 //cambio vento
                 if ((gtime % wtimer) == 0) {
                     console.log("cambio vento");
-                    wspeed = (wspeed*10 + Math.floor((Math.random()*2*wMaxChange - wMaxChange)*10))/10;
+                    wspeed = (wspeed*10 + (Math.floor((Math.random()*2*wMaxChange - wMaxChange)*10)+1))/10;
                     if (wspeed < 0) {wspeed = 0};
                     if (wspeed > wMaxSpeed) {wspeed = wMaxSpeed}
                     console.log(wspeed);
