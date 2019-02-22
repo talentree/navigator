@@ -1,6 +1,7 @@
 import { NavElement, html } from "../nav-element";
 import { istanzeP5, Partita, Nave } from '../utils';
 import { tokenUtente } from "../main";
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 
 export class SchermataEngine extends NavElement {
     constructor() {
@@ -84,7 +85,8 @@ export class SchermataEngine extends NavElement {
                     console.log(wspeed);
 
                     wdir = wdir +   Math.floor(Math.random()*2*wMaxAngle - wMaxAngle);
-                    if (wdir < 0) {wdir = wdir + 360}
+                    if (wdir < 0) {wdir += 360}
+                    if (wdir > 360) {wdir += -360}
                     console.log(wdir);
                     
                     //update vento su firebase
@@ -94,6 +96,28 @@ export class SchermataEngine extends NavElement {
                     t.windDir = wdir;
                     _self.db.collection("partite").doc(tokenUtente).update("datigenerali", t);
                 }
+
+                //aggiorna posizioni navi
+                //TODO: Aggiungere deriva vento
+                for (let i=0; i<_self.navi.length; i++) {
+                    // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato 
+                    // verso destra gli angoli sono positivi in senso antiorario
+
+                    // aggiorno le posizioni
+                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity*Math.cos((_self.navi[i].direzione*2*Math.PI)/360);
+                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity*Math.sin((_self.navi[i].direzione*2*Math.PI)/360);
+
+                    // aggiorno le velocita'
+                    // ignoro la fisica e immagino che la velocita' sia conservata sempre
+                    _self.navi[i].comandi.velocity += _self.navi[i].comandi.accel;
+                    let x = _self.navi[i].pos.direzione + _self.navi[i].barra;
+                    if (x < 0) {x += 360}
+                    if (x > 360) { x += -360}
+                    _self.navi[i].pos.direzione = x;
+                }
+
+                //update nave
+                upNave(_self.navi);
 
                 //plotta navi
                 p.background(50);
@@ -154,6 +178,14 @@ export class SchermataEngine extends NavElement {
                         console.log("Questa nave non esiste!", this.partita.squadre[i].reference);
                     }
                 })
+        }
+    }
+
+    upNave(navi) {
+        for (let i = 0; i < this.partita.squadre.length; i++) {
+            this.db.collection("navi").doc(this.partita.squadre[i].reference).update("pos", navi[i].pos);
+            this.db.collection("navi").doc(this.partita.squadre[i].reference).update("comandi.velocity", navi[i].comandi.velocity);
+            //TODO: AGGIORNARE RADAR
         }
     }
 }
