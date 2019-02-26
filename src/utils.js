@@ -113,6 +113,17 @@ export class Nave {
         this.comandi = nave.comandi || {};
         this.datiIniziali = nave.datiIniziali || {};
         this.pos = nave.pos || {};
+        /*stati:
+        0 navigazione libera 
+        1 collisione costa 
+        2 obbiettivo finale 
+        3 obbiettivo intermedio 
+        4 porto di arrivo
+        */
+        /*radarfrontale[7], array di 7 bit corriposndenti ai punti rilevati dal radar frontale
+        0 = orizzonte vuoto
+        orizzonte pieno
+        */
         this.radar = nave.radar || {};
     }
 }

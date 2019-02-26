@@ -1,7 +1,6 @@
 import { NavElement, html } from "../nav-element";
 import { istanzeP5, Partita, Nave } from '../utils';
 import { tokenUtente } from "../main";
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 
 export class SchermataEngine extends NavElement {
     constructor() {
@@ -9,6 +8,18 @@ export class SchermataEngine extends NavElement {
         this.db = firebase.firestore();
         this.navi = [];
         this.partita = null;
+        this.referenceSketchp5 = null;
+
+        this.angoloTraPuntiRadar = 10; // tra un punto del radar e l'altro sono 10 gradi
+
+        this.dimNave = 10; //dimensione nave, per posizionare il baricentro radar a prua
+        //gestione colori per stato
+        this.tolleranzaColore = 2; //tolleranza lettura pixel colore
+        this.col1 = 0; // [0,0,0,255]; // nero terra
+        this.col2 = 64; //[255,0,0,255]; // usi futuri
+        this.col3 = 128; // obiettivo finale
+        this.col4 = 192; //[0, 255, 0, 255]; // obbiettivi intermedi
+        this.col5 = 255; //bianco mare
     }
 
     render() {
@@ -45,6 +56,9 @@ export class SchermataEngine extends NavElement {
             let wtimer = 10; // timer aggiorno vento
             //setup di p5
             p.setup = function () {
+                //imposto il reference così non devo passarlo ad ogni funzione che chiamo
+                _self.referenceSketchp5 = p;
+
                 p.createCanvas(300, 300);
                 p.background(0);
                 console.log("setup completo");
@@ -52,10 +66,10 @@ export class SchermataEngine extends NavElement {
                 p.frameRate(10);    //per test
                 //fermo il loop per permettere di cercare i dati su firebase
                 p.noLoop();
-                _self.cercaPartita(p);
+                _self.cercaPartita();
 
                 //TODO: migliora inizializzazione variabili
-                setTimeout( function() {
+                setTimeout(function () {
                     let t = _self.partita.datigenerali;
                     gtime = t.gametime;
                     wspeed = t.windForce;
@@ -79,16 +93,16 @@ export class SchermataEngine extends NavElement {
                 //cambio vento
                 if ((gtime % wtimer) == 0) {
                     console.log("cambio vento");
-                    wspeed = (wspeed*10 + (Math.floor((Math.random()*2*wMaxChange - wMaxChange)*10)+1))/10;
-                    if (wspeed < 0) {wspeed = 0};
-                    if (wspeed > wMaxSpeed) {wspeed = wMaxSpeed}
+                    wspeed = (wspeed * 10 + (Math.floor((Math.random() * 2 * wMaxChange - wMaxChange) * 10) + 1)) / 10;
+                    if (wspeed < 0) { wspeed = 0 };
+                    if (wspeed > wMaxSpeed) { wspeed = wMaxSpeed }
                     console.log(wspeed);
 
-                    wdir = wdir +   Math.floor(Math.random()*2*wMaxAngle - wMaxAngle);
-                    if (wdir < 0) {wdir += 360}
-                    if (wdir > 360) {wdir += -360}
+                    wdir = wdir + Math.floor(Math.random() * 2 * wMaxAngle - wMaxAngle);
+                    if (wdir < 0) { wdir += 360 }
+                    if (wdir > 360) { wdir += -360 }
                     console.log(wdir);
-                    
+
                     //update vento su firebase
                     let t = _self.partita.datigenerali;
                     t.gametime = gtime;
@@ -99,28 +113,33 @@ export class SchermataEngine extends NavElement {
 
                 //aggiorna posizioni navi
                 //TODO: Aggiungere deriva vento
-                for (let i=0; i<_self.navi.length; i++) {
+                for (let i = 0; i < _self.navi.length; i++) {
                     // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato 
                     // verso destra gli angoli sono positivi in senso antiorario
 
                     // aggiorno le posizioni
-                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity*Math.cos((_self.navi[i].direzione*2*Math.PI)/360);
-                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity*Math.sin((_self.navi[i].direzione*2*Math.PI)/360);
+                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].direzione * 2 * Math.PI) / 360);
+                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].direzione * 2 * Math.PI) / 360);
 
                     // aggiorno le velocita'
                     // ignoro la fisica e immagino che la velocita' sia conservata sempre
                     _self.navi[i].comandi.velocity += _self.navi[i].comandi.accel;
                     let x = _self.navi[i].pos.direzione + _self.navi[i].barra;
-                    if (x < 0) {x += 360}
-                    if (x > 360) { x += -360}
+                    if (x < 0) { x += 360 }
+                    if (x > 360) { x += -360 }
                     _self.navi[i].pos.direzione = x;
                 }
 
                 //update nave
-                upNave(_self.navi);
-
                 //plotta navi
                 p.background(50);
+
+                //CONTROLLO DELLE COLLISIONI
+                for(let i=0; i< _self.navi.length; i++){
+                    _self.controllaCollisioniNave(i);
+                }
+
+                _self.upNave(_self.navi);
                 for (let i = 0; i < _self.navi.length; i++) {
                     let nave = new Nave(_self.navi[i]);
                     p.ellipse(nave.pos.posx, nave.pos.posy, 15, 10);
@@ -134,7 +153,7 @@ export class SchermataEngine extends NavElement {
         istanzeP5.push(new p5(sketch, document.querySelector("#container-p5")));
     }
 
-    cercaPartita(istanzap5) {
+    cercaPartita() {
         this.db.collection("partite").doc(tokenUtente).get()
             .catch(err => {
                 console.log("errore nell'ottenimento della partita", err);
@@ -146,7 +165,7 @@ export class SchermataEngine extends NavElement {
                     this.partita = new Partita(res.data());
                     console.log("partita ottenuta", this.partita);
                     //cerco le navi partecipanti
-                    this.cercaNavi(istanzap5);
+                    this.cercaNavi();
                 }
                 else {
                     console.log("Sembra che non abbia creato nessuna partita!")
@@ -154,7 +173,7 @@ export class SchermataEngine extends NavElement {
             })
     }
 
-    cercaNavi(istanzap5) {
+    cercaNavi() {
         //conto il numero di navi ottenute con successo
         let naviOttenute = 0;
         for (let i = 0; i < this.partita.squadre.length; i++) {
@@ -166,12 +185,15 @@ export class SchermataEngine extends NavElement {
                     naviOttenute++;
                     //controllo se la nave esiste
                     if (res.exists) {
-                        //la aggiungo all'array delle navi
-                        this.navi.push(new Nave(res.data()));
+                        /*
+                        la aggiungo all'array delle navi.
+                        Non uso il push per evitare che le navi vengano scambiate durante la query a firestore
+                        */
+                        this.navi[i] = new Nave(res.data());
                         //se tutte le navi sono state ottenute faccio cominciare il loop
                         if (naviOttenute == this.partita.squadre.length) {
                             console.log("navi ottenute: ", this.navi);
-                            istanzap5.loop();
+                            this.referenceSketchp5.loop();
                         }
                     }
                     else {
@@ -182,10 +204,38 @@ export class SchermataEngine extends NavElement {
     }
 
     upNave(navi) {
-        for (let i = 0; i < this.partita.squadre.length; i++) {
-            this.db.collection("navi").doc(this.partita.squadre[i].reference).update("pos", navi[i].pos);
-            this.db.collection("navi").doc(this.partita.squadre[i].reference).update("comandi.velocity", navi[i].comandi.velocity);
-            //TODO: AGGIORNARE RADAR
+        /*dava errore se non si aggiungeva un controllo
+        Impediva di aggiungere l'istanza di p5 nell'array di utils.js
+        Rimaneva quindi il draw attivo al cambio schermata
+        */
+        if (this.partita && this.partita.squadre) {
+            for (let i = 0; i < this.partita.squadre.length; i++) {
+                this.db.collection("navi").doc(this.partita.squadre[i].reference).update("pos", navi[i].pos);
+                this.db.collection("navi").doc(this.partita.squadre[i].reference).update("comandi.velocity", navi[i].comandi.velocity);
+                //TODO: AGGIORNARE RADAR
+            }
         }
+    }
+
+    controllaCollisioniNave(index) {
+        var posizioneDaControllare = {}
+        posizioneDaControllare.x = this.navi[index].x + this.dimNave * Math.cos(this.navi[index].pos.direzione + this.angoloTraPuntiRadar);
+        posizioneDaControllare.y = this.navi[index].y + this.dimNave * Math.sin(this.navi[index].pos.direzione + this.angoloTraPuntiRadar);
+        this.navi[index].radar.statoNave = this.controllaPunto(posizioneDaControllare.x,posizioneDaControllare.y);
+        //TODO: impostare array radarfrontale
+    }
+
+    controllaPunto(posX, posY) {
+        let coloreNelPunto = this.referenceSketchp5.get(posX, posY); //ritorna aray rgba
+        // traduce in scala di grigio;
+        let coloreInScalaDiGrigio = (Math.floor(coloreNelPunto[0] + coloreNelPunto[1] + coloreNelPunto[2]) / 3);
+        // controllo colore campionato (con tolleranza tcol)   colori vicini
+        let stato = 0;
+        if ((coloreInScalaDiGrigio > (this.col1 - this.tolleranzaColore) && coloreInScalaDiGrigio < (this.col1 + this.tolleranzaColore))) { stato = 1 };
+        if ((coloreInScalaDiGrigio > (this.col2 - this.tolleranzaColore) && coloreInScalaDiGrigio < (this.col2 + this.tolleranzaColore))) { stato = 2 };
+        if ((coloreInScalaDiGrigio > (this.col3 - this.tolleranzaColore) && coloreInScalaDiGrigio < (this.col3 + this.tolleranzaColore))) { stato = 3 };
+        if ((coloreInScalaDiGrigio > (this.col4 - this.tolleranzaColore) && coloreInScalaDiGrigio < (this.col4 + this.tolleranzaColore))) { stato = 4 };
+        //console.log("stato", stato);
+        return stato;
     }
 }
