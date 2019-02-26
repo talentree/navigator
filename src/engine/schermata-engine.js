@@ -20,6 +20,7 @@ export class SchermataEngine extends NavElement {
         this.col3 = 128; // obiettivo finale
         this.col4 = 192; //[0, 255, 0, 255]; // obbiettivi intermedi
         this.col5 = 255; //bianco mare
+        this.distanzaRadar = 40; //distanza frontale del radar
     }
 
     render() {
@@ -117,7 +118,7 @@ export class SchermataEngine extends NavElement {
                     // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato 
                     // verso destra gli angoli sono positivi in senso antiorario
 
-                    // aggiorno le posizioni
+                    // aggiorno le posizioni FIXME: restituisce Nan di posx, posy e direzione
                     _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].direzione * 2 * Math.PI) / 360);
                     _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].direzione * 2 * Math.PI) / 360);
 
@@ -135,7 +136,7 @@ export class SchermataEngine extends NavElement {
                 p.background(50);
 
                 //CONTROLLO DELLE COLLISIONI
-                for(let i=0; i< _self.navi.length; i++){
+                for (let i = 0; i < _self.navi.length; i++) {
                     _self.controllaCollisioniNave(i);
                 }
 
@@ -219,10 +220,11 @@ export class SchermataEngine extends NavElement {
 
     controllaCollisioniNave(index) {
         var posizioneDaControllare = {}
-        posizioneDaControllare.x = this.navi[index].x + this.dimNave * Math.cos(this.navi[index].pos.direzione + this.angoloTraPuntiRadar);
-        posizioneDaControllare.y = this.navi[index].y + this.dimNave * Math.sin(this.navi[index].pos.direzione + this.angoloTraPuntiRadar);
-        this.navi[index].radar.statoNave = this.controllaPunto(posizioneDaControllare.x,posizioneDaControllare.y);
+        posizioneDaControllare.x = this.navi[index].x + this.dimNave * Math.cos(this.navi[index].pos.direzione/* + this.angoloTraPuntiRadar*/);
+        posizioneDaControllare.y = this.navi[index].y + this.dimNave * Math.sin(this.navi[index].pos.direzione/* + this.angoloTraPuntiRadar*/);
+        this.navi[index].radar.statoNave = this.controllaPunto(posizioneDaControllare.x, posizioneDaControllare.y);
         //TODO: impostare array radarfrontale
+        this.navi[index].radar.radarfrontale = this.controllaRadarFrontale(index);
     }
 
     controllaPunto(posX, posY) {
@@ -237,5 +239,17 @@ export class SchermataEngine extends NavElement {
         if ((coloreInScalaDiGrigio > (this.col4 - this.tolleranzaColore) && coloreInScalaDiGrigio < (this.col4 + this.tolleranzaColore))) { stato = 4 };
         //console.log("stato", stato);
         return stato;
+    }
+
+    controllaRadarFrontale(index) {
+        let statoRadar = [];
+        let puntoDaControllare = {};
+        for (let i = 0; i < 8; i++) {
+            puntoDaControllare.x = this.navi[index].x + this.distanzaRadar * Math.cos(this.navi[index].pos.direzione + (this.angoloTraPuntiRadar * (i - 3)));
+            puntoDaControllare.y = this.navi[index].y + this.distanzaRadar * Math.sin(this.navi[index].pos.direzione + (this.angoloTraPuntiRadar * (i - 3)));
+            this.referenceSketchp5.ellipse(puntoDaControllare.x, puntoDaControllare.y, 5, 5);
+            statoRadar[i] = this.controllaPunto(puntoDaControllare.x, puntoDaControllare.y);
+        }
+        return statoRadar;
     }
 }
