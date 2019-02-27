@@ -114,6 +114,7 @@ export class SchermataEngine extends NavElement {
 
                 //aggiorna posizioni navi
                 //TODO: Aggiungere deriva vento
+                
                 for (let i = 0; i < _self.navi.length; i++) {
                     // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato 
                     // verso destra gli angoli sono positivi in senso antiorario
@@ -125,6 +126,7 @@ export class SchermataEngine extends NavElement {
                     // aggiorno le velocita'
                     // ignoro la fisica e immagino che la velocita' sia conservata sempre
                     _self.navi[i].comandi.velocity += _self.navi[i].comandi.accel;
+                    //FIXME: potrebbe essere Nan a causa di barra? il path è .comandi.barra
                     let x = _self.navi[i].pos.direzione + _self.navi[i].barra;
                     if (x < 0) { x += 360 }
                     if (x > 360) { x += -360 }
@@ -144,7 +146,7 @@ export class SchermataEngine extends NavElement {
                 for (let i = 0; i < _self.navi.length; i++) {
                     let nave = new Nave(_self.navi[i]);
                     p.ellipse(nave.pos.posx, nave.pos.posy, 15, 10);
-                    //TODO far ruotare la nave
+                    //TODO: far ruotare la nave
                 }
             }
         };
@@ -219,36 +221,51 @@ export class SchermataEngine extends NavElement {
     }
 
     controllaCollisioniNave(index) {
-        var posizioneDaControllare = {}
-        posizioneDaControllare.x = this.navi[index].x + this.dimNave * Math.cos(this.navi[index].pos.direzione/* + this.angoloTraPuntiRadar*/);
-        posizioneDaControllare.y = this.navi[index].y + this.dimNave * Math.sin(this.navi[index].pos.direzione/* + this.angoloTraPuntiRadar*/);
+        let posizioneDaControllare = {};
+        //converto in radianti perchè sin e cos accettano radianti
+        let direzioneInRadianti = this.navi[index].pos.direzione * Math.PI /180;
+        //calcolo il punto della prua della nave
+        posizioneDaControllare.x = this.navi[index].pos.posx + this.dimNave * Math.cos(direzioneInRadianti);
+        posizioneDaControllare.y = this.navi[index].pos.posy + this.dimNave * Math.sin(direzioneInRadianti);
+        //controllo il colore nel punto
         this.navi[index].radar.statoNave = this.controllaPunto(posizioneDaControllare.x, posizioneDaControllare.y);
-        //TODO: impostare array radarfrontale
+
+        //disegno un cerchio per mostrare prua
+        this.referenceSketchp5.ellipse(posizioneDaControllare.x, posizioneDaControllare.y, 7, 7);
+        //ottengo stato del radar frontale
         this.navi[index].radar.radarfrontale = this.controllaRadarFrontale(index);
     }
 
     controllaPunto(posX, posY) {
-        let coloreNelPunto = this.referenceSketchp5.get(posX, posY); //ritorna aray rgba
+        //ritorna aray rgba
+        let coloreNelPunto = this.referenceSketchp5.get(posX, posY);
         // traduce in scala di grigio;
         let coloreInScalaDiGrigio = (Math.floor(coloreNelPunto[0] + coloreNelPunto[1] + coloreNelPunto[2]) / 3);
-        // controllo colore campionato (con tolleranza tcol)   colori vicini
+        // controllo colore campionato (con tolleranza tolleranzaColore) colori vicini
         let stato = 0;
         if ((coloreInScalaDiGrigio > (this.col1 - this.tolleranzaColore) && coloreInScalaDiGrigio < (this.col1 + this.tolleranzaColore))) { stato = 1 };
         if ((coloreInScalaDiGrigio > (this.col2 - this.tolleranzaColore) && coloreInScalaDiGrigio < (this.col2 + this.tolleranzaColore))) { stato = 2 };
         if ((coloreInScalaDiGrigio > (this.col3 - this.tolleranzaColore) && coloreInScalaDiGrigio < (this.col3 + this.tolleranzaColore))) { stato = 3 };
         if ((coloreInScalaDiGrigio > (this.col4 - this.tolleranzaColore) && coloreInScalaDiGrigio < (this.col4 + this.tolleranzaColore))) { stato = 4 };
-        //console.log("stato", stato);
+        //ritorno lo stato del punto
         return stato;
     }
 
     controllaRadarFrontale(index) {
         let statoRadar = [];
         let puntoDaControllare = {};
-        for (let i = 0; i < 8; i++) {
-            puntoDaControllare.x = this.navi[index].x + this.distanzaRadar * Math.cos(this.navi[index].pos.direzione + (this.angoloTraPuntiRadar * (i - 3)));
-            puntoDaControllare.y = this.navi[index].y + this.distanzaRadar * Math.sin(this.navi[index].pos.direzione + (this.angoloTraPuntiRadar * (i - 3)));
-            this.referenceSketchp5.ellipse(puntoDaControllare.x, puntoDaControllare.y, 5, 5);
+        //il radar in totale ha 7 punto angolati di angoloTraPuntiRadar gradi
+        for (let i = 0; i < 7; i++) {
+            //converto in radianti perchè sin e cos accettano solo radianti
+            let direzioneInGradi = this.navi[index].pos.direzione + (this.angoloTraPuntiRadar * (i - 3));
+            let direzioneInRadianti = direzioneInGradi * Math.PI / 180;
+            //calcolo punto del radar
+            puntoDaControllare.x = this.navi[index].pos.posx + this.distanzaRadar * Math.cos(direzioneInRadianti);
+            puntoDaControllare.y = this.navi[index].pos.posy + this.distanzaRadar * Math.sin(direzioneInRadianti);
+            //controllo colore
             statoRadar[i] = this.controllaPunto(puntoDaControllare.x, puntoDaControllare.y);
+            //disegno cerchietto per visualizzazione
+            this.referenceSketchp5.ellipse(puntoDaControllare.x, puntoDaControllare.y, 5, 5);
         }
         return statoRadar;
     }
