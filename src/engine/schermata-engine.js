@@ -8,11 +8,12 @@ export class SchermataEngine extends NavElement {
         this.db = firebase.firestore();
         this.navi = [];
         this.partita = null;
+        //reference allo scketch (p) di p5, facile da raggiungere
         this.referenceSketchp5 = null;
-
-        this.angoloTraPuntiRadar = 10; // tra un punto del radar e l'altro sono 10 gradi
-
-        this.dimNave = 10; //dimensione nave, per posizionare il baricentro radar a prua
+        // tra un punto del radar e l'altro sono 10 gradi
+        this.angoloTraPuntiRadar = 10;
+        //dimensione nave, per posizionare il baricentro (in cui verrà rilevata la collisione) radar a prua
+        this.dimNave = 10;
         //gestione colori per stato
         this.tolleranzaColore = 2; //tolleranza lettura pixel colore
         this.col1 = 0; // [0,0,0,255]; // nero terra
@@ -215,7 +216,7 @@ export class SchermataEngine extends NavElement {
             for (let i = 0; i < this.partita.squadre.length; i++) {
                 this.db.collection("navi").doc(this.partita.squadre[i].reference).update("pos", navi[i].pos);
                 this.db.collection("navi").doc(this.partita.squadre[i].reference).update("comandi.velocity", navi[i].comandi.velocity);
-                //TODO: AGGIORNARE RADAR
+                this.db.collection("navi").doc(this.partita.squadre[i].reference).update("radar", navi[i].radar);
             }
         }
     }
@@ -223,7 +224,7 @@ export class SchermataEngine extends NavElement {
     controllaCollisioniNave(index) {
         let posizioneDaControllare = {};
         //converto in radianti perchè sin e cos accettano radianti
-        let direzioneInRadianti = this.navi[index].pos.direzione * Math.PI /180;
+        let direzioneInRadianti = this.navi[index].pos.direzione * Math.PI / 180;
         //calcolo il punto della prua della nave
         posizioneDaControllare.x = this.navi[index].pos.posx + this.dimNave * Math.cos(direzioneInRadianti);
         posizioneDaControllare.y = this.navi[index].pos.posy + this.dimNave * Math.sin(direzioneInRadianti);
