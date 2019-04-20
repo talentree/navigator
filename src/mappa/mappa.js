@@ -60,7 +60,8 @@ export class SchermataMappa extends NavElement {
                     })
                     .then(res => {
                         // per ogni squadra della partita vado a vedermi la nave corrispondente
-                        res.get("squadre").forEach(squadra => {
+                        let squadre = Object.values(res.get("squadre"));
+                        squadre.forEach(squadra => {
                             // vado a prendere le coordinate delle varie navi
                             _self.db.collection("navi").doc(squadra.reference).get()
                                 .catch(err => {
