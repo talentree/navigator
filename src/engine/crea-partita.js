@@ -246,6 +246,7 @@ export class SchermataCreaPartita extends NavElement {
         this.stoCaricandoSuFirebase = true;
         this.pulsanteCreaPartita.classList.add("is-loading");
         this.disabilitaTuttiInput(true);
+        let arraySquadre = [];
         arraySquadre = Object.assign({}, this.squadre);
         //carico la partita
         this.db.collection("partite").doc(tokenUtente).set({
