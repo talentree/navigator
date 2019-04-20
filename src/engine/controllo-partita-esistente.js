@@ -32,6 +32,7 @@ export class ControlloPartitaEsistente extends NavElement {
                     let infoSquadre = "";
                     let squadre = res.data().squadre;
                     //per ogni squadra aggiungo il nome alle info da mostrare e salvo la reference nel caso si voglia cancellare
+                    squadre = Object.values(squadre);
                     squadre.forEach(squadra => {
                         infoSquadre += (squadra.nome + " ");
                         this.referenceSquadre.push(squadra.reference);
@@ -43,7 +44,7 @@ export class ControlloPartitaEsistente extends NavElement {
                             Nome: <strong>${res.data().nomePartita}</strong>
                         </p>
                         <p>
-                            Squadre partecipanti: <strong>${res.data().squadre.length} (${infoSquadre})</strong>
+                            Squadre partecipanti: <strong>${squadre.length} (${infoSquadre})</strong>
                         </p>
                         <p>
                             Tempo di gioco: <strong>${res.data().datigenerali.gametime}</strong>
