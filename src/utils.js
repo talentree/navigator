@@ -8,13 +8,13 @@ export let referenceNaveDaControllare = "";
 //imposta il valore del path (da errore assegnandolo direttamente)
 export function setReferenceNaveDaControllare(val) {
     referenceNaveDaControllare = val;
-} 
+}
 //contiene l'array di squadre della partita
 export let arraySquadrePartita = [];
 //contene l'id della partita
 export let idPartita = ""
 //imposta il valore dell'array
-export function  setArraySquadrePartita(val, val1){
+export function setArraySquadrePartita(val, val1) {
     arraySquadrePartita = val;
     idPartita = val1;
 
@@ -125,5 +125,126 @@ export class Nave {
         orizzonte pieno
         */
         this.radar = nave.radar || {};
+    }
+}
+
+export class ButtonTondoConsole {
+
+    constructor(istanzap5, xc, yc, rInterno, rEsterno, variazionebarra, barra, accel) {
+        this.p = istanzap5;
+        this.setPosEDimensioni(xc, yc, rInterno, rEsterno)
+        this.barra = barra;
+        this.accel = accel;
+        this.variazionebarra = variazionebarra;
+
+        this.coloreViraDestra = [100, 100, 100];
+        this.coloreViraSinistra = [99, 99, 99];
+        this.coloreAumentaVelocita = [150, 150, 150];
+        this.coloreDiminuisciVelocita = [149, 149, 149];
+
+    }
+
+    setPosEDimensioni(posX, posY, raggioInterno, raggioEsterno) {
+        this.raggio = raggioInterno;
+        this.raggioEsterno = raggioEsterno;
+        this.x = posX;
+        this.y = posY;
+    }
+
+    display(ycb) {
+        // noFill ();
+        var rh = this.raggio * 0.2;
+
+        //contorni in nero
+        this.p.stroke(0, 0, 0, 150);
+
+        //grafica vira a destra
+        this.p.fill(this.coloreViraDestra[0], this.coloreViraDestra[1], this.coloreViraDestra[2], 255);
+        this.p.arc(this.x, this.y, this.raggioEsterno, this.raggioEsterno, -90, 90, this.p.PIE);
+
+        //grafica vira a sinistra
+        this.p.fill(this.coloreViraSinistra[0], this.coloreViraSinistra[1], this.coloreViraSinistra[2], 255);
+        this.p.arc(this.x, this.y, this.raggioEsterno, this.raggioEsterno, 90, -90, this.p.PIE);
+
+        //grafica accelera
+        this.p.fill(this.coloreAumentaVelocita[0], this.coloreAumentaVelocita[1], this.coloreAumentaVelocita[2], 255);
+        this.p.arc(this.x, this.y, this.raggio, this.raggio, -90, 90, this.p.PIE);
+
+        //grafica decelera
+        this.p.fill(this.coloreDiminuisciVelocita[0], this.coloreDiminuisciVelocita[1], this.coloreDiminuisciVelocita[2], 255);
+        this.p.arc(this.x, this.y, this.raggio, this.raggio, 90, -90, this.p.PIE);
+
+        //pallino rosso al centro se sto cliccando
+        if (this.p.mouseIsPressed) {
+            this.p.fill(255, 0, 0, 255);
+        }
+        else {
+            this.p.fill(0, 0, 0, 255);
+        }
+        this.p.ellipse(this.x, this.y, this.raggio * 0.1, this.raggio * 0.1);
+        //strokeWeight (20);
+        this.p.stroke(0, 0, 0, 150);
+        this.p.line(this.x, this.y - this.raggio / 2, this.x, this.y + this.raggio / 2);
+        //  fill(0, 0, 0, 127);
+        // noStroke();
+        this.p.fill(255, 255, 255, 200);
+
+        //text("VEL: " + nf(b01.vel, 0, 2), width * 0.1, height * 0.4);
+        this.p.stroke(0, 255, 0, 150);
+        this.p.line(this.x, this.y, this.x + this.raggio / 2 * this.p.cos(this.barra - 90), this.y + this.raggio / 2 * this.p.sin(this.barra - 90));
+
+        //allarme
+        //if stato ..... 
+        this.p.fill(200);
+        this.p.stroke(255, 255, 255, 150);
+        this.p.triangle(this.x, ycb - rh, this.x, ycb + rh, this.x + 2 * rh, ycb);
+        this.p.triangle(this.x, ycb - rh, this.x, ycb + rh, this.x - 2 * rh, ycb);
+        this.p.noFill();
+        this.p.noStroke();
+
+        this.p.stroke(255, 0, 0);
+        this.p.fill(255, 0, 0);
+
+        this.p.noFill();
+        this.p.noStroke();
+    }
+
+    //0 se esterno, 1 se aumento velocita, 2 de diminuisco, 3 se viro a dx, 4 se viro a sx
+    whereIsClick(coloreNelPunto) {
+        //console.log(coloreNelPunto);
+        if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreAumentaVelocita)) {
+            return 1;
+        }
+        else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreDiminuisciVelocita)) {
+            return 2;
+        }
+        else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreViraDestra)) {
+            return 3;
+        }
+        else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreViraSinistra)) {
+            return 4;
+        }
+        else {
+            return 0;
+        }
+    }
+}
+
+export class InfoSullaNaveConsole {
+    constructor(paragrafo) {
+        this.carburanteRimasto = 0;
+        this.velocita = 0;
+        this.direzione = 0;
+        if(paragrafo){
+            this.paragrafo = paragrafo;
+            console.log(paragrafo);
+            this.display();
+        }
+    }
+
+    display() {
+        this.paragrafo.innerHTML = "Velocità: " + this.velocita + " (udm??)<br>";
+        this.paragrafo.innerHTML += "Direzione: " + this.direzione + " °<br>";
+        this.paragrafo.innerHTML += "Carburante rimasto: " + this.direzione + " (udm??)";
     }
 }
