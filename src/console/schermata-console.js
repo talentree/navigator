@@ -1,259 +1,118 @@
 import { NavElement, html } from '../nav-element';
 import { referenceNaveDaControllare, idPartita } from '../utils';
-import { arraySquadrePartita } from '../utils';
+import { istanzeP5, arraySquadrePartita, ButtonTondoConsole, InfoSullaNaveConsole } from '../utils';
 
 export class SchermataConsole extends NavElement {
 
 
   constructor() {
     super();
-    this.db = firebase.firestore();
+    this.referenceSketchp5 = null;
+    this.buttonTondo = new ButtonTondoConsole();
+    this.infoSullaNave = new InfoSullaNaveConsole();
+
+    this.coefficienteResize = 0.7;
+
+    window.onresize = () => {
+      this.referenceSketchp5.resizeCanvas(window.innerWidth * this.coefficienteResize, window.innerHeight * this.coefficienteResize)
+    }
   }
 
   render() {
-    firebase.firestore().collection("partite").doc(idPartita).update({squadre: arraySquadrePartita})
+    if (idPartita != "") {
+      firebase.firestore().collection("partite").doc(idPartita).update({ squadre: arraySquadrePartita })
+    }
     return html`
       <h1 class="title is-4">Qui verrà mostrata la console per comandare la nave</h1>
       <p class="subtitle">La nave è in path navi/${referenceNaveDaControllare}</p>
+      <br>
+      <p id="info-nave"></p>
+      <!--Container p5. Viene eliminato separatamente nell'utils-->
       <div id="container-p5"></div>
-      
     `;
   }
 
-firstUpdated(){
-  let _self = this;
-  let sketch = function (p) {
-      var canvas;
-      var vel, barra, dir, posx, posy, carb;
-      var gtime, wforce, wdir;
-      var database;
-      
-      var ra, rb, xc, yc,ycb, dd;
-      var variazionebarra;
-      
-      var velmax =20; // nodi, velocità max
-      var statonave; 
-      var arretracoll=10; // n.cicli di arretramento per collisione a vel.1
-      var b01 ;
-      var motorsound,collisionsound,arrivedsound;
-      
-      
-      var isOverRectangle, isOverRectangle2;
-      //var x1, x2, x3, x4, y1, y2, y3, y4;
-      //var online =true ; // connesso o no rete, per simulare senza firebase
-   p.setup=function() {
-            p.angleMode(DEGREES); // Change the mode to DEGREES
-          
-          // audio = createAudio ('assets/engine308.mp3');
-          p.motorsound.loop(); // song is ready to play during setup() because it was loaded during preload
-          
-          p.motorsound.play();
-            // createCanvas(800, 600);
-            p.createCanvas(window.innerWidth, window.innerHeight);
-            vel = 0;
-            barra = 0;
-          
-            dir = 90;
-          // dati di inzio che elggerà da fbase
-          
-            posx = 10;
-            posy = 10;
-            carb = 1800;
-            
-            // fine dati inziali
-          
-            p.angleMode(DEGREES);
-            
-            
-            ra =  window.innerWidth *0.3;// cerchio interno barra
-            rb = ra*1.4; //cerchio esterno accel
-            xc = window.innerWidth *0.5;
-            yc = window.innerHeight * 0.7;
-            b01 = new buttonTondo(ra,rb, xc, yc, variazionebarra, barra, vel);
-            b01.vel = 0;
-            //b01.barra=0;
-            b01.variazionebarra = 1;
-          
-            gtime = 0;
-            wforce = 1;
-            wdir = 90;
-            
-          p.frameRate(30); //ck per la variabile tempo
-          
-          p. background(51);
-            p.textFont(myFont);
-            p.textSize(36);
-          /*
-            // Initialize Firebase
-            var config = {
-              apiKey: "AIzaSyCylMEP4sWtvBzHHyGfDlZw4UaBGeyFGkk",
-              authDomain: "asdsd-1cd19.firebaseapp.com",
-              databaseURL: "https://asdsd-1cd19.firebaseio.com",
-              projectId: "asdsd-1cd19",
-              storageBucket: "asdsd-1cd19.appspot.com",
-              messagingSenderId: "1084152933059"
-            };
-            if (online) 
-            {
-            firebase.initializeApp(config);
-            database = firebase.database();
-            //console.log (firebase);
-          
-            loadFirebase();
-            }*/
-    }
-                                                                                                                  /*
-                                                                                                                  function loadFirebase() {
-                                                                                                                    var ref = database.ref("nave01");
-                                                                                                                    ref.on("value", gotData, errData);
-                                                                                                                  }
-                                                                                                                  loadTime() {
-                                                                                                                    //var refgt = database.ref("datigenerali/gametime");
-                                                                                                                    //refgt.on("value", gotData, errData);
-                                                                                                                    //  console.log (firebase.database().ref("datigenerali/gametime"));
-                                                                                                                  
-                                                                                                                    var gt = firebase.database().ref("datigenerali");
-                                                                                                                    gt.on("value", gotData2, errData);
-                                                                                                                  
-                                                                                                                    // console.log("gt:"+gt.val);
-                                                                                                                  }
-                                                                                                                  
-                                                                                                                  
-                                                                                                                  function errData(error) {
-                                                                                                                    console.log("Something went wrong.");
-                                                                                                                    console.log(error);
-                                                                                                                  }
-                                                                                                                  
-                                                                                                                  
-                                                                                                                  // The data comes back as an object
-                                                                                                                  function gotData2(data) {
-                                                                                                                    var datigenerali = data.val();
-                                                                                                                    // Grab all the keys to iterate over the object
-                                                                                                                    var gt = Object.keys(datigenerali);
-                                                                                                                    //var velocity = nave01[key];
-                                                                                                                  // console.log("Firebase gametime:" + datigenerali.gametime);
-                                                                                                                  //  console.log("Firebase w dir:" + datigenerali.winddir);
-                                                                                                                  //  console.log("Firebase w forc:" + datigenerali.windforce);
-                                                                                                                    // console.log("Firebase:" + velocity.total);
-                                                                                                                  
-                                                                                                                    gtime = datigenerali.gametime;
-                                                                                                                    wdir = datigenerali.winddir;
-                                                                                                                    wforce= datigenerali.windforce
-                                                                                                                  
-                                                                                                                  
-                                                                                                                  }
-                                                                                                                  
-                                                                                                                  
-                                                                                                                  // The data comes back as an object
-                                                                                                                  function gotData(data) {
-                                                                                                                    var nave01 = data.val();
-                                                                                                                    // Grab all the keys to iterate over the object
-                                                                                                                    var keys = Object.keys(nave01);
-                                                                                                                    //var velocity = nave01[key];
-                                                                                                                    //console.log("Firebase dir:" + nave01.direzione);
-                                                                                                                    //console.log("Firebase barra:" + nave01.barra);
-                                                                                                                  dd= nave01.pos.direzione;
-                                                                                                                  carb= nave01.pos.carb;
-                                                                                                                  statonave=nave01.radar.statonave;
-                                                                                                                  print ("direzione: "+dd);
-                                                                                                                  
-                                                                                                                    console.log("leggo stato nave:" + statonave);
-                                                                                                                    // console.log("Firebase:" + velocity.total);
-                                                                                                                  
-                                                                                                                  
-                                                                                                                  }
-                                                                                                                  
-                                                                                                                  
-                                                                                                                  // This is a function for sending data
-                                                                                                                  function sendToFirebase3() {
-                                                                                                                    var nave01 = database.ref('nave01/comandi');
-                                                                                                                  
-                                                                                                                    // Make an object with data in it
-                                                                                                                    var data = {
-                                                                                                                      // velocity: velInput.value(),
-                                                                                                                      velocity: b01.vel,
-                                                                                                                      barra: b01.barra,
-                                                                                                                      accel: b01.accel
-                                                                                                                    }
-                                                                                                                  
-                                                                                                                  
-                                                                                                                    var velocity = nave01.set(data, finished);
-                                                                                                                    //console.log("Firebase generated key: " + velocity.key);
-                                                                                                                  
-                                                                                                                    // Reload the data for the page
-                                                                                                                    function finished(err) {
-                                                                                                                      if (err) {
-                                                                                                                        console.log("ooops, something went wrong.");
-                                                                                                                        console.log(err);
-                                                                                                                      } else {
-                                                                                                                        //   console.log('Data saved successfully');
-                                                                                                                      }
-                                                                                                                    }
-                                                                                                                  }
-                                                                                                                  
-                                                                                                                  */
-                                                                                                                  
-                                                                                                                  //===========================================================================================
-        p.draw =function() {
-                  //  if (online) 
-                    // { 
-                    //   loadFirebase();
-                  //loadTime();
-                // };
-                    ra =  window.innerWidth *0.3;// cerchio interno barra
-                    rb = ra*1.4; //cerchio esterno accel
-                    xc = window.innerWidth / 2;
-                    yc = window.innerHeight * 0.5;
-                    ycb = window.innerHeight  * 0.80;
-                    //buttonpressed=0;
-                    motorsound.setVolume (abs(b01.vel)*0.2);
-                    console.log ("volume:"+(abs(b01.vel)*0.2)); // per veloc abs 0-5
-                    p.fill(51);
-                    p.rect(0, 0, width, height);
-                    p.fill(255);
-                    p.stroke(255);
-                    p.strokeWeight(1)
-                    p.textAlign(LEFT);
-                    p.textSize(width*0.05);
-                    p.text("SHIP: "+"nave01", width * 0.1, height * 0.09);
-                    p.textSize(width / 30);   text("TIME: ", width *0.5, height * 0.09)
-                    p.textSize(width / 10);   text(nf(gtime, 0, 0), width * 0.75, height * 0.09);
-                  
-                    p.textSize(width*0.04);
-                    
-                    p.text("Velocità: " + nf(b01.vel, 0, 2), width * 0.1, height * 0.2);
-                  // text(" Direzione: " + nf(b01.barra, 0, 2), width * 0.5, height * 0.4);
-                      p.text(" Direzione: " + dd, width * 0.5, height * 0.2);
-                  // errore print ("dd "+nf(dd,2,0));
-                  
-                    p.text("Fuel: " + nf(carb, 0, 2), width * 0.1, height * 0.25);
-                  // text("direzione: " + nf(b01.barra, 0, 2), width * 0.5, height * 0.4);
-                      p.text("vento: dir " + nf(wdir,0,2)+" forza: "+nf(wforce,0,2) , width * 0.5, height * 0.25);
-                  
-                  //  b01.press(mouseX, mouseY, xc, yc, ra,b01.barra);
-                    // textAlign(LEFT);   textSize(25);   text("d " + dd, 10, height * 0.95); //controllo distanza
-                    b01.display(xc, yc, ra, rb,b01.variazionebarra, b01.barra, b01.accel);
-                  // b01.barra = b01.barra + b01.variazionebarra;
-                  // b01.vel = b01.vel + b01.accel;
-                  p.strokeWeight(1);
-                  p.fill(255, 255, 255, 160);
-                  
-                    p.line(xc, yc, xc + ra / 2 * cos(b01.barra - 90), yc + ra / 2 * sin(b01.barra - 90));
-                  // direzione del Nord -----------------------------
-                  p.stroke (255,0,0,160);strokeWeight(4);
-                  // bussolab
-                  p.line(xc, yc, xc + ra * cos(180-dd), yc + ra * sin(180-dd));
-                  //print ("dd "+dd);
-                  p.noStroke();
-                  //--------------------------------------
-                  
-                  if (statonave==1) {misureanticollisione();};
-                  if (statonave==2)  {arrived()};
-                  
-                  if (online){ sendToFirebase3()};
-     };
 
+
+
+  firstUpdated() {
+    let _self = this;
+
+    let sketch = function (p) {
+      p.setup = function () {
+        //console.log("setup working!");
+        _self.referenceSketchp5 = p;
+        //imposto angoli in deg
+        p.angleMode(p.DEGREES);
+
+        //creo il canvas secondo le dimensioni dello schermo
+        p.createCanvas(window.innerWidth * _self.coefficienteResize, window.innerHeight * _self.coefficienteResize);
+        //import framerate a tot
+        p.frameRate(30);
+
+        //backgroung grigio
+        p.background(51);
+
+        //TODO: settare parametri corretti qui o in draw
+        _self.buttonTondo = new ButtonTondoConsole(p, 250, 250, 50, 70, 0, 60, 0);
+        let infoNaveTag = document.querySelector("#info-nave");
+        _self.infoSullaNave = new InfoSullaNaveConsole(infoNaveTag);
+
+        //TODO: motorsound
+      }
+
+      p.draw = function () {
+        //console.log("draw working!");
+        p.background(51);
+
+        let posX = window.innerWidth * _self.coefficienteResize / 2;
+        let posY = window.innerHeight * _self.coefficienteResize / 2;
+        let raggioInterno = window.innerWidth * _self.coefficienteResize * 0.3;
+        let raggioEsterno = raggioInterno * 1.4;
+
+
+        _self.buttonTondo.setPosEDimensioni(posX, posY, raggioInterno, raggioEsterno);
+        let ycb = window.innerHeight * _self.coefficienteResize * 0.80;
+
+        _self.buttonTondo.display(ycb);
+        _self.infoSullaNave.display();
+      }
+
+      p.mousePressed = function () {
+        if (p.mouseButton === p.LEFT) {
+          let coloreNelPunto = p.get(p.mouseX, p.mouseY);
+          coloreNelPunto.pop();
+          let whereIsClick = _self.buttonTondo.whereIsClick(coloreNelPunto);
+          switch (whereIsClick) {
+            case 1: {
+              console.log("Aumenta velocità");
+              break;
+            }
+            case 2: {
+              console.log("Diminuisci velocità");
+              break;
+            }
+            case 3: {
+              console.log("Vira a destra");
+              break;
+            }
+            case 4: {
+              console.log("Vira a sinistra");
+              break;
+            }
+            default: {
+              console.log("Fuori dal cerchio");
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    //creo un'istanza di p5 e la aggiungo all'array di utils.js
+    istanzeP5.push(new p5(sketch, document.querySelector("#container-p5")));
   }
+
 }
                                                                                                                         /*
                                                                                                                         function misureanticollisione()
