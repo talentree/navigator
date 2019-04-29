@@ -10,8 +10,8 @@ export class SchermataConsole extends NavElement {
     super();
     this.referenceSketchp5 = null;
     this.buttonTondo = new ButtonTondoConsole();
-    this.infoSullaNave = new InfoSullaNaveConsole();
-
+    //this.infoSullaNave = new InfoSullaNaveConsole();
+    this.interfacciaTestuale = null;
     this.coefficienteResize = 0.7;
 
     window.onresize = () => {
@@ -26,6 +26,10 @@ export class SchermataConsole extends NavElement {
     return html`
       <h1 class="title is-4">Qui verrà mostrata la console per comandare la nave</h1>
       <p class="subtitle">La nave è in path navi/${referenceNaveDaControllare}</p>
+      <a class="button is-primary" @click=${(e) => { this.interfacciaTestuale.hide = !
+       this.interfacciaTestuale.hide }}>Provvisorio, toggle interfaccia testuale</a>
+      <br>
+      ${this.setInterfacciaTestuale()}
       <br>
       <p id="info-nave"></p>
       <!--Container p5. Viene eliminato separatamente nell'utils-->
@@ -57,7 +61,7 @@ export class SchermataConsole extends NavElement {
         //TODO: settare parametri corretti qui o in draw
         _self.buttonTondo = new ButtonTondoConsole(p, 250, 250, 50, 70, 0, 60, 0);
         let infoNaveTag = document.querySelector("#info-nave");
-        _self.infoSullaNave = new InfoSullaNaveConsole(infoNaveTag);
+        //_self.infoSullaNave = new InfoSullaNaveConsole(infoNaveTag);
 
         //TODO: motorsound
       }
@@ -76,7 +80,7 @@ export class SchermataConsole extends NavElement {
         let ycb = window.innerHeight * _self.coefficienteResize * 0.80;
 
         _self.buttonTondo.display(ycb);
-        _self.infoSullaNave.display();
+        //_self.infoSullaNave.display();
       }
 
       p.mousePressed = function () {
@@ -114,4 +118,12 @@ export class SchermataConsole extends NavElement {
     istanzeP5.push(new p5(sketch, document.querySelector("#container-p5")));
   }
 
+
+  setInterfacciaTestuale() {
+    this.interfacciaTestuale = document.createElement("interfaccia-testuale-console");
+    this.interfacciaTestuale.testo = "fanc";
+    return html`
+    ${this.interfacciaTestuale}
+    `
+  }
 }

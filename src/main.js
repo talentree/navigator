@@ -8,6 +8,7 @@ import { SchermataCreaPartita } from './engine/crea-partita';
 import { SchermataEngine } from './engine/schermata-engine';
 import { LoginRegistrazione } from './login-registrazione/login-registrazione';
 import { ControlloPartitaEsistente } from './engine/controllo-partita-esistente';
+import { InterfacciaTestuale } from './console/interfacciaTestuale';
 
 //è l'uid dell'utente
 export let tokenUtente = "";
@@ -35,6 +36,7 @@ firebase.firestore().settings({ timestampsInSnapshots: true });
 //console
 customElements.define('login-console', LoginConsole);
 customElements.define('schermata-console', SchermataConsole);
+customElements.define('interfaccia-testuale-console', InterfacciaTestuale);
 
 //mappa
 customElements.define("schermata-mappa", SchermataMappa);
