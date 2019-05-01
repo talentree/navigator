@@ -90,7 +90,7 @@ export class SchermataEngine extends NavElement {
             p.draw = function () {
                 console.log("funzione di draw");
 
-                //FIXME: complatare uscita squadra e cambio variabile isUsed a False
+                //uscita squadra e cambio variabile isUsed a False
                 _self.partita.kickInattività(tokenUtente);
 
                 //aggiorno clock

@@ -73,26 +73,29 @@ export function backToMainMenu() {
     //vado al menù pricipale
     setGameContent("main-menu");
 }
+
 //pone isUsed a false della squadra richiesta
 export function liberaSquadra(ref, idPartita){
     let squadre = []        
     let i=0;
-        firebase.firestore().collection("partite").doc(idPartita).get()   
-        .catch(err => {
-             console.log("WOOOPS, qualcosa è andato storto!", err);
+    //ottengo partita da ID
+     firebase.firestore().collection("partite").doc(idPartita).get()   
+    .catch(err => {
+         console.log("WOOOPS, qualcosa è andato storto!", err);
+     })
+    .then(res => {
+        //aggiorno il valore di isUsed della nave controllata al momento
+            squadre = Object.values(res.data().squadre)
+            squadre.forEach(squadra=>{
+            if(squadra.reference == ref){                               
+                    squadra.isUsed=false;
+                    firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra);
+                }             
+            i++       
         })
-        .then(res => {
-             squadre = Object.values(res.data().squadre)
-             squadre.forEach(squadra=>{
-                if(squadra.reference == ref){                               
-                      squadra.isUsed=false;
-                      firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra);
-                  }             
-                i++       
-            })
-        })
-        
+    })        
 }
+
 //quando cambia lo stato di autenticazione (login/logout) va ricreato l'header
 export function resetHeader() {
     //console.log("resetto header");
@@ -112,15 +115,13 @@ export class Partita {
     kickInattività(idPartita){
         let i=0;
         let squadre = Object.values(this.squadre)
-        console.log(this.squadre)
-        //console.log(Object.values(squadre));
         squadre.forEach(squadra=>{
             if(squadra.isUsed == true){
                 //il numero deriva da una stima con refreshrate 30fps quindi il timeout corrisponde a 5 minuti
               if((this.datigenerali.gametime - squadra.timer)>9000){
                   squadra.isUsed=false;
                   firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra)
-              }//TODO: aggiorna stato su firebase
+              }
             } 
             i++       
         })
