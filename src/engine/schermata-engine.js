@@ -7,7 +7,7 @@ export class SchermataEngine extends NavElement {
         super();
         this.db = firebase.firestore();
         this.navi = [];
-        this.partita = null;
+        this.partita = new Partita({});
         //reference allo scketch (p) di p5, facile da raggiungere
         this.referenceSketchp5 = null;
         // tra un punto del radar e l'altro sono 10 gradi
@@ -119,16 +119,16 @@ export class SchermataEngine extends NavElement {
                 for (let i = 0; i < _self.navi.length; i++) {
                     // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato 
                     // verso destra gli angoli sono positivi in senso antiorario
-
+                    
                     // aggiorno le posizioni FIXME: restituisce Nan di posx, posy e direzione
-                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].direzione * 2 * Math.PI) / 360);
-                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].direzione * 2 * Math.PI) / 360);
+                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].pos.direzione * 2 * Math.PI) / 360);
+                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].pos.direzione * 2 * Math.PI) / 360);
 
                     // aggiorno le velocita'
                     // ignoro la fisica e immagino che la velocita' sia conservata sempre
                     _self.navi[i].comandi.velocity += _self.navi[i].comandi.accel;
                     //FIXME: potrebbe essere Nan a causa di barra? il path è .comandi.barra
-                    let x = _self.navi[i].pos.direzione + _self.navi[i].barra;
+                    let x = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
                     if (x < 0) { x += 360 }
                     if (x > 360) { x += -360 }
                     _self.navi[i].pos.direzione = x;
@@ -143,6 +143,7 @@ export class SchermataEngine extends NavElement {
                     _self.controllaCollisioniNave(i);
                 }
 
+                console.log('aggiorno gtime');
                 _self.upNave(_self.navi);
                 for (let i = 0; i < _self.navi.length; i++) {
                     let nave = new Nave(_self.navi[i]);
@@ -180,7 +181,7 @@ export class SchermataEngine extends NavElement {
     cercaNavi() {
         //conto il numero di navi ottenute con successo
         let naviOttenute = 0;
-        for (let i = 0; i < this.partita.squadre.length; i++) {
+        Object.keys(this.partita.squadre).forEach(i => {
             this.db.collection("navi").doc(this.partita.squadre[i].reference).get()
                 .catch(err => {
                     console.log("errore ottenimento nave", err);
@@ -193,9 +194,9 @@ export class SchermataEngine extends NavElement {
                         la aggiungo all'array delle navi.
                         Non uso il push per evitare che le navi vengano scambiate durante la query a firestore
                         */
-                        this.navi[i] = new Nave(res.data());
+                        this.navi[naviOttenute-1] = new Nave(res.data());
                         //se tutte le navi sono state ottenute faccio cominciare il loop
-                        if (naviOttenute == this.partita.squadre.length) {
+                        if (naviOttenute == Object.keys(this.partita.squadre).length) {
                             console.log("navi ottenute: ", this.navi);
                             this.referenceSketchp5.loop();
                         }
@@ -204,7 +205,8 @@ export class SchermataEngine extends NavElement {
                         console.log("Questa nave non esiste!", this.partita.squadre[i].reference);
                     }
                 })
-        }
+            i++;
+        });
     }
 
     upNave(navi) {
