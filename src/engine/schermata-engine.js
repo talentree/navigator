@@ -7,7 +7,7 @@ export class SchermataEngine extends NavElement {
         super();
         this.db = firebase.firestore();
         this.navi = [];
-        this.partita = null;
+        this.partita = new Partita({})
         //reference allo scketch (p) di p5, facile da raggiungere
         this.referenceSketchp5 = null;
         // tra un punto del radar e l'altro sono 10 gradi
@@ -89,6 +89,9 @@ export class SchermataEngine extends NavElement {
             */
             p.draw = function () {
                 console.log("funzione di draw");
+
+                //FIXME: complatare uscita squadra e cambio variabile isUsed a False
+                _self.partita.kickInattività(tokenUtente);
 
                 //aggiorno clock
                 gtime++;
