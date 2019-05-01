@@ -83,20 +83,24 @@ export class Partita {
     constructor(data) {
         this.nomePartita = data.nomePartita || "";
         this.datigenerali = data.datigenerali || {};
-        this.squadre = data.squadre || [];
+        this.squadre = data.squadre || {};
     }
     kickInattività(idPartita){
-        this.squadre.forEach(squadra=>{
+        let i=0;
+        let squadre = Object.values(this.squadre)
+        console.log(this.squadre)
+        //console.log(Object.values(squadre));
+        squadre.forEach(squadra=>{
             if(squadra.isUsed == true){
                 //il numero deriva da una stima con refreshrate 30fps quindi il timeout corrisponde a 5 minuti
-              if((this.partita.datigenerali.gametime - squadra.timer)>9000){
+              if((this.datigenerali.gametime - squadra.timer)>9000){
                   squadra.isUsed=false;
+                  firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra)
               }//TODO: aggiorna stato su firebase
-            }        
+            } 
+            i++       
         })
-        firebase.firestore().collection("partite").doc(idPartita).update("squadre", this.squadre);
     }
-    
 }
 export class Nave {
     /*
@@ -182,13 +186,15 @@ export class Nave {
         })
         .then(res => {
             //aggiorno il timer della singola nave richiesta
+            let i=0;
             let squadre = Object.values(res.data().squadre)
             squadre.forEach(squadra=>{ 
                 if (squadra.reference == ref){
                     squadra.timer = this.partita.datigenerali.gametime;
+                    firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra)                   
                 }
+                i++;
             })
-            firebase.firestore().collection("partite").doc(idPartita).update("squadre", squadre);
         })  
     }
     
