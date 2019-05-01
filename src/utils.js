@@ -1,3 +1,5 @@
+import { tokenUtente } from "./main";
+
 let oldElement = null;
 //contiene la descrizione di dove ci troviamo
 export let infoScheda = "";
@@ -65,10 +67,32 @@ export function backToMainMenu() {
         document.querySelector("#game-content").removeChild(oldElement);
         oldElement = null;
     }
+    if(infoScheda== "Console della nave"){
+        liberaSquadra(referenceNaveDaControllare, tokenUtente)
+    }
     //vado al menù pricipale
     setGameContent("main-menu");
 }
-
+//pone isUsed a false della squadra richiesta
+export function liberaSquadra(ref, idPartita){
+    let squadre = []        
+    let i=0;
+        firebase.firestore().collection("partite").doc(idPartita).get()   
+        .catch(err => {
+             console.log("WOOOPS, qualcosa è andato storto!", err);
+        })
+        .then(res => {
+             squadre = Object.values(res.data().squadre)
+             squadre.forEach(squadra=>{
+                if(squadra.reference == ref){                               
+                      squadra.isUsed=false;
+                      firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra);
+                  }             
+                i++       
+            })
+        })
+        
+}
 //quando cambia lo stato di autenticazione (login/logout) va ricreato l'header
 export function resetHeader() {
     //console.log("resetto header");
