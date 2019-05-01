@@ -1,5 +1,5 @@
 import { NavElement, html } from '../nav-element';
-import { setGameContent, setReferenceNaveDaControllare, setArraySquadrePartita } from '../utils';
+import { setGameContent, setReferenceNaveDaControllare, setArraySquadrePartita,} from '../utils';
 
 
 export class LoginConsole extends NavElement {
@@ -33,8 +33,8 @@ export class LoginConsole extends NavElement {
               if(squadre[i].isUsed == false) {     
                  //se esiste assegno la reference e cambio schermata
                 setReferenceNaveDaControllare(squadre[i].reference);
-                //aggiorno valeore isUsed
-                squadre[i].isUsed=true;
+                //TODO: aggiorno valeore isUsed
+               // squadre[i].isUsed=true;
                 //passo valori arraySquadre e idPartita
                 setArraySquadrePartita(squadre, res.docs[0].id);
                 console.log("Sqadra trovata");
@@ -55,7 +55,6 @@ export class LoginConsole extends NavElement {
   }
 
   updated(){
-    
     this.db.collection("partite").get()
       .catch(err => {
         console.log("WOOOPS, qualcosa è andato storto!", err);
@@ -115,14 +114,14 @@ export class LoginConsole extends NavElement {
       <div class="field">
         <label class="label">Nome della squadra:</label>
         <div class="control">
-          <input class="input" type="text"  @input=${e => this.squadra = e.target.value}/>
+          <input class="input" type="text" value="rossa" @input=${e => this.squadra = e.target.value}/>
         </div>
       </div>
               
       <div class="field">
         <label class="label">Codice segreto:</label>
         <div class="control">
-          <input class="input" type="text"  @input=${e => this.codice = e.target.value}/>
+          <input class="input" type="text" value="cod2"  @input=${e => this.codice = e.target.value}/>
         </div>
       </div>
       <div class="field">
