@@ -1,5 +1,5 @@
 import { NavElement, html } from '../nav-element';
-import { setGameContent, setReferenceNaveDaControllare, setArraySquadrePartita } from '../utils';
+import { setGameContent, setReferenceNaveDaControllare, setArraySquadrePartita,} from '../utils';
 
 
 export class LoginConsole extends NavElement {
@@ -24,20 +24,19 @@ export class LoginConsole extends NavElement {
         //res è un array ma limit(1) fa si che abbia un solo valore
         if (res && res.size) {
           //ottengo l'elenco delle squadre di questa partita
-          var squadre = res.docs[0].data().squadre;
-          
+            var squadre = res.docs[0].data().squadre;
 
-          for (var i = 0; i < squadre.length; i++) {
+          for (var i = 0; i < Object.keys(squadre).length; i++) {
             //controllo se esiste una squadra col nome che ho inserito, che il codice sia corretto
             if (squadre[i].nome == this.squadra && squadre[i].codice == this.codice) {
               //controllo non ci siano altri giocatori già loggati
               if(squadre[i].isUsed == false) {     
                  //se esiste assegno la reference e cambio schermata
                 setReferenceNaveDaControllare(squadre[i].reference);
-                //aggiorno valeore isUsed
-                squadre[i].isUsed=true;
+                //TODO: aggiorno valeore isUsed
+               // squadre[i].isUsed=true;
                 //passo valori arraySquadre e idPartita
-                 setArraySquadrePartita(squadre, res.docs[0].id);
+                setArraySquadrePartita(squadre, res.docs[0].id);
                 console.log("Sqadra trovata");
                 //una squadra corrisponde, cambio schermata
                 setGameContent('schermata-console');
@@ -66,13 +65,14 @@ export class LoginConsole extends NavElement {
           for ( var i = 0; i <res.docs.length; i++ ){
             //controllo il numero di squadre libere
             var libere=0;
-             for(var f=0; f<res.docs[i].data().squadre.length; f++){
+            // Object.keys(res.docs[i].data().squadre).length ->utilizzato per avere la lunghezza della mappa che viene considerata come object in firebase
+            for(var f=0; f<Object.keys(res.docs[i].data().squadre).length; f++){
               if (res.docs[i].data().squadre[f].isUsed==false)
-                  libere++;
+                 libere++;
              }
              //assegnando alla variabile il codice HTML necessario
             item += `<div class='column is-half'><a id="`+i+`" onclick='document.getElementById("nomePartita").value=document.getElementById("`+i+`").textContent , document.getElementById("modalPartite").style.display="none"'>`+res.docs[i].data().nomePartita+`</a> </div> 
-                    <div class='column is-one-quarter'> `+res.docs[i].data().squadre.length+ `</div> 
+                    <div class='column is-one-quarter'> `+Object.keys(res.docs[i].data().squadre).length+ `</div> 
                     <div class='column is-one-quarter'>`+libere+`</div>`;
           }  
           //inserisco i tag nel posto richiesto
@@ -114,14 +114,14 @@ export class LoginConsole extends NavElement {
       <div class="field">
         <label class="label">Nome della squadra:</label>
         <div class="control">
-          <input class="input" type="text"  @input=${e => this.squadra = e.target.value}/>
+          <input class="input" type="text" value="rossa" @input=${e => this.squadra = e.target.value}/>
         </div>
       </div>
               
       <div class="field">
         <label class="label">Codice segreto:</label>
         <div class="control">
-          <input class="input" type="text"  @input=${e => this.codice = e.target.value}/>
+          <input class="input" type="text" value="cod2"  @input=${e => this.codice = e.target.value}/>
         </div>
       </div>
       <div class="field">

@@ -1,7 +1,6 @@
 import { NavElement, html } from '../nav-element';
 import { referenceNaveDaControllare, idPartita } from '../utils';
-import { istanzeP5, arraySquadrePartita, ButtonTondoConsole, InfoSullaNaveConsole } from '../utils';
-
+import { istanzeP5, arraySquadrePartita, ButtonTondoConsole, InfoSullaNaveConsole, Nave,  } from '../utils';
 
 export class SchermataConsole extends NavElement {
 
@@ -10,8 +9,8 @@ export class SchermataConsole extends NavElement {
     super();
     this.referenceSketchp5 = null;
     this.buttonTondo = new ButtonTondoConsole();
-    //this.infoSullaNave = new InfoSullaNaveConsole();
     this.interfacciaTestuale = null;
+    this.nave = new Nave({});
     this.coefficienteResize = 0.7;
 
     window.onresize = () => {
@@ -42,6 +41,9 @@ export class SchermataConsole extends NavElement {
 
   firstUpdated() {
     let _self = this;
+    _self.nave.getNave(referenceNaveDaControllare);
+    _self.nave.getDatiPartita(idPartita);
+    console.log(_self.nave);
 
     let sketch = function (p) {
       p.setup = function () {
@@ -80,8 +82,13 @@ export class SchermataConsole extends NavElement {
         let ycb = window.innerHeight * _self.coefficienteResize * 0.80;
 
         _self.buttonTondo.display(ycb);
-        //_self.infoSullaNave.display();
+
+        //aggiornamento dati Nave
+        _self.nave.getNave(referenceNaveDaControllare);
+        _self.nave.getDatiPartita(idPartita);
       }
+
+      
 
       p.mousePressed = function () {
         if (p.mouseButton === p.LEFT) {
@@ -90,20 +97,44 @@ export class SchermataConsole extends NavElement {
           let whereIsClick = _self.buttonTondo.whereIsClick(coloreNelPunto);
           switch (whereIsClick) {
             case 1: {
-              console.log("Aumenta velocità");
+              console.log("Aumenta accelerazione");
+              //aumento accel e passaggio dati al database
+              _self.nave.comandi.accel++;
+              _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
               break;
             }
             case 2: {
-              console.log("Diminuisci velocità");
+              console.log("Diminuisci accelerazione");
+              //adiminuisco accel e passaggio dati al database
+              _self.nave.comandi.accel--;
+              _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
               break;
             }
-            case 3: {
-              console.log("Vira a destra");
-              break;
+            case 3: { 
+              // controllo che barra sia tra -45<barra<45 poi aggiorno valori su firebase             
+              if( _self.nave.comandi.barra < 45){
+                console.log("Vira a destra");
+                _self.nave.comandi.barra++;
+                _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
+                break;
+              }
+              else{
+                console.log("limite barra raggiunto");
+                break;
+              }
             }
             case 4: {
-              console.log("Vira a sinistra");
-              break;
+              // controllo che barra sia tra -45<barra<45 poi aggiorno valori su firebase
+              if(_self.nave.comandi.barra > -45){
+                console.log("Vira a sinistra");
+                _self.nave.comandi.barra--;
+                _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
+                break;
+              }
+              else{
+                console.log("limite barra raggiunto");
+                break;
+              }
             }
             default: {
               console.log("Fuori dal cerchio");
@@ -127,3 +158,4 @@ export class SchermataConsole extends NavElement {
     `
   }
 }
+                                                                                                                        
