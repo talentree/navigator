@@ -83,6 +83,8 @@ export class SchermataConsole extends NavElement {
         //aggiornamento dati Nave
         _self.nave.getNave(referenceNaveDaControllare);
         _self.nave.getDatiPartita(idPartita);
+        //uscita dalla schermata per inattività
+        _self.nave.kick(referenceNaveDaControllare, idPartita);
       }
 
       
@@ -98,13 +100,15 @@ export class SchermataConsole extends NavElement {
               //aumento accel e passaggio dati al database
               _self.nave.comandi.accel++;
               _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
+              _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
               break;
             }
             case 2: {
               console.log("Diminuisci accelerazione");
-              //adiminuisco accel e passaggio dati al database
+              //diminuisco accel e passaggio dati al database
               _self.nave.comandi.accel--;
               _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
+              _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
               break;
             }
             case 3: { 
@@ -113,9 +117,11 @@ export class SchermataConsole extends NavElement {
                 console.log("Vira a destra");
                 _self.nave.comandi.barra++;
                 _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
+                _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
                 break;
               }
               else{
+                _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
                 console.log("limite barra raggiunto");
                 break;
               }
@@ -126,9 +132,11 @@ export class SchermataConsole extends NavElement {
                 console.log("Vira a sinistra");
                 _self.nave.comandi.barra--;
                 _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
+                _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
                 break;
               }
               else{
+                _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
                 console.log("limite barra raggiunto");
                 break;
               }

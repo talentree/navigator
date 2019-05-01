@@ -189,6 +189,7 @@ export class SchermataCreaPartita extends NavElement {
         this.squadre.forEach(squadra => {
             squadra.isUsed = false;
             squadra.reference = "";
+            squadra.timer = 0;
         });
     }
 
