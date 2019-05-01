@@ -9,6 +9,18 @@ export let referenceNaveDaControllare = "";
 export function setReferenceNaveDaControllare(val) {
     referenceNaveDaControllare = val;
 }
+
+
+
+//contiene l'id della partita pewr il passaggio dati generali alle navi
+export let referencePartita = ""
+//imposta il valore id Partita (da errore assegnandolo direttamente)
+export function setReferencePartita(val) {
+    referencePartita = val;
+}
+
+
+
 //contiene l'array di squadre della partita
 export let arraySquadrePartita = [];
 //contene l'id della partita
@@ -17,8 +29,8 @@ export let idPartita = ""
 export function setArraySquadrePartita(val, val1) {
     arraySquadrePartita = val;
     idPartita = val1;
-
 }
+
 
 export function setGameContent(element) {
     /*
@@ -86,28 +98,27 @@ export class Partita {
         this.squadre = data.squadre || [];
     }
 }
-
 export class Nave {
     /*
-    comandi = {
-        accel: 0,
-        barra: 0,
-        vel: 0
-    }
-    datiIniziali = {
-        carb: 1800,
-        posx: 10,
-        posy: 10
-    }
-    pos = {
-        carb: 1800,
-        posx: 10,
-        posy: 10,
-        direzione: 0
-    }
-    radar = {
-        statoNave: 0
-    }
+        comandi = {
+            accel: 0,
+            barra: 0,
+            vel: 0
+        }
+        datiIniziali = {
+            carb: 1800,
+            posx: 10,
+            posy: 10
+        }
+        pos = {
+            carb: 1800,
+            posx: 10,
+            posy: 10,
+            direzione: 0
+        }
+        radar = {
+            statoNave: 0
+        }
     */
     constructor(nave) {
         this.comandi = nave.comandi || {};
@@ -125,7 +136,43 @@ export class Nave {
         orizzonte pieno
         */
         this.radar = nave.radar || {};
+        this.partita = {}              //new Partita({});
     }
+
+    getNave(ref){   
+        //ottengo la nave dalla refernce
+        firebase.firestore().collection("navi").doc(ref).get()   
+          .catch(err => {
+              console.log("WOOOPS, qualcosa è andato storto!", err);
+          })
+          .then(res => {
+            //inserisco i dati da firebase
+            this.comandi = res.data().comandi || {};
+            this.datiIniziali = res.data().datiIniziali || {};
+            this.pos = res.data().pos || {};
+            this.radar = res.data.radar || {};    
+          })
+        }
+    updateNave(ref, nave){
+        firebase.firestore().collection("navi").doc(ref).update("comandi", nave.comandi);               
+    }
+    getDatiPartita(ref){
+        firebase.firestore().collection("navi").doc(ref).get()
+
+    }
+    getDatiPartita(ref){
+        firebase.firestore().collection("partite").doc(ref).get()  
+        .catch(err => {
+            console.log("WOOOPS, qualcosa è andato storto!", err);
+        })
+        .then(res => {
+          this.partita.nomePartita = res.data().nomePartita || {}
+          this.partita.datigenerali = res.data().datigenerali || {}
+        })
+    
+    }
+    
+
 }
 
 export class ButtonTondoConsole {
