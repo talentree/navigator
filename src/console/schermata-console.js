@@ -1,5 +1,5 @@
 import { NavElement, html } from '../nav-element';
-import { referenceNaveDaControllare, idPartita } from '../utils';
+import { referenceNaveDaControllare, idPartita, InterfacciaParametrizzata } from '../utils';
 import { istanzeP5, arraySquadrePartita, ButtonTondoConsole, InfoSullaNaveConsole, Nave,  } from '../utils';
 
 export class SchermataConsole extends NavElement {
@@ -9,12 +9,14 @@ export class SchermataConsole extends NavElement {
     super();
     this.referenceSketchp5 = null;
     this.buttonTondo = new ButtonTondoConsole();
+    this.interfacciaParametrizzata = new InterfacciaParametrizzata();
     this.interfacciaTestuale = null;
     this.nave = new Nave({});
     this.coefficienteResize = 0.7;
 
     window.onresize = () => {
-      this.referenceSketchp5.resizeCanvas(window.innerWidth * this.coefficienteResize, window.innerHeight * this.coefficienteResize)
+      this.referenceSketchp5.resizeCanvas(window.innerWidth * this.coefficienteResize, window.innerHeight * this.coefficienteResize);
+      this.interfacciaParametrizzata.setDimensioni(window.innerWidth * this.coefficienteResize, window.innerHeight * this.coefficienteResize);
     }
   }
 
@@ -41,8 +43,8 @@ export class SchermataConsole extends NavElement {
 
   firstUpdated() {
     let _self = this;
-    _self.nave.getNave(referenceNaveDaControllare);
-    _self.nave.getDatiPartita(idPartita);
+    //_self.nave.getNave(referenceNaveDaControllare);
+    //_self.nave.getDatiPartita(idPartita);
     console.log(_self.nave);
 
     let sketch = function (p) {
@@ -61,7 +63,8 @@ export class SchermataConsole extends NavElement {
         p.background(51);
 
         //TODO: settare parametri corretti qui o in draw
-        _self.buttonTondo = new ButtonTondoConsole(p, 250, 250, 50, 70, 0, 60, 0);
+        //_self.buttonTondo = new ButtonTondoConsole(p, 250, 250, 50, 70, 0, 60, 0);
+        _self.interfacciaParametrizzata = new InterfacciaParametrizzata(p, window.innerWidth * _self.coefficienteResize, window.innerHeight * _self.coefficienteResize, 51);
         let infoNaveTag = document.querySelector("#info-nave");
         //_self.infoSullaNave = new InfoSullaNaveConsole(infoNaveTag);
 
@@ -81,13 +84,13 @@ export class SchermataConsole extends NavElement {
         _self.buttonTondo.setPosEDimensioni(posX, posY, raggioInterno, raggioEsterno);
         let ycb = window.innerHeight * _self.coefficienteResize * 0.80;
 
-        _self.buttonTondo.display(ycb);
-
+        //_self.buttonTondo.display(ycb);
+        _self.interfacciaParametrizzata.display();
         //aggiornamento dati Nave
-        _self.nave.getNave(referenceNaveDaControllare);
-        _self.nave.getDatiPartita(idPartita);
+        //_self.nave.getNave(referenceNaveDaControllare);
+        //_self.nave.getDatiPartita(idPartita);
         //uscita dalla schermata per inattività
-        _self.nave.kick(referenceNaveDaControllare, idPartita);
+        //_self.nave.kick(referenceNaveDaControllare, idPartita);
       }
 
       
