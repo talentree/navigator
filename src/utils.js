@@ -374,6 +374,8 @@ export class InterfacciaParametrizzata {
             this.setDimensioni(width, height);
         }
         this.coloreBackground = coloreBackground;
+        this.radar = [false, true, true, false, false, false, true];
+        this.collisioneImminente = true;
     }
 
     setDimensioni(width, height) {
@@ -381,12 +383,32 @@ export class InterfacciaParametrizzata {
             x: width * 0.5,
             y: height * 0.35
         }
+
+        this.centroManopolaMotore = {
+            x: width * 0.5,
+            y: height * 0.64
+        }
+        this.altezzaManopolaMotore = height * 0.28 / 2;
+        this.larghezzaManopolaMotore = width * 0.15 / 2;
+        this.distanzaBaseComandiTimone = width * 0.13;
+        this.dimBaseComandiTimone = height * 0.09;
+        this.dimAltezzaComandiTimone = width * 0.26;
+
         this.raggioAnelloBussola = width * 0.38;
         this.spessoreAnelloBussola = width * 0.05;
         this.barra = 90;
         this.intVento = 30;
         this.maxIntVento = 40;
         this.direzioneVento = 200;
+
+        this.angoloAltoASxRadar = {
+            x: width * 0.11,
+            y: height * 0.74
+        }
+        this.lunghezzaRadar = width * 0.78;
+        this.altezzaRadar = height * 0.04;
+
+        this.altezzaCollisioneImminente = height * 0.03;
     }
 
     display() {
@@ -449,5 +471,60 @@ export class InterfacciaParametrizzata {
         this.p.stroke(coloreAnelloBussola);
         let raggioCentroBussola = this.raggioAnelloBussola * 0.09;
         this.p.ellipse(this.centroBussola.x, this.centroBussola.y, raggioCentroBussola, raggioCentroBussola);
+
+        //disegno manopola motore
+        let coloreManopolaMotore = this.p.color(255, 150, 0);
+        this.p.fill(coloreManopolaMotore);
+        this.p.noStroke();
+        this.p.rect(this.centroManopolaMotore.x - this.larghezzaManopolaMotore / 2, this.centroManopolaMotore.y - this.altezzaManopolaMotore / 2, this.larghezzaManopolaMotore, this.altezzaManopolaMotore);
+
+        //disegno triangolo per muovere timone
+        //triangolo sx
+        let timoneSxBase = {
+            x: this.centroManopolaMotore.x - this.distanzaBaseComandiTimone,
+            y: this.centroManopolaMotore.y
+        }
+        this.p.fill(coloreManopolaMotore);
+        let timoneSxVertice = {
+            x: timoneSxBase.x - this.dimAltezzaComandiTimone,
+            y: timoneSxBase.y
+        }
+        this.p.triangle(timoneSxBase.x, timoneSxBase.y - this.dimBaseComandiTimone / 2, timoneSxBase.x, timoneSxBase.y + this.dimBaseComandiTimone / 2, timoneSxVertice.x, timoneSxVertice.y);
+
+        //triangolo dx
+        let timoneDxBase = {
+            x: this.centroManopolaMotore.x + this.distanzaBaseComandiTimone,
+            y: this.centroManopolaMotore.y
+        }
+        let timoneDxVertice = {
+            x: timoneDxBase.x + this.dimAltezzaComandiTimone,
+            y: timoneDxBase.y
+        }
+        this.p.triangle(timoneDxBase.x, timoneDxBase.y - this.dimBaseComandiTimone / 2, timoneDxBase.x, timoneDxBase.y + this.dimBaseComandiTimone / 2, timoneDxVertice.x, timoneDxVertice.y);
+
+        //disegno i radar
+        let coloreRadar = {
+            normal: this.p.color(0, 255, 0),
+            alert: this.p.color(255, 0, 0),
+            contorno: this.p.color(150, 150, 0)
+        }
+
+        this.p.stroke(coloreRadar.contorno);
+        for (let i = 0; i < 7; i++) {
+            if (this.radar[i] == false) {
+                this.p.fill(coloreRadar.normal);
+            }
+            else {
+                this.p.fill(coloreRadar.alert);
+            }
+            this.p.rect(this.angoloAltoASxRadar.x + (this.lunghezzaRadar / 7) * i, this.angoloAltoASxRadar.y, this.lunghezzaRadar / 7, this.altezzaRadar);
+        }
+
+
+        //collisione imminente
+        if (this.collisioneImminente) {
+            this.p.fill(coloreRadar.alert);
+            this.p.rect(this.angoloAltoASxRadar.x, this.angoloAltoASxRadar.y + this.altezzaRadar, this.lunghezzaRadar, this.altezzaCollisioneImminente);
+        }
     }
 }
