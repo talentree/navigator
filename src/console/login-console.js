@@ -33,8 +33,10 @@ export class LoginConsole extends NavElement {
               if(squadre[i].isUsed == false) {     
                  //se esiste assegno la reference e cambio schermata
                 setReferenceNaveDaControllare(squadre[i].reference);
-                //TODO: aggiorno valeore isUsed
-               // squadre[i].isUsed=true;
+                // aggiorno valore isUsed
+                squadre[i].isUsed = true;
+                //aggiorno valore timer
+                squadre[i].timer = res.docs[0].data().datigenerali.gametime;              
                 //passo valori arraySquadre e idPartita
                 setArraySquadrePartita(squadre, res.docs[0].id);
                 console.log("Sqadra trovata");

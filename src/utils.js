@@ -1,3 +1,5 @@
+import { tokenUtente } from "./main";
+
 let oldElement = null;
 //contiene la descrizione di dove ci troviamo
 export let infoScheda = "";
@@ -9,18 +11,6 @@ export let referenceNaveDaControllare = "";
 export function setReferenceNaveDaControllare(val) {
     referenceNaveDaControllare = val;
 }
-
-
-
-//contiene l'id della partita pewr il passaggio dati generali alle navi
-export let referencePartita = ""
-//imposta il valore id Partita (da errore assegnandolo direttamente)
-export function setReferencePartita(val) {
-    referencePartita = val;
-}
-
-
-
 //contiene l'array di squadre della partita
 export let arraySquadrePartita = [];
 //contene l'id della partita
@@ -77,8 +67,33 @@ export function backToMainMenu() {
         document.querySelector("#game-content").removeChild(oldElement);
         oldElement = null;
     }
+    if(infoScheda== "Console della nave"){
+        liberaSquadra(referenceNaveDaControllare, tokenUtente)
+    }
     //vado al menù pricipale
     setGameContent("main-menu");
+}
+
+//pone isUsed a false della squadra richiesta
+export function liberaSquadra(ref, idPartita){
+    let squadre = []        
+    let i=0;
+    //ottengo partita da ID
+     firebase.firestore().collection("partite").doc(idPartita).get()   
+    .catch(err => {
+         console.log("WOOOPS, qualcosa è andato storto!", err);
+     })
+    .then(res => {
+        //aggiorno il valore di isUsed della nave controllata al momento
+            squadre = Object.values(res.data().squadre)
+            squadre.forEach(squadra=>{
+            if(squadra.reference == ref){                               
+                    squadra.isUsed=false;
+                    firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra);
+                }             
+            i++       
+        })
+    })        
 }
 
 //quando cambia lo stato di autenticazione (login/logout) va ricreato l'header
@@ -95,7 +110,21 @@ export class Partita {
     constructor(data) {
         this.nomePartita = data.nomePartita || "";
         this.datigenerali = data.datigenerali || {};
-        this.squadre = data.squadre || [];
+        this.squadre = data.squadre || {};
+    }
+    kickInattività(idPartita){
+        let i=0;
+        let squadre = Object.values(this.squadre)
+        squadre.forEach(squadra=>{
+            if(squadra.isUsed == true){
+                //il numero deriva da una stima con refreshrate 30fps quindi il timeout corrisponde a 5 minuti
+              if((this.datigenerali.gametime - squadra.timer)>9000){
+                  squadra.isUsed=false;
+                  firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra)
+              }
+            } 
+            i++       
+        })
     }
 }
 export class Nave {
@@ -136,9 +165,10 @@ export class Nave {
         orizzonte pieno
         */
         this.radar = nave.radar || {};
-        this.partita = {}              //new Partita({});
+        this.partita = {} 
     }
 
+    //ottiene i dati della nave in uso da firebase
     getNave(ref){   
         //ottengo la nave dalla refernce
         firebase.firestore().collection("navi").doc(ref).get()   
@@ -153,25 +183,66 @@ export class Nave {
             this.radar = res.data.radar || {};    
           })
         }
+
+
     updateNave(ref, nave){
         firebase.firestore().collection("navi").doc(ref).update("comandi", nave.comandi);               
     }
-    getDatiPartita(ref){
-        firebase.firestore().collection("navi").doc(ref).get()
 
-    }
+    //ottiene i dati della partita corrente da firebase
     getDatiPartita(ref){
         firebase.firestore().collection("partite").doc(ref).get()  
         .catch(err => {
             console.log("WOOOPS, qualcosa è andato storto!", err);
         })
         .then(res => {
-          this.partita.nomePartita = res.data().nomePartita || {}
-          this.partita.datigenerali = res.data().datigenerali || {}
+          //aggiornati singolarmente perchè dava errore aggiornando tutto in un unico passaggio
+          this.partita.nomePartita = res.data().nomePartita || {};
+          this.partita.datigenerali = res.data().datigenerali || {};
+          this.partita.squadre = res.data().squadre || {};
         })
-    
+    }
+
+    //aggiorna il timer delle navi
+    updateTimer(ref, idPartita){
+        firebase.firestore().collection("partite").doc(idPartita).get()
+        .catch(err => {
+            console.log("WOOOPS, qualcosa è andato storto!", err);
+        })
+        .then(res => {
+            //aggiorno il timer della singola nave richiesta
+            let i=0;
+            let squadre = Object.values(res.data().squadre)
+            squadre.forEach(squadra=>{ 
+                if (squadra.reference == ref){
+                    squadra.timer = this.partita.datigenerali.gametime;
+                    firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra)                   
+                }
+                i++;
+            })
+        })  
     }
     
+    //ritorna al menù principlae in caso sia rilevato inattività
+    kick(ref, idPartita){
+        firebase.firestore().collection("partite").doc(idPartita).get()
+        .catch(err => {
+            console.log("WOOOPS, qualcosa è andato storto!", err);
+        })
+        .then(res => {
+            let squadre = Object.values(res.data().squadre)
+            squadre.forEach(squadra=>{ 
+                //trovo la squadra desiderata
+                if (squadra.reference == ref){
+                    //controllo se in uso o no in caso negativo ritorno al menù principale
+                    if(squadra.isUsed == false){                        
+                        //TODO: trovare un modo avvertire della disconnessione (alert non funziona)
+                        backToMainMenu();
+                    }
+                }
+            })
+        })  
+    }
 
 }
 
