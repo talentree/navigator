@@ -277,7 +277,7 @@ export class InterfacciaParametrizzata {
 
         this.nomeNave = "NAVE";
         this.gameTime = 0;
-        this.direzione = 23;
+        this.direzione = 20;
         this.vel = 34;
         this.ultimaPosRilevata = {
             x: 0,
@@ -312,7 +312,8 @@ export class InterfacciaParametrizzata {
 
         this.raggioAnelloBussola = width * 0.38;
         this.spessoreAnelloBussola = width * 0.05;
-        this.barra = 90;
+        //barra verrà moltiplicata per 10
+        this.barra = 5;
         this.intVento = 30;
         this.maxIntVento = 40;
         this.direzioneVento = 200;
@@ -373,13 +374,14 @@ export class InterfacciaParametrizzata {
         let coloreTriangoloTimone = this.p.color(0, 255, 0);
         let baseTimone = this.raggioAnelloBussola * 0.21;
         let altezzaTimone = this.raggioAnelloBussola * 0.80;
+        let barraRappresentata = this.barra * 10;
         let puntiTriangoloTimone = [
-            this.centroBussola.x + baseTimone / 2 * Math.sin((this.barra - 90) * Math.PI / 180),
-            this.centroBussola.y - baseTimone / 2 * Math.cos((this.barra - 90) * Math.PI / 180),
-            this.centroBussola.x + baseTimone / 2 * Math.sin((this.barra + 90) * Math.PI / 180),
-            this.centroBussola.y - baseTimone / 2 * Math.cos((this.barra + 90) * Math.PI / 180),
-            this.centroBussola.x + altezzaTimone * Math.sin(this.barra * Math.PI / 180),
-            this.centroBussola.y - altezzaTimone * Math.cos(this.barra * Math.PI / 180)
+            this.centroBussola.x + baseTimone / 2 * Math.sin((barraRappresentata - 90) * Math.PI / 180),
+            this.centroBussola.y - baseTimone / 2 * Math.cos((barraRappresentata - 90) * Math.PI / 180),
+            this.centroBussola.x + baseTimone / 2 * Math.sin((barraRappresentata + 90) * Math.PI / 180),
+            this.centroBussola.y - baseTimone / 2 * Math.cos((barraRappresentata + 90) * Math.PI / 180),
+            this.centroBussola.x + altezzaTimone * Math.sin(barraRappresentata * Math.PI / 180),
+            this.centroBussola.y - altezzaTimone * Math.cos(barraRappresentata * Math.PI / 180)
         ]
         this.p.fill(coloreTriangoloTimone);
         this.p.triangle(puntiTriangoloTimone[0], puntiTriangoloTimone[1], puntiTriangoloTimone[2], puntiTriangoloTimone[3], puntiTriangoloTimone[4], puntiTriangoloTimone[5]);
@@ -522,6 +524,43 @@ export class InterfacciaParametrizzata {
         this.p.text("Last pos: " + this.ultimaPosRilevata.x + " " + this.ultimaPosRilevata.y, this.posizioneTestiFinali.x, this.posizioneTestiFinali.yUltimaPosizione);
         this.p.text("Testo di cosa??", this.posizioneTestiFinali.x, this.posizioneTestiFinali.yTesto);
         this.p.text(this.messaggi, this.posizioneTestiFinali.x, this.posizioneTestiFinali.yMessaggi);
+
+        //disegno indicatore nord
+        let direzioneIndicatore = this.direzione;
+        for (let i = 0; i < 4; i++) {
+            direzioneIndicatore = -this.direzione + 90 * i;
+            this.p.textAlign(this.p.CENTER, this.p.CENTER);
+            this.p.textSize(this.dimensioniTesti.piccoli);
+            let posNord = {
+                x: this.centroBussola.x + (this.raggioAnelloBussola - this.spessoreAnelloBussola / 2) * Math.sin(direzioneIndicatore * Math.PI / 180),
+                y: this.centroBussola.y - (this.raggioAnelloBussola - this.spessoreAnelloBussola / 2) * Math.cos(direzioneIndicatore * Math.PI / 180)
+            }
+            //this.p.ellipse(posNord.x, posNord.y, 10, 10);
+            this.p.translate(posNord.x, posNord.y);
+            this.p.rotate(direzioneIndicatore);
+            let lettera = "N";
+            switch (i) {
+                case 0: {
+                    lettera = "N";
+                    break;
+                }
+                case 1: {
+                    lettera = "E";
+                    break;
+                }
+                case 2: {
+                    lettera = "S";
+                    break;
+                }
+                case 3: {
+                    lettera = "O";
+                    break;
+                }
+            }
+            this.p.text(lettera, 0, 0);
+            this.p.rotate(- direzioneIndicatore);
+            this.p.translate(-posNord.x, -posNord.y);
+        }
     }
 
     //0 se esterno, 1 se aumento velocita, 2 de diminuisco, 3 se viro a dx, 4 se viro a sx, 5 se resetto timones
