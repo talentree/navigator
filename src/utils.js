@@ -246,108 +246,6 @@ export class Nave {
 
 }
 
-export class ButtonTondoConsole {
-
-    constructor(istanzap5, xc, yc, rInterno, rEsterno, variazionebarra, barra, accel) {
-        this.p = istanzap5;
-        this.setPosEDimensioni(xc, yc, rInterno, rEsterno)
-        this.barra = barra;
-        this.accel = accel;
-        this.variazionebarra = variazionebarra;
-
-        this.coloreViraDestra = [100, 100, 100];
-        this.coloreViraSinistra = [99, 99, 99];
-        this.coloreAumentaVelocita = [150, 150, 150];
-        this.coloreDiminuisciVelocita = [149, 149, 149];
-
-    }
-
-    setPosEDimensioni(posX, posY, raggioInterno, raggioEsterno) {
-        this.raggio = raggioInterno;
-        this.raggioEsterno = raggioEsterno;
-        this.x = posX;
-        this.y = posY;
-    }
-
-    display(ycb) {
-        // noFill ();
-        var rh = this.raggio * 0.2;
-
-        //contorni in nero
-        this.p.stroke(0, 0, 0, 150);
-
-        //grafica vira a destra
-        this.p.fill(this.coloreViraDestra[0], this.coloreViraDestra[1], this.coloreViraDestra[2], 255);
-        this.p.arc(this.x, this.y, this.raggioEsterno, this.raggioEsterno, -90, 90, this.p.PIE);
-
-        //grafica vira a sinistra
-        this.p.fill(this.coloreViraSinistra[0], this.coloreViraSinistra[1], this.coloreViraSinistra[2], 255);
-        this.p.arc(this.x, this.y, this.raggioEsterno, this.raggioEsterno, 90, -90, this.p.PIE);
-
-        //grafica accelera
-        this.p.fill(this.coloreAumentaVelocita[0], this.coloreAumentaVelocita[1], this.coloreAumentaVelocita[2], 255);
-        this.p.arc(this.x, this.y, this.raggio, this.raggio, -90, 90, this.p.PIE);
-
-        //grafica decelera
-        this.p.fill(this.coloreDiminuisciVelocita[0], this.coloreDiminuisciVelocita[1], this.coloreDiminuisciVelocita[2], 255);
-        this.p.arc(this.x, this.y, this.raggio, this.raggio, 90, -90, this.p.PIE);
-
-        //pallino rosso al centro se sto cliccando
-        if (this.p.mouseIsPressed) {
-            this.p.fill(255, 0, 0, 255);
-        }
-        else {
-            this.p.fill(0, 0, 0, 255);
-        }
-        this.p.ellipse(this.x, this.y, this.raggio * 0.1, this.raggio * 0.1);
-        //strokeWeight (20);
-        this.p.stroke(0, 0, 0, 150);
-        this.p.line(this.x, this.y - this.raggio / 2, this.x, this.y + this.raggio / 2);
-        //  fill(0, 0, 0, 127);
-        // noStroke();
-        this.p.fill(255, 255, 255, 200);
-
-        //text("VEL: " + nf(b01.vel, 0, 2), width * 0.1, height * 0.4);
-        this.p.stroke(0, 255, 0, 150);
-        this.p.line(this.x, this.y, this.x + this.raggio / 2 * this.p.cos(this.barra - 90), this.y + this.raggio / 2 * this.p.sin(this.barra - 90));
-
-        //allarme
-        //if stato ..... 
-        this.p.fill(200);
-        this.p.stroke(255, 255, 255, 150);
-        this.p.triangle(this.x, ycb - rh, this.x, ycb + rh, this.x + 2 * rh, ycb);
-        this.p.triangle(this.x, ycb - rh, this.x, ycb + rh, this.x - 2 * rh, ycb);
-        this.p.noFill();
-        this.p.noStroke();
-
-        this.p.stroke(255, 0, 0);
-        this.p.fill(255, 0, 0);
-
-        this.p.noFill();
-        this.p.noStroke();
-    }
-
-    //0 se esterno, 1 se aumento velocita, 2 de diminuisco, 3 se viro a dx, 4 se viro a sx
-    whereIsClick(coloreNelPunto) {
-        //console.log(coloreNelPunto);
-        if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreAumentaVelocita)) {
-            return 1;
-        }
-        else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreDiminuisciVelocita)) {
-            return 2;
-        }
-        else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreViraDestra)) {
-            return 3;
-        }
-        else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreViraSinistra)) {
-            return 4;
-        }
-        else {
-            return 0;
-        }
-    }
-}
-
 export class InfoSullaNaveConsole {
     constructor(paragrafo) {
         this.carburanteRimasto = 0;
@@ -373,9 +271,27 @@ export class InterfacciaParametrizzata {
         if (width && height) {
             this.setDimensioni(width, height);
         }
-        this.coloreBackground = coloreBackground;
+        this.coloreBackground = coloreBackground;// § <-- il mio gatto è più bravo di me con la tastiera
         this.radar = [false, true, true, false, false, false, true];
         this.collisioneImminente = true;
+
+        this.nomeNave = "NAVE";
+        this.gameTime = 0;
+        this.direzione = 23;
+        this.vel = 34;
+        this.ultimaPosRilevata = {
+            x: 0,
+            y: 0
+        }
+
+        this.messaggi = "Nessun messaggio";
+
+        this.coloreResettaTimone = [255, 1, 0];
+        this.coloreViraDestra = [255, 200, 0];
+        this.coloreViraSinistra = [255, 201, 0];
+        this.coloreAumentaVelocita = [255, 202, 0];
+        this.coloreDiminuisciVelocita = [255, 203, 0];
+        this.coloreAnelloBussola = this.p.color(255, 204, 0);
     }
 
     setDimensioni(width, height) {
@@ -409,12 +325,44 @@ export class InterfacciaParametrizzata {
         this.altezzaRadar = height * 0.04;
 
         this.altezzaCollisioneImminente = height * 0.03;
+
+        this.windstarText = {
+            x: width * 0.11,
+            y: height * 0.05,
+            yNomeNave: height * 0.09
+        }
+
+        this.gameTimeText = {
+            x: width * 0.89,
+            y: height * 0.09,
+            yDescrizione: height * 0.127
+        }
+
+        this.posizioneTestiVelEDirezione = {
+            xDir: width * 0.3,
+            xVel: width * 0.7,
+            y: height * 0.59,
+            yDescrizioni: height * 0.64,
+            xDescDirezione: width * 0.065,
+            xDescvel: width * (1 - 0.065),
+        }
+
+        this.dimensioniTesti = {
+            piccoli: height * 0.02 * 2,
+            grandi: height * 0.05 * 2
+        }
+
+        this.posizioneTestiFinali = {
+            x: width * 0.11,
+            yUltimaPosizione: height * 0.88,
+            yTesto: height * 0.91,
+            yMessaggi: height * 0.94
+        }
     }
 
     display() {
         //disegno anello bussola
-        let coloreAnelloBussola = this.p.color(255, 204, 0);
-        this.p.fill(coloreAnelloBussola);
+        this.p.fill(this.coloreAnelloBussola);
         this.p.noStroke();
         this.p.ellipse(this.centroBussola.x, this.centroBussola.y, this.raggioAnelloBussola * 2);
         this.p.fill(this.coloreBackground);
@@ -466,17 +414,19 @@ export class InterfacciaParametrizzata {
         this.p.triangle(puntiTriangoloVento[0], puntiTriangoloVento[1], puntiTriangoloVento[2], puntiTriangoloVento[3], puntiTriangoloVento[4], puntiTriangoloVento[5]);
 
         //disegno centro bussola
-        let coloreCentroBussola = this.p.color(255, 0, 0);
-        this.p.fill(coloreCentroBussola);
-        this.p.stroke(coloreAnelloBussola);
+        this.p.fill(this.coloreResettaTimone);
+        this.p.stroke(this.coloreAnelloBussola);
         let raggioCentroBussola = this.raggioAnelloBussola * 0.09;
         this.p.ellipse(this.centroBussola.x, this.centroBussola.y, raggioCentroBussola, raggioCentroBussola);
 
         //disegno manopola motore
-        let coloreManopolaMotore = this.p.color(255, 150, 0);
-        this.p.fill(coloreManopolaMotore);
+
+        this.p.fill(this.coloreAumentaVelocita);
         this.p.noStroke();
-        this.p.rect(this.centroManopolaMotore.x - this.larghezzaManopolaMotore / 2, this.centroManopolaMotore.y - this.altezzaManopolaMotore / 2, this.larghezzaManopolaMotore, this.altezzaManopolaMotore);
+        this.p.rect(this.centroManopolaMotore.x - this.larghezzaManopolaMotore / 2, this.centroManopolaMotore.y - this.altezzaManopolaMotore / 2, this.larghezzaManopolaMotore, this.altezzaManopolaMotore / 2);
+
+        this.p.fill(this.coloreDiminuisciVelocita);
+        this.p.rect(this.centroManopolaMotore.x - this.larghezzaManopolaMotore / 2, this.centroManopolaMotore.y, this.larghezzaManopolaMotore, this.altezzaManopolaMotore / 2);
 
         //disegno triangolo per muovere timone
         //triangolo sx
@@ -484,7 +434,7 @@ export class InterfacciaParametrizzata {
             x: this.centroManopolaMotore.x - this.distanzaBaseComandiTimone,
             y: this.centroManopolaMotore.y
         }
-        this.p.fill(coloreManopolaMotore);
+        this.p.fill(this.coloreViraSinistra);
         let timoneSxVertice = {
             x: timoneSxBase.x - this.dimAltezzaComandiTimone,
             y: timoneSxBase.y
@@ -500,6 +450,8 @@ export class InterfacciaParametrizzata {
             x: timoneDxBase.x + this.dimAltezzaComandiTimone,
             y: timoneDxBase.y
         }
+        this.p.fill(this.coloreViraDestra);
+
         this.p.triangle(timoneDxBase.x, timoneDxBase.y - this.dimBaseComandiTimone / 2, timoneDxBase.x, timoneDxBase.y + this.dimBaseComandiTimone / 2, timoneDxVertice.x, timoneDxVertice.y);
 
         //disegno i radar
@@ -526,5 +478,169 @@ export class InterfacciaParametrizzata {
             this.p.fill(coloreRadar.alert);
             this.p.rect(this.angoloAltoASxRadar.x, this.angoloAltoASxRadar.y + this.altezzaRadar, this.lunghezzaRadar, this.altezzaCollisioneImminente);
         }
+
+        //testi
+        let coloreTesti = this.p.color(0, 0, 0);
+        this.p.fill(coloreTesti);
+        this.p.noStroke();
+        this.p.textSize(this.dimensioniTesti.piccoli);
+        this.p.textAlign(this.p.LEFT);
+        this.p.text('WINDSTAR', this.windstarText.x, this.windstarText.y);
+        this.p.text(this.nomeNave, this.windstarText.x, this.windstarText.yNomeNave);
+
+        this.p.textSize(this.dimensioniTesti.grandi);
+        this.p.textAlign(this.p.RIGHT);
+        this.p.text(this.gameTime, this.gameTimeText.x, this.gameTimeText.y);
+        this.p.textSize(this.dimensioniTesti.piccoli);
+        this.p.text("TIME", this.gameTimeText.x, this.gameTimeText.yDescrizione);
+
+        this.p.textSize(this.dimensioniTesti.grandi / 2);
+        this.p.textAlign(this.p.RIGHT);
+        this.p.text(this.direzione + " N", this.posizioneTestiVelEDirezione.xDir, this.posizioneTestiVelEDirezione.y);
+        let velocitaMostrata = 0;
+        if (this.vel < 10) {
+            velocitaMostrata = "00" + this.vel;
+        }
+        else if (this.vel < 100) {
+            velocitaMostrata = "0" + this.vel;
+        }
+        else {
+            velocitaMostrata = this.vel;
+        }
+
+        this.p.textAlign(this.p.LEFT);
+        this.p.text(velocitaMostrata, this.posizioneTestiVelEDirezione.xVel, this.posizioneTestiVelEDirezione.y);
+        this.p.textSize(this.dimensioniTesti.piccoli);
+        this.p.textAlign(this.p.LEFT);
+        this.p.text("DIR", this.posizioneTestiVelEDirezione.xDescDirezione, this.posizioneTestiVelEDirezione.yDescrizioni);
+        this.p.textAlign(this.p.RIGHT);
+        this.p.text("VEL", this.posizioneTestiVelEDirezione.xDescvel, this.posizioneTestiVelEDirezione.yDescrizioni);
+
+        this.p.text(this.dimensioniTesti.piccoli);
+        this.p.textAlign(this.p.LEFT);
+
+        this.p.text("Last pos: " + this.ultimaPosRilevata.x + " " + this.ultimaPosRilevata.y, this.posizioneTestiFinali.x, this.posizioneTestiFinali.yUltimaPosizione);
+        this.p.text("Testo di cosa??", this.posizioneTestiFinali.x, this.posizioneTestiFinali.yTesto);
+        this.p.text(this.messaggi, this.posizioneTestiFinali.x, this.posizioneTestiFinali.yMessaggi);
+    }
+
+    //0 se esterno, 1 se aumento velocita, 2 de diminuisco, 3 se viro a dx, 4 se viro a sx, 5 se resetto timones
+    whereIsClick(coloreNelPunto) {
+        //console.log(coloreNelPunto);
+        if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreAumentaVelocita)) {
+            return 1;
+        }
+        else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreDiminuisciVelocita)) {
+            return 2;
+        }
+        else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreViraDestra)) {
+            return 3;
+        }
+        else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreViraSinistra)) {
+            return 4;
+        }
+        else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreResettaTimone)) {
+            return 5;
+        }
+        else {
+            return 0;
+        }
+    }
+}
+
+export class GestoreInterfacceConsole {
+    constructor(p, containerp5, interfacciaTestuale, width, height, coloreBackground) {
+        this.isInterfacciaTestuale = false;
+        if (p) {
+            this.containerp5 = containerp5;
+            this.interfacciaParametrizzata = new InterfacciaParametrizzata(p, width, height, coloreBackground);
+            this.interfacciaTestuale = interfacciaTestuale;
+            this.PassaAInterfacciaTestuale(this.isInterfacciaTestuale);
+        }
+    }
+
+    SetDimensioni(width, height) {
+        this.interfacciaParametrizzata.setDimensioni(width, height);
+    }
+
+    Display() {
+        this.interfacciaParametrizzata.display();
+    }
+
+    PassaAInterfacciaTestuale(isTestuale) {
+        this.isInterfacciaTestuale = isTestuale;
+        this.interfacciaTestuale.hide = !isTestuale;
+        if (isTestuale) {
+            this.containerp5.style.display = "none";
+        }
+        else {
+            this.containerp5.style.display = "block";
+        }
+    }
+
+    WhereIsClick(coloreNelPunto) {
+        let res = this.interfacciaParametrizzata.whereIsClick(coloreNelPunto);
+        console.log(res);
+        return res;
+    }
+
+    //string
+    SetNomeNave(val) {
+        this.interfacciaTestuale.nomeNave = val;
+        this.interfacciaParametrizzata.nomeNave = val;
+    }
+
+    //int o float
+    SetTempoDiGioco(val) {
+        this.interfacciaTestuale.tempoDiGioco = val;
+        this.interfacciaParametrizzata.gameTime = val;
+    }
+
+    //int o float
+    SetVelocita(val) {
+        this.interfacciaTestuale.vel = val;
+        this.interfacciaParametrizzata.vel = val;
+    }
+
+    //int o float
+    SetDirezione(val) {
+        this.interfacciaTestuale.direzione = val;
+        this.interfacciaParametrizzata.direzione = val;
+    }
+
+    //int o float
+    SetIntensitaVento(val) {
+        this.interfacciaTestuale.intVento = val;
+        this.interfacciaParametrizzata.intVento = val;
+    }
+
+    //int o float
+    SetDirezioneVento(val) {
+        this.interfacciaTestuale.direzioneVento = val;
+        this.interfacciaParametrizzata.direzioneVento = val;
+    }
+
+    //array di true o false
+    SetRadar(val) {
+        this.interfacciaTestuale.radar = val;
+        this.interfacciaParametrizzata.radar = val;
+    }
+
+    //true o false
+    SetCollisioneImminente(val) {
+        this.interfacciaTestuale.collisioneImminente = val;
+        this.interfacciaParametrizzata.collisioneImminente = val;
+    }
+
+    //true o false
+    SetCollisioneAvvenuta(val) {
+        this.interfacciaTestuale.collisioneAvvenuta = val;
+        //TODO: this.interfacciaParametrizzata.coll = val;
+    }
+
+    //object con x e y
+    SetUltimaPosizioneRilevata(val) {
+        this.interfacciaTestuale.ultimaPosRilevata = val;
+        this.interfacciaParametrizzata.ultimaPosRilevata = val;
     }
 }
