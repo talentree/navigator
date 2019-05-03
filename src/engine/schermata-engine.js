@@ -70,7 +70,7 @@ export class SchermataEngine extends NavElement {
                 p.noLoop();
                 _self.cercaPartita();
 
-                //TODO: migliora inizializzazione variabili
+                //FIXME: migliora inizializzazione variabili
                 setTimeout(function () {
                     let t = _self.partita.datigenerali;
                     gtime = t.gametime;
@@ -114,25 +114,30 @@ export class SchermataEngine extends NavElement {
                 }
 
                 //aggiorna posizioni navi
-                //TODO: Aggiungere deriva vento
-                
-                for (let i = 0; i < _self.navi.length; i++) {
+                Object.keys(this.partita.squadre).forEach(i => {
+                    //se una nave non viene usata la salto
+                    if (!this.partita.squadre[i].isUsed) {continue;}
+
                     // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato 
                     // verso destra gli angoli sono positivi in senso antiorario
-                    
-                    // aggiorno le posizioni FIXME: restituisce Nan di posx, posy e direzione
                     _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].pos.direzione * 2 * Math.PI) / 360);
                     _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].pos.direzione * 2 * Math.PI) / 360);
+
+                    //tengo conto del vento (FIXME: futura scelta)
+                    if (true) {
+                        _self.navi[i].pos.posx += wspeed * Math.cos((wdir * 2 * Math.PI) / 360);
+                        _self.navi[i].pos.posy += wspeed * Math.sin((wdir * 2 * Math.PI) / 360);
+                    }
 
                     // aggiorno le velocita'
                     // ignoro la fisica e immagino che la velocita' sia conservata sempre
                     _self.navi[i].comandi.velocity += _self.navi[i].comandi.accel;
-                    //FIXME: potrebbe essere Nan a causa di barra? il path è .comandi.barra
+                    
                     let x = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
                     if (x < 0) { x += 360 }
                     if (x > 360) { x += -360 }
                     _self.navi[i].pos.direzione = x;
-                }
+                });
 
                 //update nave
                 //plotta navi
@@ -145,11 +150,15 @@ export class SchermataEngine extends NavElement {
 
                 console.log('aggiorno gtime');
                 _self.upNave(_self.navi);
-                for (let i = 0; i < _self.navi.length; i++) {
+                
+                Object.keys(this.partita.squadre).forEach(i => {
+                    //se una nave non viene usata la salto
+                    if (!this.partita.squadre[i].isUsed) {continue;}
+
                     let nave = new Nave(_self.navi[i]);
                     p.ellipse(nave.pos.posx, nave.pos.posy, 15, 10);
                     //TODO: far ruotare la nave
-                }
+                });
             }
         };
 
