@@ -4,7 +4,7 @@ export class LoginRegistrazione extends NavElement {
     constructor() {
         super();
         //dati per il login
-        this.mail = "roveroniandrea@gmail.com";
+        this.mail = "davide.peron19@gmail.com";
         this.password = "123456";
         //quando premo il tasto per login
         this.effettuaLogin = function (e) {
