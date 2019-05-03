@@ -67,7 +67,7 @@ export function backToMainMenu() {
         document.querySelector("#game-content").removeChild(oldElement);
         oldElement = null;
     }
-    if(infoScheda== "Console della nave"){
+    if (infoScheda == "Console della nave") {
         liberaSquadra(referenceNaveDaControllare, tokenUtente)
     }
     //vado al menù pricipale
@@ -75,25 +75,25 @@ export function backToMainMenu() {
 }
 
 //pone isUsed a false della squadra richiesta
-export function liberaSquadra(ref, idPartita){
-    let squadre = []        
-    let i=0;
+export function liberaSquadra(ref, idPartita) {
+    let squadre = []
+    let i = 0;
     //ottengo partita da ID
-     firebase.firestore().collection("partite").doc(idPartita).get()   
-    .catch(err => {
-         console.log("WOOOPS, qualcosa è andato storto!", err);
-     })
-    .then(res => {
-        //aggiorno il valore di isUsed della nave controllata al momento
-            squadre = Object.values(res.data().squadre)
-            squadre.forEach(squadra=>{
-            if(squadra.reference == ref){                               
-                    squadra.isUsed=false;
-                    firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra);
-                }             
-            i++       
+    firebase.firestore().collection("partite").doc(idPartita).get()
+        .catch(err => {
+            console.log("WOOOPS, qualcosa è andato storto!", err);
         })
-    })        
+        .then(res => {
+            //aggiorno il valore di isUsed della nave controllata al momento
+            squadre = Object.values(res.data().squadre)
+            squadre.forEach(squadra => {
+                if (squadra.reference == ref) {
+                    squadra.isUsed = false;
+                    firebase.firestore().collection("partite").doc(idPartita).update("squadre." + i, squadra);
+                }
+                i++
+            })
+        })
 }
 
 //quando cambia lo stato di autenticazione (login/logout) va ricreato l'header
@@ -112,18 +112,18 @@ export class Partita {
         this.datigenerali = data.datigenerali || {};
         this.squadre = data.squadre || {};
     }
-    kickInattività(idPartita){
-        let i=0;
+    kickInattività(idPartita) {
+        let i = 0;
         let squadre = Object.values(this.squadre)
-        squadre.forEach(squadra=>{
-            if(squadra.isUsed == true){
+        squadre.forEach(squadra => {
+            if (squadra.isUsed == true) {
                 //il numero deriva da una stima con refreshrate 30fps quindi il timeout corrisponde a 5 minuti
-              if((this.datigenerali.gametime - squadra.timer)>9000){
-                  squadra.isUsed=false;
-                  firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra)
-              }
-            } 
-            i++       
+                if ((this.datigenerali.gametime - squadra.timer) > 9000) {
+                    squadra.isUsed = false;
+                    firebase.firestore().collection("partite").doc(idPartita).update("squadre." + i, squadra)
+                }
+            }
+            i++
         })
     }
 }
@@ -165,169 +165,366 @@ export class Nave {
         orizzonte pieno
         */
         this.radar = nave.radar || {};
-        this.partita = {} 
+        this.partita = {}
     }
 
     //ottiene i dati della nave in uso da firebase
-    getNave(ref){   
+    getNave(ref) {
         //ottengo la nave dalla refernce
-        firebase.firestore().collection("navi").doc(ref).get()   
-          .catch(err => {
-              console.log("WOOOPS, qualcosa è andato storto!", err);
-          })
-          .then(res => {
-            //inserisco i dati da firebase
-            this.comandi = res.data().comandi || {};
-            this.datiIniziali = res.data().datiIniziali || {};
-            this.pos = res.data().pos || {};
-            this.radar = res.data.radar || {};    
-          })
-        }
+        firebase.firestore().collection("navi").doc(ref).get()
+            .catch(err => {
+                console.log("WOOOPS, qualcosa è andato storto!", err);
+            })
+            .then(res => {
+                //inserisco i dati da firebase
+                this.comandi = res.data().comandi || {};
+                this.datiIniziali = res.data().datiIniziali || {};
+                this.pos = res.data().pos || {};
+                this.radar = res.data.radar || {};
+            })
+    }
 
 
-    updateNave(ref, nave){
-        firebase.firestore().collection("navi").doc(ref).update("comandi", nave.comandi);               
+    updateNave(ref, nave) {
+        firebase.firestore().collection("navi").doc(ref).update("comandi", nave.comandi);
     }
 
     //ottiene i dati della partita corrente da firebase
-    getDatiPartita(ref){
-        firebase.firestore().collection("partite").doc(ref).get()  
-        .catch(err => {
-            console.log("WOOOPS, qualcosa è andato storto!", err);
-        })
-        .then(res => {
-          //aggiornati singolarmente perchè dava errore aggiornando tutto in un unico passaggio
-          this.partita.nomePartita = res.data().nomePartita || {};
-          this.partita.datigenerali = res.data().datigenerali || {};
-          this.partita.squadre = res.data().squadre || {};
-        })
+    getDatiPartita(ref) {
+        firebase.firestore().collection("partite").doc(ref).get()
+            .catch(err => {
+                console.log("WOOOPS, qualcosa è andato storto!", err);
+            })
+            .then(res => {
+                //aggiornati singolarmente perchè dava errore aggiornando tutto in un unico passaggio
+                this.partita.nomePartita = res.data().nomePartita || {};
+                this.partita.datigenerali = res.data().datigenerali || {};
+                this.partita.squadre = res.data().squadre || {};
+            })
     }
 
     //aggiorna il timer delle navi
-    updateTimer(ref, idPartita){
+    updateTimer(ref, idPartita) {
         firebase.firestore().collection("partite").doc(idPartita).get()
-        .catch(err => {
-            console.log("WOOOPS, qualcosa è andato storto!", err);
-        })
-        .then(res => {
-            //aggiorno il timer della singola nave richiesta
-            let i=0;
-            let squadre = Object.values(res.data().squadre)
-            squadre.forEach(squadra=>{ 
-                if (squadra.reference == ref){
-                    squadra.timer = this.partita.datigenerali.gametime;
-                    firebase.firestore().collection("partite").doc(idPartita).update("squadre."+i, squadra)                   
-                }
-                i++;
+            .catch(err => {
+                console.log("WOOOPS, qualcosa è andato storto!", err);
             })
-        })  
-    }
-    
-    //ritorna al menù principlae in caso sia rilevato inattività
-    kick(ref, idPartita){
-        firebase.firestore().collection("partite").doc(idPartita).get()
-        .catch(err => {
-            console.log("WOOOPS, qualcosa è andato storto!", err);
-        })
-        .then(res => {
-            let squadre = Object.values(res.data().squadre)
-            squadre.forEach(squadra=>{ 
-                //trovo la squadra desiderata
-                if (squadra.reference == ref){
-                    //controllo se in uso o no in caso negativo ritorno al menù principale
-                    if(squadra.isUsed == false){                        
-                        //TODO: trovare un modo avvertire della disconnessione (alert non funziona)
-                        backToMainMenu();
+            .then(res => {
+                //aggiorno il timer della singola nave richiesta
+                let i = 0;
+                let squadre = Object.values(res.data().squadre)
+                squadre.forEach(squadra => {
+                    if (squadra.reference == ref) {
+                        squadra.timer = this.partita.datigenerali.gametime;
+                        firebase.firestore().collection("partite").doc(idPartita).update("squadre." + i, squadra)
                     }
-                }
+                    i++;
+                })
             })
-        })  
+    }
+
+    //ritorna al menù principlae in caso sia rilevato inattività
+    kick(ref, idPartita) {
+        firebase.firestore().collection("partite").doc(idPartita).get()
+            .catch(err => {
+                console.log("WOOOPS, qualcosa è andato storto!", err);
+            })
+            .then(res => {
+                let squadre = Object.values(res.data().squadre)
+                squadre.forEach(squadra => {
+                    //trovo la squadra desiderata
+                    if (squadra.reference == ref) {
+                        //controllo se in uso o no in caso negativo ritorno al menù principale
+                        if (squadra.isUsed == false) {
+                            //TODO: trovare un modo avvertire della disconnessione (alert non funziona)
+                            backToMainMenu();
+                        }
+                    }
+                })
+            })
     }
 
 }
 
-export class ButtonTondoConsole {
-
-    constructor(istanzap5, xc, yc, rInterno, rEsterno, variazionebarra, barra, accel) {
-        this.p = istanzap5;
-        this.setPosEDimensioni(xc, yc, rInterno, rEsterno)
-        this.barra = barra;
-        this.accel = accel;
-        this.variazionebarra = variazionebarra;
-
-        this.coloreViraDestra = [100, 100, 100];
-        this.coloreViraSinistra = [99, 99, 99];
-        this.coloreAumentaVelocita = [150, 150, 150];
-        this.coloreDiminuisciVelocita = [149, 149, 149];
-
+export class InfoSullaNaveConsole {
+    constructor(paragrafo) {
+        this.carburanteRimasto = 0;
+        this.velocita = 0;
+        this.direzione = 0;
+        if (paragrafo) {
+            this.paragrafo = paragrafo;
+            console.log(paragrafo);
+            this.display();
+        }
     }
 
-    setPosEDimensioni(posX, posY, raggioInterno, raggioEsterno) {
-        this.raggio = raggioInterno;
-        this.raggioEsterno = raggioEsterno;
-        this.x = posX;
-        this.y = posY;
+    display() {
+        this.paragrafo.innerHTML = "Velocità: " + this.velocita + " (udm??)<br>";
+        this.paragrafo.innerHTML += "Direzione: " + this.direzione + " °<br>";
+        this.paragrafo.innerHTML += "Carburante rimasto: " + this.direzione + " (udm??)";
+    }
+}
+
+export class InterfacciaParametrizzata {
+    constructor(p, width, height, coloreBackground) {
+        this.p = p;
+        if (width && height) {
+            this.setDimensioni(width, height);
+        }
+        this.coloreBackground = coloreBackground;// § <-- il mio gatto è più bravo di me con la tastiera
+        this.radar = [false, true, true, false, false, false, true];
+        this.collisioneImminente = true;
+
+        this.nomeNave = "NAVE";
+        this.gameTime = 0;
+        this.direzione = 23;
+        this.vel = 34;
+        this.ultimaPosRilevata = {
+            x: 0,
+            y: 0
+        }
+
+        this.messaggi = "Nessun messaggio";
+
+        this.coloreResettaTimone = [255, 1, 0];
+        this.coloreViraDestra = [255, 200, 0];
+        this.coloreViraSinistra = [255, 201, 0];
+        this.coloreAumentaVelocita = [255, 202, 0];
+        this.coloreDiminuisciVelocita = [255, 203, 0];
+        this.coloreAnelloBussola = this.p.color(255, 204, 0);
     }
 
-    display(ycb) {
-        // noFill ();
-        var rh = this.raggio * 0.2;
+    setDimensioni(width, height) {
+        this.centroBussola = {
+            x: width * 0.5,
+            y: height * 0.35
+        }
 
-        //contorni in nero
-        this.p.stroke(0, 0, 0, 150);
+        this.centroManopolaMotore = {
+            x: width * 0.5,
+            y: height * 0.64
+        }
+        this.altezzaManopolaMotore = height * 0.28 / 2;
+        this.larghezzaManopolaMotore = width * 0.15 / 2;
+        this.distanzaBaseComandiTimone = width * 0.13;
+        this.dimBaseComandiTimone = height * 0.09;
+        this.dimAltezzaComandiTimone = width * 0.26;
 
-        //grafica vira a destra
-        this.p.fill(this.coloreViraDestra[0], this.coloreViraDestra[1], this.coloreViraDestra[2], 255);
-        this.p.arc(this.x, this.y, this.raggioEsterno, this.raggioEsterno, -90, 90, this.p.PIE);
+        this.raggioAnelloBussola = width * 0.38;
+        this.spessoreAnelloBussola = width * 0.05;
+        this.barra = 90;
+        this.intVento = 30;
+        this.maxIntVento = 40;
+        this.direzioneVento = 200;
 
-        //grafica vira a sinistra
-        this.p.fill(this.coloreViraSinistra[0], this.coloreViraSinistra[1], this.coloreViraSinistra[2], 255);
-        this.p.arc(this.x, this.y, this.raggioEsterno, this.raggioEsterno, 90, -90, this.p.PIE);
+        this.angoloAltoASxRadar = {
+            x: width * 0.11,
+            y: height * 0.74
+        }
+        this.lunghezzaRadar = width * 0.78;
+        this.altezzaRadar = height * 0.04;
 
-        //grafica accelera
-        this.p.fill(this.coloreAumentaVelocita[0], this.coloreAumentaVelocita[1], this.coloreAumentaVelocita[2], 255);
-        this.p.arc(this.x, this.y, this.raggio, this.raggio, -90, 90, this.p.PIE);
+        this.altezzaCollisioneImminente = height * 0.03;
 
-        //grafica decelera
-        this.p.fill(this.coloreDiminuisciVelocita[0], this.coloreDiminuisciVelocita[1], this.coloreDiminuisciVelocita[2], 255);
-        this.p.arc(this.x, this.y, this.raggio, this.raggio, 90, -90, this.p.PIE);
+        this.windstarText = {
+            x: width * 0.11,
+            y: height * 0.05,
+            yNomeNave: height * 0.09
+        }
 
-        //pallino rosso al centro se sto cliccando
-        if (this.p.mouseIsPressed) {
-            this.p.fill(255, 0, 0, 255);
+        this.gameTimeText = {
+            x: width * 0.89,
+            y: height * 0.09,
+            yDescrizione: height * 0.127
+        }
+
+        this.posizioneTestiVelEDirezione = {
+            xDir: width * 0.3,
+            xVel: width * 0.7,
+            y: height * 0.59,
+            yDescrizioni: height * 0.64,
+            xDescDirezione: width * 0.065,
+            xDescvel: width * (1 - 0.065),
+        }
+
+        this.dimensioniTesti = {
+            piccoli: height * 0.02 * 2,
+            grandi: height * 0.05 * 2
+        }
+
+        this.posizioneTestiFinali = {
+            x: width * 0.11,
+            yUltimaPosizione: height * 0.88,
+            yTesto: height * 0.91,
+            yMessaggi: height * 0.94
+        }
+    }
+
+    display() {
+        //disegno anello bussola
+        this.p.fill(this.coloreAnelloBussola);
+        this.p.noStroke();
+        this.p.ellipse(this.centroBussola.x, this.centroBussola.y, this.raggioAnelloBussola * 2);
+        this.p.fill(this.coloreBackground);
+        this.p.ellipse(this.centroBussola.x, this.centroBussola.y, (this.raggioAnelloBussola - this.spessoreAnelloBussola) * 2);
+
+        //disegno triangolo timone
+        this.p.angleMode(this.p.DEGREES);
+        let coloreTriangoloTimone = this.p.color(0, 255, 0);
+        let baseTimone = this.raggioAnelloBussola * 0.21;
+        let altezzaTimone = this.raggioAnelloBussola * 0.80;
+        let puntiTriangoloTimone = [
+            this.centroBussola.x + baseTimone / 2 * Math.sin((this.barra - 90) * Math.PI / 180),
+            this.centroBussola.y - baseTimone / 2 * Math.cos((this.barra - 90) * Math.PI / 180),
+            this.centroBussola.x + baseTimone / 2 * Math.sin((this.barra + 90) * Math.PI / 180),
+            this.centroBussola.y - baseTimone / 2 * Math.cos((this.barra + 90) * Math.PI / 180),
+            this.centroBussola.x + altezzaTimone * Math.sin(this.barra * Math.PI / 180),
+            this.centroBussola.y - altezzaTimone * Math.cos(this.barra * Math.PI / 180)
+        ]
+        this.p.fill(coloreTriangoloTimone);
+        this.p.triangle(puntiTriangoloTimone[0], puntiTriangoloTimone[1], puntiTriangoloTimone[2], puntiTriangoloTimone[3], puntiTriangoloTimone[4], puntiTriangoloTimone[5]);
+
+        //disegno triangolo vento
+        let coloreTriangoloVento = this.p.color(0, 0, 255);
+        let baseVento = this.raggioAnelloBussola * 0.23;
+        let altezzaVento = this.intVento / this.maxIntVento * 0.75 * this.raggioAnelloBussola;
+
+        this.p.fill(this.p.color(255, 255, 255));
+        let centroBaseTriangoloVento = {
+            x: this.centroBussola.x + (this.raggioAnelloBussola - this.spessoreAnelloBussola) * Math.sin(this.direzioneVento * Math.PI / 180),
+            y: this.centroBussola.y - (this.raggioAnelloBussola - this.spessoreAnelloBussola) * Math.cos(this.direzioneVento * Math.PI / 180)
+        }
+        //this.p.ellipse(centroBaseTriangoloVento.x, centroBaseTriangoloVento.y, 10, 10);
+
+        let centroVerticeTriangoloVento = {
+            x: this.centroBussola.x + (this.raggioAnelloBussola - this.spessoreAnelloBussola - altezzaVento) * Math.sin(this.direzioneVento * Math.PI / 180),
+            y: this.centroBussola.y - (this.raggioAnelloBussola - this.spessoreAnelloBussola - altezzaVento) * Math.cos(this.direzioneVento * Math.PI / 180)
+        }
+        //this.p.ellipse(centroVerticeTriangoloVento.x, centroVerticeTriangoloVento.y, 10, 10);
+
+        let puntiTriangoloVento = [
+            centroBaseTriangoloVento.x + (baseVento / 2) * Math.sin((this.direzioneVento - 90) * Math.PI / 180),
+            centroBaseTriangoloVento.y - (baseVento / 2) * Math.cos((this.direzioneVento - 90) * Math.PI / 180),
+            centroBaseTriangoloVento.x + (baseVento / 2) * Math.sin((this.direzioneVento + 90) * Math.PI / 180),
+            centroBaseTriangoloVento.y - (baseVento / 2) * Math.cos((this.direzioneVento + 90) * Math.PI / 180),
+            centroVerticeTriangoloVento.x,
+            centroVerticeTriangoloVento.y
+        ]
+        this.p.fill(coloreTriangoloVento);
+        this.p.triangle(puntiTriangoloVento[0], puntiTriangoloVento[1], puntiTriangoloVento[2], puntiTriangoloVento[3], puntiTriangoloVento[4], puntiTriangoloVento[5]);
+
+        //disegno centro bussola
+        this.p.fill(this.coloreResettaTimone);
+        this.p.stroke(this.coloreAnelloBussola);
+        let raggioCentroBussola = this.raggioAnelloBussola * 0.09;
+        this.p.ellipse(this.centroBussola.x, this.centroBussola.y, raggioCentroBussola, raggioCentroBussola);
+
+        //disegno manopola motore
+
+        this.p.fill(this.coloreAumentaVelocita);
+        this.p.noStroke();
+        this.p.rect(this.centroManopolaMotore.x - this.larghezzaManopolaMotore / 2, this.centroManopolaMotore.y - this.altezzaManopolaMotore / 2, this.larghezzaManopolaMotore, this.altezzaManopolaMotore / 2);
+
+        this.p.fill(this.coloreDiminuisciVelocita);
+        this.p.rect(this.centroManopolaMotore.x - this.larghezzaManopolaMotore / 2, this.centroManopolaMotore.y, this.larghezzaManopolaMotore, this.altezzaManopolaMotore / 2);
+
+        //disegno triangolo per muovere timone
+        //triangolo sx
+        let timoneSxBase = {
+            x: this.centroManopolaMotore.x - this.distanzaBaseComandiTimone,
+            y: this.centroManopolaMotore.y
+        }
+        this.p.fill(this.coloreViraSinistra);
+        let timoneSxVertice = {
+            x: timoneSxBase.x - this.dimAltezzaComandiTimone,
+            y: timoneSxBase.y
+        }
+        this.p.triangle(timoneSxBase.x, timoneSxBase.y - this.dimBaseComandiTimone / 2, timoneSxBase.x, timoneSxBase.y + this.dimBaseComandiTimone / 2, timoneSxVertice.x, timoneSxVertice.y);
+
+        //triangolo dx
+        let timoneDxBase = {
+            x: this.centroManopolaMotore.x + this.distanzaBaseComandiTimone,
+            y: this.centroManopolaMotore.y
+        }
+        let timoneDxVertice = {
+            x: timoneDxBase.x + this.dimAltezzaComandiTimone,
+            y: timoneDxBase.y
+        }
+        this.p.fill(this.coloreViraDestra);
+
+        this.p.triangle(timoneDxBase.x, timoneDxBase.y - this.dimBaseComandiTimone / 2, timoneDxBase.x, timoneDxBase.y + this.dimBaseComandiTimone / 2, timoneDxVertice.x, timoneDxVertice.y);
+
+        //disegno i radar
+        let coloreRadar = {
+            normal: this.p.color(0, 255, 0),
+            alert: this.p.color(255, 0, 0),
+            contorno: this.p.color(150, 150, 0)
+        }
+
+        this.p.stroke(coloreRadar.contorno);
+        for (let i = 0; i < 7; i++) {
+            if (this.radar[i] == false) {
+                this.p.fill(coloreRadar.normal);
+            }
+            else {
+                this.p.fill(coloreRadar.alert);
+            }
+            this.p.rect(this.angoloAltoASxRadar.x + (this.lunghezzaRadar / 7) * i, this.angoloAltoASxRadar.y, this.lunghezzaRadar / 7, this.altezzaRadar);
+        }
+
+
+        //collisione imminente
+        if (this.collisioneImminente) {
+            this.p.fill(coloreRadar.alert);
+            this.p.rect(this.angoloAltoASxRadar.x, this.angoloAltoASxRadar.y + this.altezzaRadar, this.lunghezzaRadar, this.altezzaCollisioneImminente);
+        }
+
+        //testi
+        let coloreTesti = this.p.color(0, 0, 0);
+        this.p.fill(coloreTesti);
+        this.p.noStroke();
+        this.p.textSize(this.dimensioniTesti.piccoli);
+        this.p.textAlign(this.p.LEFT);
+        this.p.text('WINDSTAR', this.windstarText.x, this.windstarText.y);
+        this.p.text(this.nomeNave, this.windstarText.x, this.windstarText.yNomeNave);
+
+        this.p.textSize(this.dimensioniTesti.grandi);
+        this.p.textAlign(this.p.RIGHT);
+        this.p.text(this.gameTime, this.gameTimeText.x, this.gameTimeText.y);
+        this.p.textSize(this.dimensioniTesti.piccoli);
+        this.p.text("TIME", this.gameTimeText.x, this.gameTimeText.yDescrizione);
+
+        this.p.textSize(this.dimensioniTesti.grandi / 2);
+        this.p.textAlign(this.p.RIGHT);
+        this.p.text(this.direzione + " N", this.posizioneTestiVelEDirezione.xDir, this.posizioneTestiVelEDirezione.y);
+        let velocitaMostrata = 0;
+        if (this.vel < 10) {
+            velocitaMostrata = "00" + this.vel;
+        }
+        else if (this.vel < 100) {
+            velocitaMostrata = "0" + this.vel;
         }
         else {
-            this.p.fill(0, 0, 0, 255);
+            velocitaMostrata = this.vel;
         }
-        this.p.ellipse(this.x, this.y, this.raggio * 0.1, this.raggio * 0.1);
-        //strokeWeight (20);
-        this.p.stroke(0, 0, 0, 150);
-        this.p.line(this.x, this.y - this.raggio / 2, this.x, this.y + this.raggio / 2);
-        //  fill(0, 0, 0, 127);
-        // noStroke();
-        this.p.fill(255, 255, 255, 200);
 
-        //text("VEL: " + nf(b01.vel, 0, 2), width * 0.1, height * 0.4);
-        this.p.stroke(0, 255, 0, 150);
-        this.p.line(this.x, this.y, this.x + this.raggio / 2 * this.p.cos(this.barra - 90), this.y + this.raggio / 2 * this.p.sin(this.barra - 90));
+        this.p.textAlign(this.p.LEFT);
+        this.p.text(velocitaMostrata, this.posizioneTestiVelEDirezione.xVel, this.posizioneTestiVelEDirezione.y);
+        this.p.textSize(this.dimensioniTesti.piccoli);
+        this.p.textAlign(this.p.LEFT);
+        this.p.text("DIR", this.posizioneTestiVelEDirezione.xDescDirezione, this.posizioneTestiVelEDirezione.yDescrizioni);
+        this.p.textAlign(this.p.RIGHT);
+        this.p.text("VEL", this.posizioneTestiVelEDirezione.xDescvel, this.posizioneTestiVelEDirezione.yDescrizioni);
 
-        //allarme
-        //if stato ..... 
-        this.p.fill(200);
-        this.p.stroke(255, 255, 255, 150);
-        this.p.triangle(this.x, ycb - rh, this.x, ycb + rh, this.x + 2 * rh, ycb);
-        this.p.triangle(this.x, ycb - rh, this.x, ycb + rh, this.x - 2 * rh, ycb);
-        this.p.noFill();
-        this.p.noStroke();
+        this.p.text(this.dimensioniTesti.piccoli);
+        this.p.textAlign(this.p.LEFT);
 
-        this.p.stroke(255, 0, 0);
-        this.p.fill(255, 0, 0);
-
-        this.p.noFill();
-        this.p.noStroke();
+        this.p.text("Last pos: " + this.ultimaPosRilevata.x + " " + this.ultimaPosRilevata.y, this.posizioneTestiFinali.x, this.posizioneTestiFinali.yUltimaPosizione);
+        this.p.text("Testo di cosa??", this.posizioneTestiFinali.x, this.posizioneTestiFinali.yTesto);
+        this.p.text(this.messaggi, this.posizioneTestiFinali.x, this.posizioneTestiFinali.yMessaggi);
     }
 
-    //0 se esterno, 1 se aumento velocita, 2 de diminuisco, 3 se viro a dx, 4 se viro a sx
+    //0 se esterno, 1 se aumento velocita, 2 de diminuisco, 3 se viro a dx, 4 se viro a sx, 5 se resetto timones
     whereIsClick(coloreNelPunto) {
         //console.log(coloreNelPunto);
         if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreAumentaVelocita)) {
@@ -342,27 +539,108 @@ export class ButtonTondoConsole {
         else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreViraSinistra)) {
             return 4;
         }
+        else if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreResettaTimone)) {
+            return 5;
+        }
         else {
             return 0;
         }
     }
 }
 
-export class InfoSullaNaveConsole {
-    constructor(paragrafo) {
-        this.carburanteRimasto = 0;
-        this.velocita = 0;
-        this.direzione = 0;
-        if(paragrafo){
-            this.paragrafo = paragrafo;
-            console.log(paragrafo);
-            this.display();
+export class GestoreInterfacceConsole {
+    constructor(p, containerp5, interfacciaTestuale, width, height, coloreBackground) {
+        this.isInterfacciaTestuale = false;
+        if (p) {
+            this.containerp5 = containerp5;
+            this.interfacciaParametrizzata = new InterfacciaParametrizzata(p, width, height, coloreBackground);
+            this.interfacciaTestuale = interfacciaTestuale;
+            this.PassaAInterfacciaTestuale(this.isInterfacciaTestuale);
         }
     }
 
-    display() {
-        this.paragrafo.innerHTML = "Velocità: " + this.velocita + " (udm??)<br>";
-        this.paragrafo.innerHTML += "Direzione: " + this.direzione + " °<br>";
-        this.paragrafo.innerHTML += "Carburante rimasto: " + this.direzione + " (udm??)";
+    SetDimensioni(width, height) {
+        this.interfacciaParametrizzata.setDimensioni(width, height);
+    }
+
+    Display() {
+        this.interfacciaParametrizzata.display();
+    }
+
+    PassaAInterfacciaTestuale(isTestuale) {
+        this.isInterfacciaTestuale = isTestuale;
+        this.interfacciaTestuale.hide = !isTestuale;
+        if (isTestuale) {
+            this.containerp5.style.display = "none";
+        }
+        else {
+            this.containerp5.style.display = "block";
+        }
+    }
+
+    WhereIsClick(coloreNelPunto) {
+        let res = this.interfacciaParametrizzata.whereIsClick(coloreNelPunto);
+        console.log(res);
+        return res;
+    }
+
+    //string
+    SetNomeNave(val) {
+        this.interfacciaTestuale.nomeNave = val;
+        this.interfacciaParametrizzata.nomeNave = val;
+    }
+
+    //int o float
+    SetTempoDiGioco(val) {
+        this.interfacciaTestuale.tempoDiGioco = val;
+        this.interfacciaParametrizzata.gameTime = val;
+    }
+
+    //int o float
+    SetVelocita(val) {
+        this.interfacciaTestuale.vel = val;
+        this.interfacciaParametrizzata.vel = val;
+    }
+
+    //int o float
+    SetDirezione(val) {
+        this.interfacciaTestuale.direzione = val;
+        this.interfacciaParametrizzata.direzione = val;
+    }
+
+    //int o float
+    SetIntensitaVento(val) {
+        this.interfacciaTestuale.intVento = val;
+        this.interfacciaParametrizzata.intVento = val;
+    }
+
+    //int o float
+    SetDirezioneVento(val) {
+        this.interfacciaTestuale.direzioneVento = val;
+        this.interfacciaParametrizzata.direzioneVento = val;
+    }
+
+    //array di true o false
+    SetRadar(val) {
+        this.interfacciaTestuale.radar = val;
+        this.interfacciaParametrizzata.radar = val;
+    }
+
+    //true o false
+    SetCollisioneImminente(val) {
+        this.interfacciaTestuale.collisioneImminente = val;
+        this.interfacciaParametrizzata.collisioneImminente = val;
+    }
+
+    //true o false
+    SetCollisioneAvvenuta(val) {
+        this.interfacciaTestuale.collisioneAvvenuta = val;
+        //TODO: this.interfacciaParametrizzata.coll = val;
+    }
+
+    //object con x e y
+    SetUltimaPosizioneRilevata(val) {
+        this.interfacciaTestuale.ultimaPosRilevata = val;
+        this.interfacciaParametrizzata.ultimaPosRilevata = val;
     }
 }
