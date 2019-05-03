@@ -128,9 +128,13 @@ export class SchermataEngine extends NavElement {
                     }
 
                     // aggiorno le velocita'
-                    // ignoro la fisica e immagino che la velocita' sia conservata sempre
-                    _self.navi[i].comandi.velocity += _self.navi[i].comandi.accel;
+                    let x = _self.navi[i].comandi.velocity
+                    x += _self.navi[i].comandi.accel;
+                    if (x < -5) { x = -5 }
+                    if (x > 20) { x += 20 }
+                    _self.navi[i].comandi.velocity = x;
                     
+                    //aggiorno direzione
                     let x = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
                     if (x < 0) { x += 360 }
                     if (x > 360) { x += -360 }
