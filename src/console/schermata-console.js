@@ -42,9 +42,10 @@ export class SchermataConsole extends NavElement {
 
   firstUpdated() {
     let _self = this;
-    //_self.nave.getNave(referenceNaveDaControllare);
-    //_self.nave.getDatiPartita(idPartita);
+    _self.nave.getNave(referenceNaveDaControllare);
+    _self.nave.getDatiPartita(idPartita);
     console.log(_self.nave);
+   // _self.gestoreInterfacceConsole.SetNomeNave(_self.nave);
 
     let sketch = function (p) {
       p.setup = function () {
@@ -70,12 +71,26 @@ export class SchermataConsole extends NavElement {
         p.background(51);
 
         //aggiornamento dati Nave
-        //_self.nave.getNave(referenceNaveDaControllare);
-        //_self.nave.getDatiPartita(idPartita);
+        _self.nave.getNave(referenceNaveDaControllare);
+        _self.nave.getDatiPartita(idPartita);
         //uscita dalla schermata per inattività
-        //_self.nave.kick(referenceNaveDaControllare, idPartita);
-        _self.gestoreInterfacceConsole.SetNomeNave("Pina");
-
+        _self.nave.kick(referenceNaveDaControllare, idPartita);
+        _self.gestoreInterfacceConsole.SetNomeNave(_self.nave);
+        //passaggio dati a interfaccia tesuale
+        _self.gestoreInterfacceConsole.SetTempoDiGioco(_self.nave.partita.datigenerali.gametime);
+        _self.gestoreInterfacceConsole.SetVelocita(_self.nave.comandi.velocity);
+        _self.gestoreInterfacceConsole.SetDirezione(_self.nave.pos.direzione);
+        _self.gestoreInterfacceConsole.SetIntensitaVento(_self.nave.partita.datigenerali.windForce);
+        _self.gestoreInterfacceConsole.SetDirezioneVento(_self.nave.partita.datigenerali.windDir);
+        _self.gestoreInterfacceConsole.SetUltimaPosizioneRilevata(_self.nave.pos.posx, _self.nave.pos.posy)
+       // _self.gestoreInterfacceConsole.SetRadar(_self.nave.radar.radarfrontale) TODO: QUANDO PRONTO SU ENGINE E FIREBASE TOGLIERE IL COMMENTO
+       //_self.gestoreInterfacceConsole.SetCollisioneImminente()
+       if(_self.nave.radar.statoNave == 1){
+        _self.gestoreInterfacceConsole.SetCollisioneAvvenuta(true)
+       }
+       else{
+          _self.gestoreInterfacceConsole.SetCollisioneAvvenuta(false)
+        }
         _self.gestoreInterfacceConsole.Display();
       }
 

@@ -165,7 +165,14 @@ export class Nave {
         orizzonte pieno
         */
         this.radar = nave.radar || {};
-        this.partita = {}
+        this.partita = {
+            datigenerali:{
+                gametime: 0,
+                windDir: 0,
+                windForce: 0
+            },
+            nomePartita: "",
+         }
     }
 
     //ottiene i dati della nave in uso da firebase
@@ -180,7 +187,7 @@ export class Nave {
                 this.comandi = res.data().comandi || {};
                 this.datiIniziali = res.data().datiIniziali || {};
                 this.pos = res.data().pos || {};
-                this.radar = res.data.radar || {};
+                this.radar = res.data().radar || {};
             })
     }
 
@@ -678,8 +685,10 @@ export class GestoreInterfacceConsole {
     }
 
     //object con x e y
-    SetUltimaPosizioneRilevata(val) {
-        this.interfacciaTestuale.ultimaPosRilevata = val;
-        this.interfacciaParametrizzata.ultimaPosRilevata = val;
+    SetUltimaPosizioneRilevata(posX, posY) {
+        this.interfacciaTestuale.ultimaPosRilevata.x = posX;
+        this.interfacciaTestuale.ultimaPosRilevata.y = posY;
+        this.interfacciaParametrizzata.ultimaPosRilevata.x = posX;
+        this.interfacciaParametrizzata.ultimaPosRilevata.y = posY;
     }
 }
