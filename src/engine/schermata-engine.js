@@ -88,8 +88,6 @@ export class SchermataEngine extends NavElement {
             * plotta navi
             */
             p.draw = function () {
-                console.log("funzione di draw");
-
                 //aggiorno clock
                 gtime++;
                 //cambio vento
@@ -114,9 +112,9 @@ export class SchermataEngine extends NavElement {
                 }
 
                 //aggiorna posizioni navi
-                Object.keys(this.partita.squadre).forEach(i => {
+                Object.keys(_self.partita.squadre).forEach(i => {
                     //se una nave non viene usata la salto
-                    if (!this.partita.squadre[i].isUsed) {continue;}
+                    if (!_self.partita.squadre[i].isUsed) {return;}
 
                     // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato 
                     // verso destra gli angoli sono positivi in senso antiorario
@@ -148,12 +146,11 @@ export class SchermataEngine extends NavElement {
                     _self.controllaCollisioniNave(i);
                 }
 
-                console.log('aggiorno gtime');
                 _self.upNave(_self.navi);
                 
-                Object.keys(this.partita.squadre).forEach(i => {
+                Object.keys(_self.partita.squadre).forEach(i => {
                     //se una nave non viene usata la salto
-                    if (!this.partita.squadre[i].isUsed) {continue;}
+                    if (!_self.partita.squadre[i].isUsed) {return;}
 
                     let nave = new Nave(_self.navi[i]);
                     p.ellipse(nave.pos.posx, nave.pos.posy, 15, 10);
