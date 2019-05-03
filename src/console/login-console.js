@@ -116,14 +116,14 @@ export class LoginConsole extends NavElement {
       <div class="field">
         <label class="label">Nome della squadra:</label>
         <div class="control">
-          <input class="input" type="text" value="rossa" @input=${e => this.squadra = e.target.value}/>
+          <input class="input" type="text"  @input=${e => this.squadra = e.target.value}/>
         </div>
       </div>
               
       <div class="field">
         <label class="label">Codice segreto:</label>
         <div class="control">
-          <input class="input" type="text" value="cod2"  @input=${e => this.codice = e.target.value}/>
+          <input class="input" type="text"  @input=${e => this.codice = e.target.value}/>
         </div>
       </div>
       <div class="field">
