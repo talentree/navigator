@@ -65,7 +65,7 @@ export class SchermataEngine extends NavElement {
                 p.background(0);
                 console.log("setup completo");
                 //setto il frame rate
-                p.frameRate(10);    //per test
+                p.frameRate(10);    //per test 
                 //fermo il loop per permettere di cercare i dati su firebase
                 p.noLoop();
                 _self.cercaPartita();
@@ -139,10 +139,10 @@ export class SchermataEngine extends NavElement {
                     _self.navi[i].comandi.velocity = x;
                     
                     //aggiorno direzione
-                    let x = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
-                    if (x < 0) { x += 360 }
-                    if (x > 360) { x += -360 }
-                    _self.navi[i].pos.direzione = x;
+                    let y = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
+                    if (y < 0) { y += 360 }
+                    if (y > 360) { y += -360 }
+                    _self.navi[i].pos.direzione = y;
                 });
 
                 //update nave
