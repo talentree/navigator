@@ -88,8 +88,7 @@ export class SchermataEngine extends NavElement {
             * plotta navi
             */
             p.draw = function () {
-                console.log("funzione di draw");
-
+                
                 //uscita squadra e cambio variabile isUsed a False
                 _self.partita.kickInattività(tokenUtente);
 

@@ -120,8 +120,8 @@ export class SchermataConsole extends NavElement {
               break;
             }
             case 3: {
-              // controllo che barra sia tra -45<barra<45 poi aggiorno valori su firebase             
-              if (_self.nave.comandi.barra < 45) {
+              // controllo che barra sia tra -30<barra<30 poi aggiorno valori su firebase             
+              if (_self.nave.comandi.barra < 30) {
                 console.log("Vira a destra");
                 _self.nave.comandi.barra++;
                 _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
@@ -129,14 +129,17 @@ export class SchermataConsole extends NavElement {
                 break;
               }
               else {
+                //riporta il valore a 30 nel caso vada oltre per errori
+                _self.nave.comandi.barra = 30;
+                _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
                 _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
                 console.log("limite barra raggiunto");
                 break;
               }
             }
             case 4: {
-              // controllo che barra sia tra -45<barra<45 poi aggiorno valori su firebase
-              if (_self.nave.comandi.barra > -45) {
+              // controllo che barra sia tra -30<barra<30 poi aggiorno valori su firebase
+              if (_self.nave.comandi.barra > -30) {
                 console.log("Vira a sinistra");
                 _self.nave.comandi.barra--;
                 _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
@@ -144,6 +147,9 @@ export class SchermataConsole extends NavElement {
                 break;
               }
               else {
+                //riporta il valore a -30 nel caso vada oltre per errori
+                _self.nave.comandi.barra = -30
+                _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
                 _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
                 console.log("limite barra raggiunto");
                 break;
