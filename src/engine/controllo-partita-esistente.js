@@ -75,6 +75,7 @@ export class ControlloPartitaEsistente extends NavElement {
     }
 
     eliminaNavi() {
+        //TODO: correggere con array
         //disattivo i pulsanti
         this.pulsanteEliminaPartita.classList.add("is-loading");
         this.pulsanteVaiAEngine.classList.add("is-loading");
