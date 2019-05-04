@@ -134,7 +134,7 @@ export class SchermataEngine extends NavElement {
                     let x = _self.navi[i].comandi.velocity
                     x += _self.navi[i].comandi.accel;
                     if (x < -5) { x = -5 }
-                    if (x > 20) { x += 20 }
+                    if (x > 20) { x = 20 }
                     _self.navi[i].comandi.velocity = x;
                     
                     //aggiorno direzione
@@ -142,18 +142,16 @@ export class SchermataEngine extends NavElement {
                     if (x < 0) { x += 360 }
                     if (x > 360) { x += -360 }
                     _self.navi[i].pos.direzione = x;
-
+                    
+                    //CONTROLLO DELLE COLLISIONI
+                    _self.controllaCollisioniNave(i);
+                    
                     //carico su firebase
                     _self.upNave(_self.navi);
                 });
 
                 //plotta navi
                 p.background(50);
-
-                //CONTROLLO DELLE COLLISIONI
-                for (let i = 0; i < _self.navi.length; i++) {
-                    _self.controllaCollisioniNave(i);
-                }
                 
                 Object.keys(_self.partita.squadre).forEach(i => {
                     //se una nave non viene usata la salto
