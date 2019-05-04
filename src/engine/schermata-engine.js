@@ -65,7 +65,7 @@ export class SchermataEngine extends NavElement {
                 p.background(0);
                 console.log("setup completo");
                 //setto il frame rate
-                p.frameRate(10);    //per test
+                p.frameRate(1);
                 //fermo il loop per permettere di cercare i dati su firebase
                 p.noLoop();
                 _self.cercaPartita();
@@ -88,7 +88,6 @@ export class SchermataEngine extends NavElement {
             * plotta navi
             */
             p.draw = function () {
-                console.log("funzione di draw");
 
                 //uscita squadra e cambio variabile isUsed a False
                 _self.partita.kickInattività(tokenUtente);
@@ -97,7 +96,6 @@ export class SchermataEngine extends NavElement {
                 gtime++;
                 //cambio vento
                 if ((gtime % wtimer) == 0) {
-                    console.log("cambio vento");
                     wspeed = (wspeed * 10 + (Math.floor((Math.random() * 2 * wMaxChange - wMaxChange) * 10) + 1)) / 10;
                     if (wspeed < 0) { wspeed = 0 };
                     if (wspeed > wMaxSpeed) { wspeed = wMaxSpeed }
@@ -123,13 +121,13 @@ export class SchermataEngine extends NavElement {
 
                     // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato 
                     // verso destra gli angoli sono positivi in senso antiorario
-                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].pos.direzione * 2 * Math.PI) / 360);
-                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].pos.direzione * 2 * Math.PI) / 360);
+                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].pos.direzione * Math.PI) / 180);
+                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].pos.direzione * Math.PI) / 180);
 
                     //tengo conto del vento (FIXME: futura scelta)
                     if (true) {
-                        _self.navi[i].pos.posx += wspeed * Math.cos((wdir * 2 * Math.PI) / 360);
-                        _self.navi[i].pos.posy += wspeed * Math.sin((wdir * 2 * Math.PI) / 360);
+                        _self.navi[i].pos.posx += wspeed * Math.cos((wdir * Math.PI) / 180);
+                        _self.navi[i].pos.posy += wspeed * Math.sin((wdir * Math.PI) / 180);
                     }
 
                     // aggiorno le velocita'
@@ -140,13 +138,15 @@ export class SchermataEngine extends NavElement {
                     _self.navi[i].comandi.velocity = x;
                     
                     //aggiorno direzione
-                    let x = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
+                    x = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
                     if (x < 0) { x += 360 }
                     if (x > 360) { x += -360 }
                     _self.navi[i].pos.direzione = x;
+
+                    //carico su firebase
+                    _self.upNave(_self.navi);
                 });
 
-                //update nave
                 //plotta navi
                 p.background(50);
 
@@ -154,8 +154,6 @@ export class SchermataEngine extends NavElement {
                 for (let i = 0; i < _self.navi.length; i++) {
                     _self.controllaCollisioniNave(i);
                 }
-
-                _self.upNave(_self.navi);
                 
                 Object.keys(_self.partita.squadre).forEach(i => {
                     //se una nave non viene usata la salto
