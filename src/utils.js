@@ -230,7 +230,7 @@ export class Nave {
             })
     }
 
-    //ritorna al menù principlae in caso sia rilevato inattività
+    //FIXME: FATTIBILE ANCHE SENZA FIREBASE (FORSE) ritorna al menù principlae in caso sia rilevato inattività
     kick(ref, idPartita) {
         firebase.firestore().collection("partite").doc(idPartita).get()
             .catch(err => {
@@ -250,7 +250,6 @@ export class Nave {
                 })
             })
     }
-
 }
 
 export class InfoSullaNaveConsole {
