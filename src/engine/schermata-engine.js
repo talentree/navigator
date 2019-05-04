@@ -65,7 +65,11 @@ export class SchermataEngine extends NavElement {
                 p.background(0);
                 console.log("setup completo");
                 //setto il frame rate
+<<<<<<< HEAD
                 p.frameRate(1);
+=======
+                p.frameRate(10);    //per test 
+>>>>>>> 47bd680f116f7d9e8fe11752961c41410b0d0c4a
                 //fermo il loop per permettere di cercare i dati su firebase
                 p.noLoop();
                 _self.cercaPartita();
@@ -88,7 +92,11 @@ export class SchermataEngine extends NavElement {
             * plotta navi
             */
             p.draw = function () {
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> 47bd680f116f7d9e8fe11752961c41410b0d0c4a
                 //uscita squadra e cambio variabile isUsed a False
                 _self.partita.kickInattività(tokenUtente);
 
@@ -138,6 +146,7 @@ export class SchermataEngine extends NavElement {
                     _self.navi[i].comandi.velocity = x;
                     
                     //aggiorno direzione
+<<<<<<< HEAD
                     x = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
                     if (x < 0) { x += 360 }
                     if (x > 360) { x += -360 }
@@ -148,6 +157,12 @@ export class SchermataEngine extends NavElement {
                     
                     //carico su firebase
                     _self.upNave(_self.navi);
+=======
+                    let y = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
+                    if (y < 0) { y += 360 }
+                    if (y > 360) { y += -360 }
+                    _self.navi[i].pos.direzione = y;
+>>>>>>> 47bd680f116f7d9e8fe11752961c41410b0d0c4a
                 });
 
                 //plotta navi
