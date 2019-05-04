@@ -106,14 +106,15 @@ export class SchermataEngine extends NavElement {
                     if (wdir < 0) { wdir += 360 }
                     if (wdir > 360) { wdir += -360 }
                     console.log(wdir);
-
-                    //update vento su firebase
-                    let t = _self.partita.datigenerali;
-                    t.gametime = gtime;
-                    t.windForce = wspeed;
-                    t.windDir = wdir;
-                    _self.db.collection("partite").doc(tokenUtente).update("datigenerali", t);
                 }
+
+                //update vento su firebase
+                //aggiorno ogni secondo il gtime ma solo ogni dieci il vento
+                let t = _self.partita.datigenerali;
+                t.gametime = gtime;
+                t.windForce = wspeed;
+                t.windDir = wdir;
+                _self.db.collection("partite").doc(tokenUtente).update("datigenerali", t);
 
                 //aggiorna posizioni navi
                 Object.keys(_self.partita.squadre).forEach(i => {
@@ -132,6 +133,7 @@ export class SchermataEngine extends NavElement {
                     }
 
                     // aggiorno le velocita'
+                    // al momento si ferma e basta
                     let x = _self.navi[i].comandi.velocity
                     x += _self.navi[i].comandi.accel;
                     if (x < -5) { x = -5 }
@@ -284,4 +286,25 @@ export class SchermataEngine extends NavElement {
         }
         return statoRadar;
     }
+
+    /*
+    aggiornaCarb(nave) {
+        //dovrebbe servire per i turni da fermo
+        if (nave.comandi.carb<0) {
+            nave.comandi.carb++;
+            if (nave.comandi.carb == 0) {
+                nave.comandi.carb = 1800;
+            }
+            return;
+        }
+
+        //effettivo consumo di carburante
+        nave.comandi.carb -= Math.abs(nave.comandi.velocity);
+        if (nave.comandi.carb <= 0) {
+            //dovrebbe servire per i turni da fermo
+            nave.comandi.carb = -5;
+            nave.comandi.velocity = 0;
+        }
+    }
+    */
 }
