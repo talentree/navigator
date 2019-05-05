@@ -24,9 +24,9 @@ export class SchermataConsole extends NavElement {
     return html`
       <h1 class="title is-4">Qui verrà mostrata la console per comandare la nave</h1>
       <p class="subtitle">La nave è in path navi/${referenceNaveDaControllare}</p>
-      <a class="button is-primary" @click=${(e) => {
+      <a class="button is-primary" @click=${(e)=> {
         this.gestoreInterfacceConsole.PassaAInterfacciaTestuale(!this.gestoreInterfacceConsole.isInterfacciaTestuale)
-      }}>Provvisorio, toggle interfaccia testuale</a>
+        }}>Provvisorio, toggle interfaccia testuale</a>
       <br>
       ${this.creaInterfacciaTestuale()}
       <br>
@@ -44,9 +44,9 @@ export class SchermataConsole extends NavElement {
     _self.nave.getNave(referenceNaveDaControllare);
     _self.nave.getDatiPartita(idPartita);
     _self.subGametime()
-   // _self.getNomeNave()
+    // _self.getNomeNave()
     console.log(_self.nave);
-   //TODO: PASSARE NOME NAVE _self.gestoreInterfacceConsole.SetNomeNave(_self.nave);
+    //TODO: PASSARE NOME NAVE _self.gestoreInterfacceConsole.SetNomeNave(_self.nave);
 
     let sketch = function (p) {
       p.setup = function () {
@@ -72,22 +72,25 @@ export class SchermataConsole extends NavElement {
         p.background(51);
 
         //controllo uscita dalla schermata per inattività ogni 10 secondi
-        if((_self.nave.partita.datigenerali.gametime % 10)==0){
+        if ((_self.nave.partita.datigenerali.gametime % 10) == 0) {
           _self.nave.kick(referenceNaveDaControllare, idPartita);
         }
         //passaggio dati a interfaccia tesuale
+        _self.gestoreInterfacceConsole.SetNomeNave("TODO");
         _self.gestoreInterfacceConsole.SetTempoDiGioco(_self.nave.partita.datigenerali.gametime);
         _self.gestoreInterfacceConsole.SetVelocita(_self.nave.comandi.velocity);
         _self.gestoreInterfacceConsole.SetDirezione(_self.nave.pos.direzione);
         _self.gestoreInterfacceConsole.SetIntensitaVento(_self.nave.partita.datigenerali.windForce);
         _self.gestoreInterfacceConsole.SetDirezioneVento(_self.nave.partita.datigenerali.windDir);
         _self.gestoreInterfacceConsole.SetUltimaPosizioneRilevata(_self.nave.pos.posx, _self.nave.pos.posy)
-       // _self.gestoreInterfacceConsole.SetRadar(_self.nave.radar.radarfrontale) TODO: QUANDO PRONTO SU ENGINE E FIREBASE TOGLIERE IL COMMENTO
-       //_self.gestoreInterfacceConsole.SetCollisioneImminente()
-       if(_self.nave.radar.statoNave == 1){
-        _self.gestoreInterfacceConsole.SetCollisioneAvvenuta(true)
-       }
-       else{
+        _self.gestoreInterfacceConsole.SetBarra(_self.nave.comandi.barra);
+        _self.gestoreInterfacceConsole.SetMotore(_self.nave.comandi.accel);
+        // _self.gestoreInterfacceConsole.SetRadar(_self.nave.radar.radarfrontale) TODO: QUANDO PRONTO SU ENGINE E FIREBASE TOGLIERE IL COMMENTO
+        //_self.gestoreInterfacceConsole.SetCollisioneImminente()
+        if (_self.nave.radar.statoNave == 1) {
+          _self.gestoreInterfacceConsole.SetCollisioneAvvenuta(true)
+        }
+        else {
           _self.gestoreInterfacceConsole.SetCollisioneAvvenuta(false)
         }
         _self.gestoreInterfacceConsole.Display();
@@ -155,6 +158,7 @@ export class SchermataConsole extends NavElement {
               }
             }
             case 5: {
+              //TODO: reset timone
               console.log("Reset timone");
             }
             default: {
@@ -171,24 +175,46 @@ export class SchermataConsole extends NavElement {
     istanzeP5.push(new p5(sketch, document.querySelector("#container-p5")));
   }
 
-subGametime(){
-  let ref= "/partite/"+idPartita
-  firebase.firestore().doc(ref)
-    .onSnapshot(doc=> {
-      this.nave.getNave(referenceNaveDaControllare);
-      this.nave.getDatiPartita(idPartita);
-    });
-}
-/*
-getNomeNave(){
-  let temp=Object.values(arraySquadrePartita);
-  temp.forEach(squadra =>{
-    console.log(squadra.nome.toString())
-    if(squadra.reference==referenceNaveDaControllare){
-      this.gestoreInterfacceConsole.SetNomeNave("ciao");
-    }
-  })
-}*/
+  subGametime() {
+    let ref = "/partite/" + idPartita
+    firebase.firestore().doc(ref)
+      .onSnapshot(doc => {
+        //console.log(doc.data())
+        //this.nave.getNave(referenceNaveDaControllare);
+        //this.nave.getDatiPartita(idPartita);
+        if(this.nave && this.nave.partita){
+          //console.log(doc.data())
+          this.nave.partita.nomePartita = doc.data().nomePartita || {};
+          this.nave.partita.datigenerali = doc.data().datigenerali || {};
+          this.nave.partita.squadre = doc.data().squadre || {};
+        }
+      });
+
+      this.subNave()
+  }
+
+  subNave(){
+    firebase.firestore().collection("navi").doc(referenceNaveDaControllare)
+    .onSnapshot(doc=>{
+      if(this.nave){
+        //console.log(doc.data())
+        this.nave.comandi = doc.data().comandi || {};
+        this.nave.datiIniziali = doc.data().datiIniziali || {};
+        this.nave.pos = doc.data().pos || {};
+        this.nave.radar = doc.data().radar || {};
+      }
+    })
+  }
+  /*
+  getNomeNave(){
+    let temp=Object.values(arraySquadrePartita);
+    temp.forEach(squadra =>{
+      console.log(squadra.nome.toString())
+      if(squadra.reference==referenceNaveDaControllare){
+        this.gestoreInterfacceConsole.SetNomeNave("ciao");
+      }
+    })
+  }*/
 
   creaInterfacciaTestuale() {
     this.interfacciaTestualeProvvisoria = document.createElement("interfaccia-testuale-console");

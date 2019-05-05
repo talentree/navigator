@@ -16,7 +16,7 @@ export class InterfacciaTestuale extends NavElement {
             radar: { type: Array },
             collisioneImminente: { type: Boolean },
             collisioneAvvenuta: { type: Boolean },
-            ultimaPosRilevata: { type: Object },
+            ultimaPosRilevata: { type: Array },
         }
     }
 
@@ -34,10 +34,7 @@ export class InterfacciaTestuale extends NavElement {
         this.radar = [0, 0, 0, 0, 0, 0, 0, 0];
         this.collisioneImminente = false;
         this.collisioneAvvenuta = false;
-        this.ultimaPosRilevata = {
-            x: 0,
-            y: 0
-        };
+        this.ultimaPosRilevata = [0, 0];
         //altro?
 
     }
@@ -71,7 +68,7 @@ export class InterfacciaTestuale extends NavElement {
             <p>Rilevamento radar: TODO</p>
             ${this.collisioneAvvenuta ? alertCollisione : null}
             <br>
-            <p>Ultima posizione rilevata: ${"(" + this.ultimaPosRilevata.x + ", " + this.ultimaPosRilevata.y + ")"}</p>
+            <p>Ultima posizione rilevata: ${"(" + this.ultimaPosRilevata[0] + ", " + this.ultimaPosRilevata[1] + ")"}</p>
             <p>Qualcos'altro?</p>
         `}
         else {

@@ -279,7 +279,7 @@ export class InterfacciaParametrizzata {
         }
         this.coloreBackground = coloreBackground;// § <-- il mio gatto è più bravo di me con la tastiera
         this.radar = [false, true, true, false, false, false, true];
-        this.collisioneImminente = true;
+        this.collisioneAvvenuta = false;
 
         this.nomeNave = "NAVE";
         this.gameTime = 0;
@@ -380,14 +380,13 @@ export class InterfacciaParametrizzata {
         let coloreTriangoloTimone = this.p.color(0, 255, 0);
         let baseTimone = this.raggioAnelloBussola * 0.21;
         let altezzaTimone = this.raggioAnelloBussola * 0.80;
-        let barraRappresentata = this.barra * 10;
         let puntiTriangoloTimone = [
-            this.centroBussola.x + baseTimone / 2 * Math.sin((barraRappresentata - 90) * Math.PI / 180),
-            this.centroBussola.y - baseTimone / 2 * Math.cos((barraRappresentata - 90) * Math.PI / 180),
-            this.centroBussola.x + baseTimone / 2 * Math.sin((barraRappresentata + 90) * Math.PI / 180),
-            this.centroBussola.y - baseTimone / 2 * Math.cos((barraRappresentata + 90) * Math.PI / 180),
-            this.centroBussola.x + altezzaTimone * Math.sin(barraRappresentata * Math.PI / 180),
-            this.centroBussola.y - altezzaTimone * Math.cos(barraRappresentata * Math.PI / 180)
+            this.centroBussola.x + baseTimone / 2 * Math.sin((this.barra - 90) * Math.PI / 180),
+            this.centroBussola.y - baseTimone / 2 * Math.cos((this.barra - 90) * Math.PI / 180),
+            this.centroBussola.x + baseTimone / 2 * Math.sin((this.barra + 90) * Math.PI / 180),
+            this.centroBussola.y - baseTimone / 2 * Math.cos((this.barra + 90) * Math.PI / 180),
+            this.centroBussola.x + altezzaTimone * Math.sin(this.barra * Math.PI / 180),
+            this.centroBussola.y - altezzaTimone * Math.cos(this.barra * Math.PI / 180)
         ]
         this.p.fill(coloreTriangoloTimone);
         this.p.triangle(puntiTriangoloTimone[0], puntiTriangoloTimone[1], puntiTriangoloTimone[2], puntiTriangoloTimone[3], puntiTriangoloTimone[4], puntiTriangoloTimone[5]);
@@ -481,8 +480,8 @@ export class InterfacciaParametrizzata {
         }
 
 
-        //collisione imminente
-        if (this.collisioneImminente) {
+        //collisione avvenuta
+        if (this.collisioneAvvenuta) {
             this.p.fill(coloreRadar.alert);
             this.p.rect(this.angoloAltoASxRadar.x, this.angoloAltoASxRadar.y + this.altezzaRadar, this.lunghezzaRadar, this.altezzaCollisioneImminente);
         }
@@ -671,7 +670,7 @@ export class GestoreInterfacceConsole {
         this.interfacciaParametrizzata.radar = val;
     }
 
-    //true o false
+    //true o false TODO: inutile?
     SetCollisioneImminente(val) {
         this.interfacciaTestuale.collisioneImminente = val;
         this.interfacciaParametrizzata.collisioneImminente = val;
@@ -680,14 +679,25 @@ export class GestoreInterfacceConsole {
     //true o false
     SetCollisioneAvvenuta(val) {
         this.interfacciaTestuale.collisioneAvvenuta = val;
-        //TODO: this.interfacciaParametrizzata.coll = val;
+        this.interfacciaParametrizzata.collisioneAvvenuta = val;
     }
 
     //object con x e y
     SetUltimaPosizioneRilevata(posX, posY) {
-        this.interfacciaTestuale.ultimaPosRilevata.x = posX;
-        this.interfacciaTestuale.ultimaPosRilevata.y = posY;
+        this.interfacciaTestuale.ultimaPosRilevata[0] = posX;
+        this.interfacciaTestuale.ultimaPosRilevata[1] = posY;
         this.interfacciaParametrizzata.ultimaPosRilevata.x = posX;
         this.interfacciaParametrizzata.ultimaPosRilevata.y = posY;
+    }
+
+    SetBarra(val){
+        this.interfacciaTestuale.timone = val;
+        this.interfacciaParametrizzata.barra = val;
+    }
+
+    SetMotore(val){
+        this.interfacciaTestuale.motore = val;
+        //TODO:
+        //this.interfacciaParametrizzata.motore = val;
     }
 }
