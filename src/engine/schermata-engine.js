@@ -65,12 +65,12 @@ export class SchermataEngine extends NavElement {
                 p.background(0);
                 console.log("setup completo");
                 //setto il frame rate
-                p.frameRate(10);    //per test
+                p.frameRate(1);
                 //fermo il loop per permettere di cercare i dati su firebase
                 p.noLoop();
                 _self.cercaPartita();
 
-                //TODO: migliora inizializzazione variabili
+                //FIXME: migliora inizializzazione variabili
                 setTimeout(function () {
                     let t = _self.partita.datigenerali;
                     gtime = t.gametime;
@@ -88,8 +88,8 @@ export class SchermataEngine extends NavElement {
             * plotta navi
             */
             p.draw = function () {
-                console.log("funzione di draw");
 
+                
                 //uscita squadra e cambio variabile isUsed a False
                 _self.partita.kickInattività(tokenUtente);
 
@@ -97,7 +97,6 @@ export class SchermataEngine extends NavElement {
                 gtime++;
                 //cambio vento
                 if ((gtime % wtimer) == 0) {
-                    console.log("cambio vento");
                     wspeed = (wspeed * 10 + (Math.floor((Math.random() * 2 * wMaxChange - wMaxChange) * 10) + 1)) / 10;
                     if (wspeed < 0) { wspeed = 0 };
                     if (wspeed > wMaxSpeed) { wspeed = wMaxSpeed }
@@ -107,52 +106,64 @@ export class SchermataEngine extends NavElement {
                     if (wdir < 0) { wdir += 360 }
                     if (wdir > 360) { wdir += -360 }
                     console.log(wdir);
-
-                    //update vento su firebase
-                    let t = _self.partita.datigenerali;
-                    t.gametime = gtime;
-                    t.windForce = wspeed;
-                    t.windDir = wdir;
-                    _self.db.collection("partite").doc(tokenUtente).update("datigenerali", t);
                 }
 
+                //update vento su firebase
+                //aggiorno ogni secondo il gtime ma solo ogni dieci il vento
+                let t = _self.partita.datigenerali;
+                t.gametime = gtime;
+                t.windForce = wspeed;
+                t.windDir = wdir;
+                _self.db.collection("partite").doc(tokenUtente).update("datigenerali", t);
+
                 //aggiorna posizioni navi
-                //TODO: Aggiungere deriva vento
-                
-                for (let i = 0; i < _self.navi.length; i++) {
+                Object.keys(_self.partita.squadre).forEach(i => {
+                    //se una nave non viene usata la salto
+                    if (!_self.partita.squadre[i].isUsed) {return;}
+
                     // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato 
                     // verso destra gli angoli sono positivi in senso antiorario
-                    
-                    // aggiorno le posizioni FIXME: restituisce Nan di posx, posy e direzione
-                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].pos.direzione * 2 * Math.PI) / 360);
-                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].pos.direzione * 2 * Math.PI) / 360);
+                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].pos.direzione * Math.PI) / 180);
+                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].pos.direzione * Math.PI) / 180);
+
+                    //tengo conto del vento (FIXME: futura scelta)
+                    if (true) {
+                        _self.navi[i].pos.posx += wspeed * Math.cos((wdir * Math.PI) / 180);
+                        _self.navi[i].pos.posy += wspeed * Math.sin((wdir * Math.PI) / 180);
+                    }
 
                     // aggiorno le velocita'
-                    // ignoro la fisica e immagino che la velocita' sia conservata sempre
-                    _self.navi[i].comandi.velocity += _self.navi[i].comandi.accel;
-                    //FIXME: potrebbe essere Nan a causa di barra? il path è .comandi.barra
-                    let x = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
+                    // al momento si ferma e basta
+                    let x = _self.navi[i].comandi.velocity
+                    x += _self.navi[i].comandi.accel;
+                    if (x < -5) { x = -5 }
+                    if (x > 20) { x = 20 }
+                    _self.navi[i].comandi.velocity = x;
+                    
+                    //aggiorno direzione
+                    x = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
                     if (x < 0) { x += 360 }
                     if (x > 360) { x += -360 }
                     _self.navi[i].pos.direzione = x;
-                }
+                    
+                    //CONTROLLO DELLE COLLISIONI
+                    _self.controllaCollisioniNave(i);
+                    
+                    //carico su firebase
+                    _self.upNave(_self.navi);
+                });
 
-                //update nave
                 //plotta navi
                 p.background(50);
+                
+                Object.keys(_self.partita.squadre).forEach(i => {
+                    //se una nave non viene usata la salto
+                    if (!_self.partita.squadre[i].isUsed) {return;}
 
-                //CONTROLLO DELLE COLLISIONI
-                for (let i = 0; i < _self.navi.length; i++) {
-                    _self.controllaCollisioniNave(i);
-                }
-
-                console.log('aggiorno gtime');
-                _self.upNave(_self.navi);
-                for (let i = 0; i < _self.navi.length; i++) {
                     let nave = new Nave(_self.navi[i]);
                     p.ellipse(nave.pos.posx, nave.pos.posy, 15, 10);
                     //TODO: far ruotare la nave
-                }
+                });
             }
         };
 
@@ -275,4 +286,25 @@ export class SchermataEngine extends NavElement {
         }
         return statoRadar;
     }
+
+    /*
+    aggiornaCarb(nave) {
+        //dovrebbe servire per i turni da fermo
+        if (nave.comandi.carb<0) {
+            nave.comandi.carb++;
+            if (nave.comandi.carb == 0) {
+                nave.comandi.carb = 1800;
+            }
+            return;
+        }
+
+        //effettivo consumo di carburante
+        nave.comandi.carb -= Math.abs(nave.comandi.velocity);
+        if (nave.comandi.carb <= 0) {
+            //dovrebbe servire per i turni da fermo
+            nave.comandi.carb = -5;
+            nave.comandi.velocity = 0;
+        }
+    }
+    */
 }

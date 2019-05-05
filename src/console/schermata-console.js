@@ -8,7 +8,6 @@ export class SchermataConsole extends NavElement {
   constructor() {
     super();
     this.referenceSketchp5 = null;
-
     this.nave = new Nave({});
     this.coefficienteResize = 0.7;
     this.gestoreInterfacceConsole = new GestoreInterfacceConsole();
@@ -44,8 +43,10 @@ export class SchermataConsole extends NavElement {
     let _self = this;
     _self.nave.getNave(referenceNaveDaControllare);
     _self.nave.getDatiPartita(idPartita);
+    _self.subGametime()
+   // _self.getNomeNave()
     console.log(_self.nave);
-   // _self.gestoreInterfacceConsole.SetNomeNave(_self.nave);
+   //TODO: PASSARE NOME NAVE _self.gestoreInterfacceConsole.SetNomeNave(_self.nave);
 
     let sketch = function (p) {
       p.setup = function () {
@@ -70,12 +71,10 @@ export class SchermataConsole extends NavElement {
         //console.log("draw working!");
         p.background(51);
 
-        //aggiornamento dati Nave
-        _self.nave.getNave(referenceNaveDaControllare);
-        _self.nave.getDatiPartita(idPartita);
-        //uscita dalla schermata per inattività
-        _self.nave.kick(referenceNaveDaControllare, idPartita);
-        _self.gestoreInterfacceConsole.SetNomeNave(_self.nave);
+        //controllo uscita dalla schermata per inattività ogni 10 secondi
+        if((_self.nave.partita.datigenerali.gametime % 10)==0){
+          _self.nave.kick(referenceNaveDaControllare, idPartita);
+        }
         //passaggio dati a interfaccia tesuale
         _self.gestoreInterfacceConsole.SetTempoDiGioco(_self.nave.partita.datigenerali.gametime);
         _self.gestoreInterfacceConsole.SetVelocita(_self.nave.comandi.velocity);
@@ -120,8 +119,8 @@ export class SchermataConsole extends NavElement {
               break;
             }
             case 3: {
-              // controllo che barra sia tra -45<barra<45 poi aggiorno valori su firebase             
-              if (_self.nave.comandi.barra < 45) {
+              // controllo che barra sia tra -30<barra<30 poi aggiorno valori su firebase             
+              if (_self.nave.comandi.barra < 30) {
                 console.log("Vira a destra");
                 _self.nave.comandi.barra++;
                 _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
@@ -129,14 +128,17 @@ export class SchermataConsole extends NavElement {
                 break;
               }
               else {
+                //riporta il valore a 30 nel caso vada oltre per errori
+                _self.nave.comandi.barra = 30;
+                _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
                 _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
                 console.log("limite barra raggiunto");
                 break;
               }
             }
             case 4: {
-              // controllo che barra sia tra -45<barra<45 poi aggiorno valori su firebase
-              if (_self.nave.comandi.barra > -45) {
+              // controllo che barra sia tra -30<barra<30 poi aggiorno valori su firebase
+              if (_self.nave.comandi.barra > -30) {
                 console.log("Vira a sinistra");
                 _self.nave.comandi.barra--;
                 _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
@@ -144,6 +146,9 @@ export class SchermataConsole extends NavElement {
                 break;
               }
               else {
+                //riporta il valore a -30 nel caso vada oltre per errori
+                _self.nave.comandi.barra = -30
+                _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
                 _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
                 console.log("limite barra raggiunto");
                 break;
@@ -165,6 +170,25 @@ export class SchermataConsole extends NavElement {
     //creo un'istanza di p5 e la aggiungo all'array di utils.js
     istanzeP5.push(new p5(sketch, document.querySelector("#container-p5")));
   }
+
+subGametime(){
+  let ref= "/partite/"+idPartita
+  firebase.firestore().doc(ref)
+    .onSnapshot(doc=> {
+      this.nave.getNave(referenceNaveDaControllare);
+      this.nave.getDatiPartita(idPartita);
+    });
+}
+/*
+getNomeNave(){
+  let temp=Object.values(arraySquadrePartita);
+  temp.forEach(squadra =>{
+    console.log(squadra.nome.toString())
+    if(squadra.reference==referenceNaveDaControllare){
+      this.gestoreInterfacceConsole.SetNomeNave("ciao");
+    }
+  })
+}*/
 
   creaInterfacciaTestuale() {
     this.interfacciaTestualeProvvisoria = document.createElement("interfaccia-testuale-console");
