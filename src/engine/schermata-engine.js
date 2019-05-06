@@ -22,6 +22,10 @@ export class SchermataEngine extends NavElement {
         this.col4 = 192; //[0, 255, 0, 255]; // obbiettivi intermedi
         this.col5 = 255; //bianco mare
         this.distanzaRadar = 40; //distanza frontale del radar
+
+        this.backgroundImageSrc = "mapset08_alpha.jpg";
+        this.resolution = [300, 300];
+        this.resolutionScale = 0.7;
     }
 
     render() {
@@ -56,13 +60,20 @@ export class SchermataEngine extends NavElement {
             let wMaxChange = 0.3; // variazione max
             let wMaxAngle = 10; // angolo massimo di variazione
             let wtimer = 10; // timer aggiorno vento
+
+            p.preload = function(){
+                _self.backgroundImage = p.loadImage(_self.backgroundImageSrc);
+            }
+
             //setup di p5
             p.setup = function () {
                 //imposto il reference così non devo passarlo ad ogni funzione che chiamo
                 _self.referenceSketchp5 = p;
 
-                p.createCanvas(300, 300);
-                p.background(0);
+                p.createCanvas(_self.resolution[0] * _self.resolutionScale, _self.resolution[1] * _self.resolutionScale);
+                //COMMENTARE PER TOGLIERE BACKGROUND IMAGE
+                p.background(_self.backgroundImage);
+                //p.background(0);
                 console.log("setup completo");
                 //setto il frame rate
                 p.frameRate(1);
@@ -154,7 +165,9 @@ export class SchermataEngine extends NavElement {
                 });
 
                 //plotta navi
-                p.background(50);
+                //COMMENTARE PER TOGLIERE BACKGROUND IMAGE
+                p.background(_self.backgroundImage);
+                //p.background(50);
                 
                 Object.keys(_self.partita.squadre).forEach(i => {
                     //se una nave non viene usata la salto
