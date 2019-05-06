@@ -680,6 +680,7 @@ export class GestoreInterfacceConsole {
     //array di true o false
     SetRadar(val) {
         this.interfacciaTestuale.radar = val;
+        this.interfacciaTestuale.requestUpdate();
         this.interfacciaParametrizzata.radar = val;
     }
 
@@ -699,6 +700,7 @@ export class GestoreInterfacceConsole {
     SetUltimaPosizioneRilevata(posX, posY) {
         this.interfacciaTestuale.ultimaPosRilevata[0] = posX;
         this.interfacciaTestuale.ultimaPosRilevata[1] = posY;
+        this.interfacciaTestuale.requestUpdate();
         this.interfacciaParametrizzata.ultimaPosRilevata.x = posX;
         this.interfacciaParametrizzata.ultimaPosRilevata.y = posY;
     }
