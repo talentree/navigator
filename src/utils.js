@@ -166,13 +166,13 @@ export class Nave {
         */
         this.radar = nave.radar || {};
         this.partita = {
-            datigenerali:{
+            datigenerali: {
                 gametime: 0,
                 windDir: 0,
                 windForce: 0
             },
             nomePartita: "",
-         }
+        }
     }
 
     //ottiene i dati della nave in uso da firebase
@@ -251,7 +251,7 @@ export class Nave {
             })
     }
 }
-
+/*
 export class InfoSullaNaveConsole {
     constructor(paragrafo) {
         this.carburanteRimasto = 0;
@@ -270,7 +270,7 @@ export class InfoSullaNaveConsole {
         this.paragrafo.innerHTML += "Carburante rimasto: " + this.direzione + " (udm??)";
     }
 }
-
+*/
 export class InterfacciaParametrizzata {
     constructor(p, width, height, coloreBackground) {
         this.p = p;
@@ -291,6 +291,7 @@ export class InterfacciaParametrizzata {
         }
 
         this.messaggi = "Nessun messaggio";
+        this.carburante = 100;
 
         this.coloreResettaTimone = [255, 1, 0];
         this.coloreViraDestra = [255, 200, 0];
@@ -298,6 +299,7 @@ export class InterfacciaParametrizzata {
         this.coloreAumentaVelocita = [255, 202, 0];
         this.coloreDiminuisciVelocita = [255, 203, 0];
         this.coloreAnelloBussola = this.p.color(255, 204, 0);
+        this.coloreTesti = this.p.color(255, 255, 255);
     }
 
     setDimensioni(width, height) {
@@ -364,6 +366,11 @@ export class InterfacciaParametrizzata {
             yUltimaPosizione: height * 0.88,
             yTesto: height * 0.91,
             yMessaggi: height * 0.94
+        }
+
+        this.posizioneCarburante = {
+            x: width * 0.5,
+            y: height * 0.4
         }
     }
 
@@ -487,8 +494,7 @@ export class InterfacciaParametrizzata {
         }
 
         //testi
-        let coloreTesti = this.p.color(0, 0, 0);
-        this.p.fill(coloreTesti);
+        this.p.fill(this.coloreTesti);
         this.p.noStroke();
         this.p.textSize(this.dimensioniTesti.piccoli);
         this.p.textAlign(this.p.LEFT);
@@ -501,6 +507,12 @@ export class InterfacciaParametrizzata {
         this.p.textSize(this.dimensioniTesti.piccoli);
         this.p.text("TIME", this.gameTimeText.x, this.gameTimeText.yDescrizione);
 
+        //testo carburante
+        this.p.textSize(this.dimensioniTesti.piccoli);
+        this.p.textAlign(this.p.CENTER, this.p.CENTER);
+        this.p.text("Carburante:\n" + this.carburante, this.posizioneCarburante.x, this.posizioneCarburante.y);
+
+        //testi velocità e direzione
         this.p.textSize(this.dimensioniTesti.grandi / 2);
         this.p.textAlign(this.p.RIGHT);
         this.p.text(this.direzione + " N", this.posizioneTestiVelEDirezione.xDir, this.posizioneTestiVelEDirezione.y);
@@ -532,6 +544,7 @@ export class InterfacciaParametrizzata {
 
         //disegno indicatore nord
         let direzioneIndicatore = this.direzione;
+        this.p.fill(this.p.color(0, 0, 0));
         for (let i = 0; i < 4; i++) {
             direzioneIndicatore = -this.direzione + 90 * i;
             this.p.textAlign(this.p.CENTER, this.p.CENTER);
@@ -558,7 +571,7 @@ export class InterfacciaParametrizzata {
                     break;
                 }
                 case 3: {
-                    lettera = "O";
+                    lettera = "W";
                     break;
                 }
             }
@@ -690,14 +703,33 @@ export class GestoreInterfacceConsole {
         this.interfacciaParametrizzata.ultimaPosRilevata.y = posY;
     }
 
-    SetBarra(val){
+    SetBarra(val) {
         this.interfacciaTestuale.timone = val;
         this.interfacciaParametrizzata.barra = val;
     }
 
-    SetMotore(val){
+    SetMotore(val) {
         this.interfacciaTestuale.motore = val;
         //TODO:
         //this.interfacciaParametrizzata.motore = val;
+    }
+
+    SetCarburante(val) {
+        if (val < 0) {
+            val = 0;
+        }
+
+        this.interfacciaTestuale.carburante = val;
+        this.interfacciaParametrizzata.carburante = val;
+    }
+}
+
+export function ToggleFullscreen(){
+    let header = document.querySelector("header-talentree");
+    if(header.style.display != "none"){
+        header.style.display = "none";
+    }
+    else{
+        header.style.display = "block";
     }
 }
