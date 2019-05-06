@@ -17,6 +17,7 @@ export class InterfacciaTestuale extends NavElement {
             collisioneImminente: { type: Boolean },
             collisioneAvvenuta: { type: Boolean },
             ultimaPosRilevata: { type: Array },
+            carburante : {type: Number}
         }
     }
 
@@ -62,8 +63,9 @@ export class InterfacciaTestuale extends NavElement {
             ${elementCollisione}
             <p>Vento: intensità: ${this.intVento} (udm), direzione: ${this.direzioneVento} °</p>
             <br>
-            <p>Motore: ${this.motore}</p>
             <p>Timone: ${this.timone}</p>
+            <p>Motore: ${this.motore}</p>
+            <p>Carburante rimasto: ${this.carburante}</p>
             <br>
             <p>Rilevamento radar: TODO</p>
             ${this.collisioneAvvenuta ? alertCollisione : null}

@@ -1,6 +1,6 @@
 import { NavElement, html } from '../nav-element';
-import { referenceNaveDaControllare, idPartita, InterfacciaParametrizzata, GestoreInterfacceConsole } from '../utils';
-import { istanzeP5, arraySquadrePartita, ButtonTondoConsole, InfoSullaNaveConsole, Nave, } from '../utils';
+import { referenceNaveDaControllare, idPartita, GestoreInterfacceConsole, ToggleFullscreen } from '../utils';
+import { istanzeP5, arraySquadrePartita, Nave, } from '../utils';
 
 export class SchermataConsole extends NavElement {
 
@@ -9,11 +9,12 @@ export class SchermataConsole extends NavElement {
     super();
     this.referenceSketchp5 = null;
     this.nave = new Nave({});
-    this.coefficienteResize = 0.7;
+    this.coefficienteResize = 1; //0.7;
     this.gestoreInterfacceConsole = new GestoreInterfacceConsole();
+    this.containerp5 = null;
     window.onresize = () => {
-      this.referenceSketchp5.resizeCanvas(window.innerWidth * this.coefficienteResize, window.innerHeight * this.coefficienteResize);
-      this.gestoreInterfacceConsole.SetDimensioni(window.innerWidth * this.coefficienteResize, window.innerHeight * this.coefficienteResize);
+      this.referenceSketchp5.resizeCanvas(this.containerp5.clientWidth * this.coefficienteResize, this.containerp5.clientHeight * this.coefficienteResize);
+      this.gestoreInterfacceConsole.SetDimensioni(this.containerp5.clientWidth * this.coefficienteResize, this.containerp5.clientHeight * this.coefficienteResize);
     }
   }
 
@@ -22,8 +23,8 @@ export class SchermataConsole extends NavElement {
       firebase.firestore().collection("partite").doc(idPartita).update({ squadre: arraySquadrePartita })
     }
     return html`
-      <h1 class="title is-4">Qui verrà mostrata la console per comandare la nave</h1>
-      <p class="subtitle">La nave è in path navi/${referenceNaveDaControllare}</p>
+    <a class="button is-primary" @click=${(e)=> { ToggleFullscreen()}}>
+     Provvisorio, toggle fullscreen</a>
       <a class="button is-primary" @click=${(e)=> {
         this.gestoreInterfacceConsole.PassaAInterfacciaTestuale(!this.gestoreInterfacceConsole.isInterfacciaTestuale)
         }}>Provvisorio, toggle interfaccia testuale</a>
@@ -40,6 +41,7 @@ export class SchermataConsole extends NavElement {
 
 
   firstUpdated() {
+    this.containerp5 = document.querySelector("#container-p5");
     let _self = this;
     _self.nave.getNave(referenceNaveDaControllare);
     _self.nave.getDatiPartita(idPartita);
@@ -63,7 +65,7 @@ export class SchermataConsole extends NavElement {
         //backgroung grigio
         p.background(51);
 
-        _self.gestoreInterfacceConsole = new GestoreInterfacceConsole(p, document.querySelector("#container-p5"), _self.interfacciaTestualeProvvisoria, window.innerWidth * _self.coefficienteResize, window.innerHeight * _self.coefficienteResize, 51);
+        _self.gestoreInterfacceConsole = new GestoreInterfacceConsole(p, _self.containerp5, _self.interfacciaTestualeProvvisoria, _self.containerp5.clientWidth * _self.coefficienteResize, _self.containerp5.clientHeight * _self.coefficienteResize, 51);
         //TODO: motorsound
       }
 
@@ -85,6 +87,7 @@ export class SchermataConsole extends NavElement {
         _self.gestoreInterfacceConsole.SetUltimaPosizioneRilevata(_self.nave.pos.posx, _self.nave.pos.posy)
         _self.gestoreInterfacceConsole.SetBarra(_self.nave.comandi.barra);
         _self.gestoreInterfacceConsole.SetMotore(_self.nave.comandi.accel);
+        _self.gestoreInterfacceConsole.SetCarburante(_self.nave.pos.carb);
         // _self.gestoreInterfacceConsole.SetRadar(_self.nave.radar.radarfrontale) TODO: QUANDO PRONTO SU ENGINE E FIREBASE TOGLIERE IL COMMENTO
         //_self.gestoreInterfacceConsole.SetCollisioneImminente()
         if (_self.nave.radar.statoNave == 1) {
@@ -172,7 +175,7 @@ export class SchermataConsole extends NavElement {
     }
 
     //creo un'istanza di p5 e la aggiungo all'array di utils.js
-    istanzeP5.push(new p5(sketch, document.querySelector("#container-p5")));
+    istanzeP5.push(new p5(sketch, this.containerp5));
   }
 
   subGametime() {
