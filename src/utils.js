@@ -300,6 +300,12 @@ export class InterfacciaParametrizzata {
         this.coloreDiminuisciVelocita = [255, 203, 0];
         this.coloreAnelloBussola = this.p.color(255, 204, 0);
         this.coloreTesti = this.p.color(255, 255, 255);
+
+        //barra verrà moltiplicata per 10
+        this.barra = 5;
+        this.intVento = 30;
+        this.maxIntVento = 1;
+        this.direzioneVento = 200;
     }
 
     setDimensioni(width, height) {
@@ -320,11 +326,6 @@ export class InterfacciaParametrizzata {
 
         this.raggioAnelloBussola = width * 0.38;
         this.spessoreAnelloBussola = width * 0.05;
-        //barra verrà moltiplicata per 10
-        this.barra = 5;
-        this.intVento = 30;
-        this.maxIntVento = 40;
-        this.direzioneVento = 200;
 
         this.angoloAltoASxRadar = {
             x: width * 0.11,
@@ -726,12 +727,12 @@ export class GestoreInterfacceConsole {
     }
 }
 
-export function ToggleFullscreen(){
+export function ToggleFullscreen() {
     let header = document.querySelector("header-talentree");
-    if(header.style.display != "none"){
+    if (header.style.display != "none") {
         header.style.display = "none";
     }
-    else{
+    else {
         header.style.display = "block";
     }
 }
