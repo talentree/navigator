@@ -145,7 +145,7 @@ export class SchermataEngine extends NavElement {
 
                     // aggiorno le velocita'
                     // al momento si ferma e basta
-                    let x = _self.navi[i].comandi.velocity
+                    let x = _self.navi[i].comandi.velocity;
                     x += _self.navi[i].comandi.accel;
                     if (x < -5) { x = -5 }
                     if (x > 20) { x = 20 }
@@ -225,6 +225,7 @@ export class SchermataEngine extends NavElement {
                         //se tutte le navi sono state ottenute faccio cominciare il loop
                         if (naviOttenute == Object.keys(this.partita.squadre).length) {
                             console.log("navi ottenute: ", this.navi);
+                            this.subNave();
                             this.referenceSketchp5.loop();
                         }
                     }
@@ -248,6 +249,22 @@ export class SchermataEngine extends NavElement {
                 this.db.collection("navi").doc(this.partita.squadre[i].reference).update("radar", navi[i].radar);
             }
         }
+    }
+
+    //FIXME: semplicemente da controllare che funzioni
+    subNave(){
+        Object.keys(this.partita.squadre).forEach(i => {
+            this.db.collection("navi").doc(this.partita.squadre[i].reference)
+            .onSnapshot(doc=>{
+                if(this.navi[i] && this.partita && this.partita.squadre){
+                    //console.log(doc.data())
+                    this.navi[i].comandi = doc.data().comandi || {};
+                    console.log("nuova barra" + this.navi[i].comandi.barra);
+                    //TODO: aggiornare il timer
+                    //this.partita.squadre[i].timer = boh;
+                }
+            })
+        });
     }
 
     controllaCollisioniNave(index) {

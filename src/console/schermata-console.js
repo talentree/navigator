@@ -45,7 +45,7 @@ export class SchermataConsole extends NavElement {
     let _self = this;
     _self.nave.getNave(referenceNaveDaControllare);
     _self.nave.getDatiPartita(idPartita);
-    _self.subGametime()
+    _self.subGametime();
     // _self.getNomeNave()
     console.log(_self.nave);
     //TODO: PASSARE NOME NAVE _self.gestoreInterfacceConsole.SetNomeNave(_self.nave);
