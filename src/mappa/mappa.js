@@ -5,22 +5,23 @@ import { istanzeP5, ToggleFullscreen } from '../utils';
 export class SchermataMappa extends NavElement {
     constructor() {
         super();
+        this.referenceSketchp5 = null;
         this.posizioneNavi = [];
         this.backgroundImage = null;
         this.backgroundImageSrc = "mapset08.jpg";
         this.resolution = [1600, 1000];
-        this.resolutionScale = 0.7;
+        this.containerp5 = null;
     }
 
     render() {
         return html`
         <!--
-                    <h1 class="title is-4">Mappa</h1>
-            -->
+                                    <h1 class="title is-4">Mappa</h1>
+                            -->
         <a class="button is-primary" @click=${(e) => { ToggleFullscreen() }}>
-            Provvisorio, toggle fullscreen</a>
+            Attiva/disattiva schermo intero</a>
         <br>
-        <div id="container-p5"></div>
+        <div id="container-p5" style="text-align: center"></div>
         `;
     }
 
@@ -30,6 +31,7 @@ export class SchermataMappa extends NavElement {
     il container
     */
     firstUpdated() {
+        this.containerp5 = document.querySelector("#container-p5");
         // creo la variabile dell'uid utente
         // da usare all'interno di sketch
         var uidUtente = tokenUtente;
@@ -46,7 +48,16 @@ export class SchermataMappa extends NavElement {
             p.setup = function () {
                 // imposto il database e creo il canvas
                 _self.db = firebase.firestore();
-                p.createCanvas(_self.resolution[0] * _self.resolutionScale, _self.resolution[1] * _self.resolutionScale);
+                _self.referenceSketchp5 = p;
+                if (window.innerWidth / window.innerHeight > _self.resolution[0] / _self.resolution[1]) {
+                    console.log("if ", (window.innerHeight / _self.resolution[1]) * _self.resolution[0], window.innerHeight)
+                    p.createCanvas((window.innerHeight / _self.resolution[1]) * _self.resolution[0], window.innerHeight)
+                }
+                else {
+                    console.log("else ", window.innerWidth, (window.innerWidth / _self.resolution[0]) * _self.resolution[1])
+                    p.createCanvas(window.innerWidth, (window.innerWidth / _self.resolution[0]) * _self.resolution[1]);
+                }
+                //p.createCanvas(_self.resolution[0] * _self.resolutionScale, _self.resolution[1] * _self.resolutionScale);
                 p.background(_self.backgroundImage);
                 // uso frameRate per rallentare l'esecuzione del draw
                 // in modo da poter permettere la visualizzazione delle navi
@@ -96,9 +107,9 @@ export class SchermataMappa extends NavElement {
             }
         };
 
-        console.log(document.querySelector("#container-p5"));
+        //console.log(document.querySelector("#container-p5"));
         //creo un'istanza di p5 e la aggiungo all'array di utils.js
-        istanzeP5.push(new p5(sketch, document.querySelector("#container-p5")));
+        istanzeP5.push(new p5(sketch, this.containerp5));
     }
 
     disegnaNavi(p) {
