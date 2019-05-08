@@ -9,12 +9,24 @@ export class SchermataConsole extends NavElement {
     super();
     this.referenceSketchp5 = null;
     this.nave = new Nave({});
-    this.coefficienteResize = 1; //0.7;
+    //this.coefficienteResize = 1; //0.7;
     this.gestoreInterfacceConsole = new GestoreInterfacceConsole();
     this.containerp5 = null;
     window.onresize = () => {
-      this.referenceSketchp5.resizeCanvas(this.containerp5.clientWidth * this.coefficienteResize, this.containerp5.clientHeight * this.coefficienteResize);
-      this.gestoreInterfacceConsole.SetDimensioni(this.containerp5.clientWidth * this.coefficienteResize, this.containerp5.clientHeight * this.coefficienteResize);
+      let w,h;
+      if (window.innerWidth / window.innerHeight > 9 / 16) {
+        //console.log("if ", (window.innerHeight / 16) * 9, window.innerHeight)
+        w = (window.innerHeight / 16) * 9;
+        h = window.innerHeight;
+      }
+      else {
+        //console.log("else ", window.innerWidth, (window.innerWidth / 9) * 16)
+        w = window.innerWidth;
+        h = (window.innerWidth / 9) * 16;
+      }
+      console.log("wh", w, h)
+      this.referenceSketchp5.resizeCanvas( w, h);
+      this.gestoreInterfacceConsole.SetDimensioni(w, h);
     }
   }
 
@@ -23,17 +35,17 @@ export class SchermataConsole extends NavElement {
       firebase.firestore().collection("partite").doc(idPartita).update({ squadre: arraySquadrePartita })
     }
     return html`
-    <a class="button is-primary" @click=${(e)=> { ToggleFullscreen()}}>
-     Provvisorio, toggle fullscreen</a>
+    <a class="button is-primary" @click=${(e)=> { ToggleFullscreen();}}>
+     Attiva/disattiva schermo intero</a>
       <a class="button is-primary" @click=${(e)=> {
         this.gestoreInterfacceConsole.PassaAInterfacciaTestuale(!this.gestoreInterfacceConsole.isInterfacciaTestuale)
-        }}>Provvisorio, toggle interfaccia testuale</a>
+        }}>Cambia grafica console</a>
       <br>
       ${this.creaInterfacciaTestuale()}
       <br>
       <p id="info-nave"></p>
       <!--Container p5. Viene eliminato separatamente nell'utils-->
-      <div id="container-p5"></div>
+      <div id="container-p5" style="text-align: center"></div>
     `;
   }
 
@@ -58,15 +70,28 @@ export class SchermataConsole extends NavElement {
         p.angleMode(p.DEGREES);
 
         //creo il canvas secondo le dimensioni dello schermo
-        p.createCanvas(window.innerWidth * _self.coefficienteResize, window.innerHeight * _self.coefficienteResize);
+        //let h = _self.containerp5.clientHeight * _self.coefficienteResize;
+        //p.createCanvas((h/16) * 9, h);
+        let w,h;
+        if (window.innerWidth / window.innerHeight > 9 / 16) {
+          //console.log("if ", (window.innerHeight / 16) * 9, window.innerHeight)
+          w = (window.innerHeight / 16) * 9;
+          h = window.innerHeight;
+      }
+      else {
+          //console.log("else ", window.innerWidth, (window.innerWidth / 9) * 16)
+          w = window.innerWidth;
+          h = (window.innerWidth / 9) * 16;
+      }
+      p.createCanvas(w, h);
         //import framerate a tot
         p.frameRate(30);
 
         //backgroung grigio
         p.background(51);
 
-        _self.gestoreInterfacceConsole = new GestoreInterfacceConsole(p, _self.containerp5, _self.interfacciaTestualeProvvisoria, _self.containerp5.clientWidth * _self.coefficienteResize, _self.containerp5.clientHeight * _self.coefficienteResize, 51);
-        //TODO: motorsound
+        _self.gestoreInterfacceConsole = new GestoreInterfacceConsole(p, _self.containerp5, _self.interfacciaTestualeProvvisoria, w, h, 51);
+                  //TODO: motorsound
       }
 
       p.draw = function () {
