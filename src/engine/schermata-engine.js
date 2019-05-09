@@ -1,5 +1,5 @@
 import { NavElement, html } from "../nav-element";
-import { istanzeP5, Partita, Nave } from '../utils';
+import { istanzeP5, Partita, Nave, ToggleFullscreen } from '../utils';
 import { tokenUtente } from "../main";
 
 export class SchermataEngine extends NavElement {
@@ -24,15 +24,19 @@ export class SchermataEngine extends NavElement {
         this.distanzaRadar = 40; //distanza frontale del radar
 
         this.backgroundImageSrc = "mapset08_alpha.jpg";
-        this.resolution = [300, 300];
-        this.resolutionScale = 0.7;
+        this.resolution = [1600, 1000];
+        this.resolutionScale = 1;
     }
 
     render() {
         return html`
+        <!--
             <h1 class="title is-4">Engine vero e proprio</h1>
+            -->
+            <a class="button is-primary" @click=${(e) => { ToggleFullscreen() }}>
+            Attiva/disattiva schermo intero</a>
             <!--Container p5. Viene eliminato separatamente nell'utils-->
-            <div id="container-p5"></div>
+            <div id="container-p5" style="text-align: center"></div>
         `;
     }
 
@@ -70,7 +74,15 @@ export class SchermataEngine extends NavElement {
                 //imposto il reference così non devo passarlo ad ogni funzione che chiamo
                 _self.referenceSketchp5 = p;
 
-                p.createCanvas(_self.resolution[0] * _self.resolutionScale, _self.resolution[1] * _self.resolutionScale);
+                if (window.innerWidth / window.innerHeight > _self.resolution[0] / _self.resolution[1]) {
+                    console.log("if ", (window.innerHeight / _self.resolution[1]) * _self.resolution[0], window.innerHeight)
+                    p.createCanvas((window.innerHeight / _self.resolution[1]) * _self.resolution[0], window.innerHeight)
+                }
+                else {
+                    console.log("else ", window.innerWidth, (window.innerWidth / _self.resolution[0]) * _self.resolution[1])
+                    p.createCanvas(window.innerWidth, (window.innerWidth / _self.resolution[0]) * _self.resolution[1]);
+                }
+                //p.createCanvas(_self.resolution[0] * _self.resolutionScale, _self.resolution[1] * _self.resolutionScale);
                 //COMMENTARE PER TOGLIERE BACKGROUND IMAGE
                 p.background(_self.backgroundImage);
                 //p.background(0);
