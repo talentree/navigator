@@ -68,6 +68,8 @@ export function backToMainMenu() {
         oldElement = null;
     }
     if (infoScheda == "Console della nave") {
+        //console.log("libero squadra", referenceNaveDaControllare, tokenUtente);
+        //TODO: token utente non è sempre la partita corretta
         liberaSquadra(referenceNaveDaControllare, tokenUtente)
     }
     //vado al menù pricipale
@@ -728,11 +730,20 @@ export class GestoreInterfacceConsole {
 }
 
 export function ToggleFullscreen() {
-    let header = document.querySelector("header-talentree");
+    //let header = document.querySelector("header-talentree");
+    /*
     if (header.style.display != "none") {
         header.style.display = "none";
     }
     else {
         header.style.display = "block";
+    }
+    */
+    let element = document.querySelector("#container-p5").firstChild;
+    if (element.webkitRequestFullScreen) {
+        element.webkitRequestFullScreen();
+    }
+    else {
+        element.mozRequestFullScreen();
     }
 }
