@@ -102,7 +102,7 @@ export class SchermataEngine extends NavElement {
 
                 
                 //uscita squadra e cambio variabile isUsed a False
-                _self.partita.kickInattività(tokenUtente);
+                //_self.partita.kickInattività(tokenUtente);
 
                 //aggiorno clock
                 gtime++;
@@ -132,10 +132,10 @@ export class SchermataEngine extends NavElement {
                     //se una nave non viene usata la salto
                     if (!_self.partita.squadre[i].isUsed) {return;}
 
-                    // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato 
+                    // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato
                     // verso destra gli angoli sono positivi in senso antiorario
-                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].pos.direzione * Math.PI) / 180);
-                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].pos.direzione * Math.PI) / 180);
+                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].pos.direzione - 90) * Math.PI / 180);
+                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].pos.direzione - 90) * Math.PI / 180);
 
                     //tengo conto del vento (FIXME: futura scelta)
                     if (true) {
@@ -150,7 +150,10 @@ export class SchermataEngine extends NavElement {
                     if (x < -5) { x = -5 }
                     if (x > 20) { x = 20 }
                     _self.navi[i].comandi.velocity = x;
-                    
+
+                    //aggiorno il carburante
+                    _self.aggiornaCarb(_self.navi[i]);
+
                     //aggiorno direzione
                     x = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
                     if (x < 0) { x += 360 }
@@ -315,24 +318,22 @@ export class SchermataEngine extends NavElement {
         return statoRadar;
     }
 
-    /*
     aggiornaCarb(nave) {
         //dovrebbe servire per i turni da fermo
-        if (nave.comandi.carb<0) {
-            nave.comandi.carb++;
-            if (nave.comandi.carb == 0) {
-                nave.comandi.carb = 1800;
+        if (nave.pos.carb<0) {
+            nave.pos.carb++;
+            if (nave.pos.carb == 0) {
+                nave.pos.carb = 1800;
             }
             return;
         }
 
         //effettivo consumo di carburante
-        nave.comandi.carb -= Math.abs(nave.comandi.velocity);
-        if (nave.comandi.carb <= 0) {
+        nave.pos.carb -= Math.abs(nave.comandi.velocity);
+        if (nave.pos.carb <= 0) {
             //dovrebbe servire per i turni da fermo
-            nave.comandi.carb = -5;
+            nave.pos.carb = -5;
             nave.comandi.velocity = 0;
         }
     }
-    */
 }
