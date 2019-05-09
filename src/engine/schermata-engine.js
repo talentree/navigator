@@ -139,8 +139,8 @@ export class SchermataEngine extends NavElement {
 
                     //tengo conto del vento (FIXME: futura scelta)
                     if (true) {
-                        _self.navi[i].pos.posx += wspeed * Math.cos((wdir * Math.PI) / 180);
-                        _self.navi[i].pos.posy += wspeed * Math.sin((wdir * Math.PI) / 180);
+                        _self.navi[i].pos.posx += wspeed * Math.cos((wdir - 90) * Math.PI / 180);
+                        _self.navi[i].pos.posy += wspeed * Math.sin((wdir - 90) * Math.PI / 180);
                     }
 
                     // aggiorno le velocita'
