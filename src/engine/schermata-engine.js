@@ -161,7 +161,7 @@ export class SchermataEngine extends NavElement {
                     _self.controllaCollisioniNave(i);
                     
                     //carico su firebase
-                    _self.upNave(_self.navi);
+                    _self.upNave(i);
                 });
 
                 //plotta navi
@@ -237,17 +237,15 @@ export class SchermataEngine extends NavElement {
         });
     }
 
-    upNave(navi) {
+    upNave(i) {
         /*dava errore se non si aggiungeva un controllo
         Impediva di aggiungere l'istanza di p5 nell'array di utils.js
         Rimaneva quindi il draw attivo al cambio schermata
         */
         if (this.partita && this.partita.squadre) {
-            for (let i = 0; i < this.partita.squadre.length; i++) {
-                this.db.collection("navi").doc(this.partita.squadre[i].reference).update("pos", navi[i].pos);
-                this.db.collection("navi").doc(this.partita.squadre[i].reference).update("comandi.velocity", navi[i].comandi.velocity);
-                this.db.collection("navi").doc(this.partita.squadre[i].reference).update("radar", navi[i].radar);
-            }
+            this.db.collection("navi").doc(this.partita.squadre[i].reference).update("pos", this.navi[i].pos);
+            this.db.collection("navi").doc(this.partita.squadre[i].reference).update("comandi.velocity", this.navi[i].comandi.velocity);
+            this.db.collection("navi").doc(this.partita.squadre[i].reference).update("radar", this.navi[i].radar);
         }
     }
 
