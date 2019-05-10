@@ -6,19 +6,27 @@ export class SchermataMappa extends NavElement {
     constructor() {
         super();
         this.referenceSketchp5 = null;
-        this.posizioneNavi = [];
+        this.elencoNavi = [];
         this.backgroundImage = null;
         this.backgroundImageSrc = "mapset08.jpg";
         this.resolution = [1600, 1000];
         this.containerp5 = null;
+        this.coloriNavi = [
+            [200, 120, 0],
+            [100, 255, 100],
+            [130, 30, 200],
+            [250, 120, 99],
+            [96, 25, 90],
+            [34, 100, 200],
+        ]
     }
 
     render() {
         return html`
         <!--
-                                    <h1 class="title is-4">Mappa</h1>
-                            -->
-        <a class="button is-primary" @click=${(e) => { ToggleFullscreen() }}>
+                                            <h1 class="title is-4">Mappa</h1>
+                                    -->
+        <a class="button is-primary" @click=${(e)=> { ToggleFullscreen() }}>
             Attiva/disattiva schermo intero</a>
         <br>
         <div id="container-p5" style="text-align: center"></div>
@@ -85,6 +93,7 @@ export class SchermataMappa extends NavElement {
                     .then(res => {
                         // per ogni squadra della partita vado a vedermi la nave corrispondente
                         let squadre = Object.values(res.get("squadre"));
+                        console.log(squadre);
                         //console.log(squadre);
                         squadre.forEach((squadra, index) => {
                             // vado a prendere le coordinate delle varie navi
@@ -92,9 +101,10 @@ export class SchermataMappa extends NavElement {
                                 .onSnapshot(res => {
                                     // inserisco la nave nelle posizioni posx e posy del database
                                     // per mezzo di un puntino andrà tolto
-                                    _self.posizioneNavi[index] = {
+                                    _self.elencoNavi[index] = {
                                         x: res.get("pos").posx,
-                                        y: res.get("pos").posy
+                                        y: res.get("pos").posy,
+                                        nome: squadra.nome
                                     }
                                     _self.disegnaNavi(p);
                                     //p.point(res.get("pos").posx, res.get("pos").posy);
@@ -115,10 +125,23 @@ export class SchermataMappa extends NavElement {
     disegnaNavi(p) {
         //console.log(this.posizioneNavi);
         p.background(this.backgroundImage);
-        p.strokeWeight(20);
-        this.posizioneNavi.forEach(nave => {
+        
+        //console.log("disegno navi", this.elencoNavi);
+        this.elencoNavi.forEach((nave, index) => {
             if (nave) {
+                if (index < this.coloriNavi.length) {
+                    p.stroke(this.coloriNavi[index])
+                }
+                else {
+                    p.stroke([0, 0, 0]);
+                }
+                p.strokeWeight(20);
                 p.point(nave.x, nave.y);
+                p.noStroke();
+                p.textSize(20);
+                p.textAlign(p.CENTER);
+                p.text(nave.nome, nave.x, nave.y - 10);
+                //console.log("Draw con ", this.coloriNavi[index], nave)
             }
         })
     }

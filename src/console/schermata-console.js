@@ -13,7 +13,7 @@ export class SchermataConsole extends NavElement {
     this.gestoreInterfacceConsole = new GestoreInterfacceConsole();
     this.containerp5 = null;
     window.onresize = () => {
-      let w,h;
+      let w, h;
       if (window.innerWidth / window.innerHeight > 9 / 16) {
         //console.log("if ", (window.innerHeight / 16) * 9, window.innerHeight)
         w = (window.innerHeight / 16) * 9;
@@ -25,7 +25,7 @@ export class SchermataConsole extends NavElement {
         h = (window.innerWidth / 9) * 16;
       }
       console.log("wh", w, h)
-      this.referenceSketchp5.resizeCanvas( w, h);
+      this.referenceSketchp5.resizeCanvas(w, h);
       this.gestoreInterfacceConsole.SetDimensioni(w, h);
     }
   }
@@ -72,18 +72,18 @@ export class SchermataConsole extends NavElement {
         //creo il canvas secondo le dimensioni dello schermo
         //let h = _self.containerp5.clientHeight * _self.coefficienteResize;
         //p.createCanvas((h/16) * 9, h);
-        let w,h;
+        let w, h;
         if (window.innerWidth / window.innerHeight > 9 / 16) {
           //console.log("if ", (window.innerHeight / 16) * 9, window.innerHeight)
           w = (window.innerHeight / 16) * 9;
           h = window.innerHeight;
-      }
-      else {
+        }
+        else {
           //console.log("else ", window.innerWidth, (window.innerWidth / 9) * 16)
           w = window.innerWidth;
           h = (window.innerWidth / 9) * 16;
-      }
-      p.createCanvas(w, h);
+        }
+        p.createCanvas(w, h);
         //import framerate a tot
         p.frameRate(30);
 
@@ -91,7 +91,7 @@ export class SchermataConsole extends NavElement {
         p.background(51);
 
         _self.gestoreInterfacceConsole = new GestoreInterfacceConsole(p, _self.containerp5, _self.interfacciaTestualeProvvisoria, w, h, 51);
-                  //TODO: motorsound
+        //TODO: motorsound
       }
 
       p.draw = function () {
@@ -113,7 +113,7 @@ export class SchermataConsole extends NavElement {
         _self.gestoreInterfacceConsole.SetBarra(_self.nave.comandi.barra);
         _self.gestoreInterfacceConsole.SetMotore(_self.nave.comandi.accel);
         _self.gestoreInterfacceConsole.SetCarburante(_self.nave.pos.carb);
-        // _self.gestoreInterfacceConsole.SetRadar(_self.nave.radar.radarfrontale) TODO: QUANDO PRONTO SU ENGINE E FIREBASE TOGLIERE IL COMMENTO
+        _self.gestoreInterfacceConsole.SetRadar(_self.nave.radar.radarfrontale) //TODO: QUANDO PRONTO SU ENGINE E FIREBASE TOGLIERE IL COMMENTO
         //_self.gestoreInterfacceConsole.SetCollisioneImminente()
         if (_self.nave.radar.statoNave == 1) {
           _self.gestoreInterfacceConsole.SetCollisioneAvvenuta(true)
@@ -178,7 +178,7 @@ export class SchermataConsole extends NavElement {
               }
               else {
                 //riporta il valore a -30 nel caso vada oltre per errori
-                _self.nave.comandi.barra = -30
+                _self.nave.comandi.barra = -30;
                 _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
                 _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
                 console.log("limite barra raggiunto");
@@ -188,6 +188,10 @@ export class SchermataConsole extends NavElement {
             case 5: {
               //TODO: reset timone
               console.log("Reset timone");
+              _self.nave.comandi.barra = 0;
+              _self.nave.updateNave(referenceNaveDaControllare, _self.nave);
+              _self.nave.updateTimer(referenceNaveDaControllare, idPartita);
+              break;
             }
             default: {
               console.log("Fuori dal cerchio");
@@ -196,6 +200,8 @@ export class SchermataConsole extends NavElement {
           }
 
         }
+        // prevent default
+        return false;
       }
     }
 
@@ -210,7 +216,7 @@ export class SchermataConsole extends NavElement {
         //console.log(doc.data())
         //this.nave.getNave(referenceNaveDaControllare);
         //this.nave.getDatiPartita(idPartita);
-        if(this.nave && this.nave.partita){
+        if (this.nave && this.nave.partita) {
           //console.log(doc.data())
           this.nave.partita.nomePartita = doc.data().nomePartita || {};
           this.nave.partita.datigenerali = doc.data().datigenerali || {};
@@ -218,20 +224,20 @@ export class SchermataConsole extends NavElement {
         }
       });
 
-      this.subNave()
+    this.subNave()
   }
 
-  subNave(){
+  subNave() {
     firebase.firestore().collection("navi").doc(referenceNaveDaControllare)
-    .onSnapshot(doc=>{
-      if(this.nave){
-        //console.log(doc.data())
-        this.nave.comandi = doc.data().comandi || {};
-        this.nave.datiIniziali = doc.data().datiIniziali || {};
-        this.nave.pos = doc.data().pos || {};
-        this.nave.radar = doc.data().radar || {};
-      }
-    })
+      .onSnapshot(doc => {
+        if (this.nave) {
+          //console.log(doc.data())
+          this.nave.comandi = doc.data().comandi || {};
+          this.nave.datiIniziali = doc.data().datiIniziali || {};
+          this.nave.pos = doc.data().pos || {};
+          this.nave.radar = doc.data().radar || {};
+        }
+      })
   }
   /*
   getNomeNave(){
