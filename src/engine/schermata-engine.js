@@ -145,15 +145,17 @@ export class SchermataEngine extends NavElement {
 
                     // aggiorno le velocita'
                     // al momento si ferma e basta
-                    if (_self.navi[i].comandi.velocity < _self.navi[i].comandi.accel) {
-                        _self.navi[i].comandi.velocity++;
+                    let x = _self.navi[i].comandi.velocity;
+                    if (x < _self.navi[i].comandi.accel) {
+                        x++;
                     }
-                    if (_self.navi[i].comandi.velocity > _self.navi[i].comandi.accel) {
-                        _self.navi[i].comandi.velocity--;
+                    if (x > _self.navi[i].comandi.accel) {
+                        x--;
                     }
                     if (x < -5) { x = -5 }
                     if (x > 20) { x = 20 }
-
+                    _self.navi[i].comandi.velocity = x;
+                    
                     //aggiorno il carburante
                     _self.aggiornaCarb(_self.navi[i]);
 
