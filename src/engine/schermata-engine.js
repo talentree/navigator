@@ -145,11 +145,14 @@ export class SchermataEngine extends NavElement {
 
                     // aggiorno le velocita'
                     // al momento si ferma e basta
-                    let x = _self.navi[i].comandi.velocity;
-                    x += _self.navi[i].comandi.accel;
+                    if (_self.navi[i].comandi.velocity < _self.navi[i].comandi.accel) {
+                        _self.navi[i].comandi.velocity++;
+                    }
+                    if (_self.navi[i].comandi.velocity > _self.navi[i].comandi.accel) {
+                        _self.navi[i].comandi.velocity--;
+                    }
                     if (x < -5) { x = -5 }
                     if (x > 20) { x = 20 }
-                    _self.navi[i].comandi.velocity = x;
 
                     //aggiorno il carburante
                     _self.aggiornaCarb(_self.navi[i]);
@@ -165,6 +168,11 @@ export class SchermataEngine extends NavElement {
                     
                     //carico su firebase
                     _self.upNave(i);
+
+                    //alert
+                    if (_self.navi[i].radar.statoNave == 4) {
+                        alert(_self.partita.squadre[i].nome + "ha vinto la gara!");
+                    }
                 });
 
                 //plotta navi
@@ -229,6 +237,7 @@ export class SchermataEngine extends NavElement {
                         if (naviOttenute == Object.keys(this.partita.squadre).length) {
                             console.log("navi ottenute: ", this.navi);
                             this.subNave();
+                            this.subPartita();
                             this.referenceSketchp5.loop();
                         }
                     }
@@ -258,14 +267,23 @@ export class SchermataEngine extends NavElement {
             this.db.collection("navi").doc(this.partita.squadre[i].reference)
             .onSnapshot(doc=>{
                 if(this.navi[i] && this.partita && this.partita.squadre){
-                    //console.log(doc.data())
                     this.navi[i].comandi = doc.data().comandi || {};
                     console.log("nuova barra" + this.navi[i].comandi.barra);
-                    //TODO: aggiornare il timer
-                    //this.partita.squadre[i].timer = boh;
                 }
             })
         });
+    }
+
+    subPartita(){
+        this.db.collection("partite").doc(tokenUtente)
+            .onSnapshot(doc =>{
+                if(this.partita && this.partita.squadre) {
+                    Object.keys(this.partita.squadre).forEach(i =>{
+                        //se timer o isUsed sono cambiati allora li aggiorno
+                        this.partita.squadre[i] = doc.data().squadre[i];
+                    })
+                }
+            })
     }
 
     controllaCollisioniNave(index) {
