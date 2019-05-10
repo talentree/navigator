@@ -261,7 +261,6 @@ export class SchermataEngine extends NavElement {
         }
     }
 
-    //FIXME: semplicemente da controllare che funzioni
     subNave(){
         Object.keys(this.partita.squadre).forEach(i => {
             this.db.collection("navi").doc(this.partita.squadre[i].reference)
@@ -278,9 +277,10 @@ export class SchermataEngine extends NavElement {
         this.db.collection("partite").doc(tokenUtente)
             .onSnapshot(doc =>{
                 if(this.partita && this.partita.squadre) {
-                    Object.keys(this.partita.squadre).forEach(i =>{
+                    Object.keys(doc.data().squadre).forEach(i =>{
                         //se timer o isUsed sono cambiati allora li aggiorno
-                        this.partita.squadre[i] = doc.data().squadre[i];
+                        this.partita.squadre[i] = doc.data().squadre[i] || {};
+                        console.log('aggiornata squadra '+ i);
                     })
                 }
             })
