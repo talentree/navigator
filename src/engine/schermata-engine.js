@@ -1,5 +1,5 @@
 import { NavElement, html } from "../nav-element";
-import { istanzeP5, Partita, Nave } from '../utils';
+import { istanzeP5, Partita, Nave, ToggleFullscreen } from '../utils';
 import { tokenUtente } from "../main";
 
 export class SchermataEngine extends NavElement {
@@ -24,15 +24,19 @@ export class SchermataEngine extends NavElement {
         this.distanzaRadar = 40; //distanza frontale del radar
 
         this.backgroundImageSrc = "mapset08_alpha.jpg";
-        this.resolution = [300, 300];
-        this.resolutionScale = 0.7;
+        this.resolution = [1600, 1000];
+        this.resolutionScale = 1;
     }
 
     render() {
         return html`
+        <!--
             <h1 class="title is-4">Engine vero e proprio</h1>
+            -->
+            <a class="button is-primary" @click=${(e) => { ToggleFullscreen() }}>
+            Attiva/disattiva schermo intero</a>
             <!--Container p5. Viene eliminato separatamente nell'utils-->
-            <div id="container-p5"></div>
+            <div id="container-p5" style="text-align: center"></div>
         `;
     }
 
@@ -70,7 +74,15 @@ export class SchermataEngine extends NavElement {
                 //imposto il reference così non devo passarlo ad ogni funzione che chiamo
                 _self.referenceSketchp5 = p;
 
-                p.createCanvas(_self.resolution[0] * _self.resolutionScale, _self.resolution[1] * _self.resolutionScale);
+                if (window.innerWidth / window.innerHeight > _self.resolution[0] / _self.resolution[1]) {
+                    console.log("if ", (window.innerHeight / _self.resolution[1]) * _self.resolution[0], window.innerHeight)
+                    p.createCanvas((window.innerHeight / _self.resolution[1]) * _self.resolution[0], window.innerHeight)
+                }
+                else {
+                    console.log("else ", window.innerWidth, (window.innerWidth / _self.resolution[0]) * _self.resolution[1])
+                    p.createCanvas(window.innerWidth, (window.innerWidth / _self.resolution[0]) * _self.resolution[1]);
+                }
+                //p.createCanvas(_self.resolution[0] * _self.resolutionScale, _self.resolution[1] * _self.resolutionScale);
                 //COMMENTARE PER TOGLIERE BACKGROUND IMAGE
                 p.background(_self.backgroundImage);
                 //p.background(0);
@@ -102,7 +114,7 @@ export class SchermataEngine extends NavElement {
 
                 
                 //uscita squadra e cambio variabile isUsed a False
-                _self.partita.kickInattività(tokenUtente);
+                //_self.partita.kickInattività(tokenUtente);
 
                 //aggiorno clock
                 gtime++;
@@ -132,25 +144,28 @@ export class SchermataEngine extends NavElement {
                     //se una nave non viene usata la salto
                     if (!_self.partita.squadre[i].isUsed) {return;}
 
-                    // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato 
+                    // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato
                     // verso destra gli angoli sono positivi in senso antiorario
-                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].pos.direzione * Math.PI) / 180);
-                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].pos.direzione * Math.PI) / 180);
+                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].pos.direzione - 90) * Math.PI / 180);
+                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].pos.direzione - 90) * Math.PI / 180);
 
                     //tengo conto del vento (FIXME: futura scelta)
                     if (true) {
-                        _self.navi[i].pos.posx += wspeed * Math.cos((wdir * Math.PI) / 180);
-                        _self.navi[i].pos.posy += wspeed * Math.sin((wdir * Math.PI) / 180);
+                        _self.navi[i].pos.posx += wspeed * Math.cos((wdir - 90) * Math.PI / 180);
+                        _self.navi[i].pos.posy += wspeed * Math.sin((wdir - 90) * Math.PI / 180);
                     }
 
                     // aggiorno le velocita'
                     // al momento si ferma e basta
-                    let x = _self.navi[i].comandi.velocity
+                    let x = _self.navi[i].comandi.velocity;
                     x += _self.navi[i].comandi.accel;
                     if (x < -5) { x = -5 }
                     if (x > 20) { x = 20 }
                     _self.navi[i].comandi.velocity = x;
-                    
+
+                    //aggiorno il carburante
+                    _self.aggiornaCarb(_self.navi[i]);
+
                     //aggiorno direzione
                     x = _self.navi[i].pos.direzione + _self.navi[i].comandi.barra;
                     if (x < 0) { x += 360 }
@@ -161,7 +176,7 @@ export class SchermataEngine extends NavElement {
                     _self.controllaCollisioniNave(i);
                     
                     //carico su firebase
-                    _self.upNave(_self.navi);
+                    _self.upNave(i);
                 });
 
                 //plotta navi
@@ -225,6 +240,7 @@ export class SchermataEngine extends NavElement {
                         //se tutte le navi sono state ottenute faccio cominciare il loop
                         if (naviOttenute == Object.keys(this.partita.squadre).length) {
                             console.log("navi ottenute: ", this.navi);
+                            this.subNave();
                             this.referenceSketchp5.loop();
                         }
                     }
@@ -236,18 +252,32 @@ export class SchermataEngine extends NavElement {
         });
     }
 
-    upNave(navi) {
+    upNave(i) {
         /*dava errore se non si aggiungeva un controllo
         Impediva di aggiungere l'istanza di p5 nell'array di utils.js
         Rimaneva quindi il draw attivo al cambio schermata
         */
         if (this.partita && this.partita.squadre) {
-            for (let i = 0; i < this.partita.squadre.length; i++) {
-                this.db.collection("navi").doc(this.partita.squadre[i].reference).update("pos", navi[i].pos);
-                this.db.collection("navi").doc(this.partita.squadre[i].reference).update("comandi.velocity", navi[i].comandi.velocity);
-                this.db.collection("navi").doc(this.partita.squadre[i].reference).update("radar", navi[i].radar);
-            }
+            this.db.collection("navi").doc(this.partita.squadre[i].reference).update("pos", this.navi[i].pos);
+            this.db.collection("navi").doc(this.partita.squadre[i].reference).update("comandi.velocity", this.navi[i].comandi.velocity);
+            this.db.collection("navi").doc(this.partita.squadre[i].reference).update("radar", this.navi[i].radar);
         }
+    }
+
+    //FIXME: semplicemente da controllare che funzioni
+    subNave(){
+        Object.keys(this.partita.squadre).forEach(i => {
+            this.db.collection("navi").doc(this.partita.squadre[i].reference)
+            .onSnapshot(doc=>{
+                if(this.navi[i] && this.partita && this.partita.squadre){
+                    //console.log(doc.data())
+                    this.navi[i].comandi = doc.data().comandi || {};
+                    console.log("nuova barra" + this.navi[i].comandi.barra);
+                    //TODO: aggiornare il timer
+                    //this.partita.squadre[i].timer = boh;
+                }
+            })
+        });
     }
 
     controllaCollisioniNave(index) {
@@ -300,24 +330,22 @@ export class SchermataEngine extends NavElement {
         return statoRadar;
     }
 
-    /*
     aggiornaCarb(nave) {
         //dovrebbe servire per i turni da fermo
-        if (nave.comandi.carb<0) {
-            nave.comandi.carb++;
-            if (nave.comandi.carb == 0) {
-                nave.comandi.carb = 1800;
+        if (nave.pos.carb<0) {
+            nave.pos.carb++;
+            if (nave.pos.carb == 0) {
+                nave.pos.carb = 1800;
             }
             return;
         }
 
         //effettivo consumo di carburante
-        nave.comandi.carb -= Math.abs(nave.comandi.velocity);
-        if (nave.comandi.carb <= 0) {
+        nave.pos.carb -= Math.abs(nave.comandi.velocity);
+        if (nave.pos.carb <= 0) {
             //dovrebbe servire per i turni da fermo
-            nave.comandi.carb = -5;
+            nave.pos.carb = -5;
             nave.comandi.velocity = 0;
         }
     }
-    */
 }
