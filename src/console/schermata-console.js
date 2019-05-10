@@ -90,7 +90,10 @@ export class SchermataConsole extends NavElement {
         //backgroung grigio
         p.background(51);
 
+        //creazione interfaccia console e passaggio nome nome della nave
+        //_self.gestoreInterfacceConsole = new GestoreInterfacceConsole(p, document.querySelector("#container-p5"), _self.interfacciaTestualeProvvisoria, window.innerWidth * _self.coefficienteResize, window.innerHeight * _self.coefficienteResize, 51);
         _self.gestoreInterfacceConsole = new GestoreInterfacceConsole(p, _self.containerp5, _self.interfacciaTestualeProvvisoria, w, h, 51);
+        _self.getNomeNave();
         //TODO: motorsound
       }
 
@@ -103,7 +106,7 @@ export class SchermataConsole extends NavElement {
           _self.nave.kick(referenceNaveDaControllare, idPartita);
         }
         //passaggio dati a interfaccia tesuale
-        _self.gestoreInterfacceConsole.SetNomeNave("TODO");
+        //_self.gestoreInterfacceConsole.SetNomeNave("TODO");
         _self.gestoreInterfacceConsole.SetTempoDiGioco(_self.nave.partita.datigenerali.gametime);
         _self.gestoreInterfacceConsole.SetVelocita(_self.nave.comandi.velocity);
         _self.gestoreInterfacceConsole.SetDirezione(_self.nave.pos.direzione);
@@ -255,5 +258,14 @@ export class SchermataConsole extends NavElement {
     return html`
     ${this.interfacciaTestualeProvvisoria}
     `
+  }
+
+  getNomeNave(){
+    let temp=Object.values(arraySquadrePartita);
+    temp.forEach(squadra =>{
+      if(squadra.reference==referenceNaveDaControllare){
+        this.gestoreInterfacceConsole.SetNomeNave(squadra.nome)
+      }
+    })
   }
 }
