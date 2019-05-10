@@ -8,7 +8,7 @@ export class SchermataMappa extends NavElement {
         this.referenceSketchp5 = null;
         this.elencoNavi = [];
         this.backgroundImage = null;
-        this.backgroundImageSrc = "mapset08.jpg";
+        this.backgroundImageSrc = "mapset10.jpg";
         this.resolution = [1600, 1000];
         this.containerp5 = null;
         this.coloriNavi = [

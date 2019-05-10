@@ -23,7 +23,7 @@ export class SchermataEngine extends NavElement {
         this.col5 = 255; //bianco mare
         this.distanzaRadar = 40; //distanza frontale del radar
 
-        this.backgroundImageSrc = "mapset08_alpha.jpg";
+        this.backgroundImageSrc = "mapset10 alpha.jpg";
         this.resolution = [1600, 1000];
         this.resolutionScale = 1;
     }
