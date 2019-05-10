@@ -155,7 +155,6 @@ export class SchermataEngine extends NavElement {
                     if (x < -5) { x = -5 }
                     if (x > 20) { x = 20 }
                     _self.navi[i].comandi.velocity = x;
-                    
                     //aggiorno il carburante
                     _self.aggiornaCarb(_self.navi[i]);
 
