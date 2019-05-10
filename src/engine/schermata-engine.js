@@ -26,6 +26,8 @@ export class SchermataEngine extends NavElement {
         this.backgroundImageSrc = "mapset10 alpha.jpg";
         this.resolution = [1600, 1000];
         this.resolutionScale = 1;
+
+        this.moltiplicatoreVelocita = 0.5;
     }
 
     render() {
@@ -146,8 +148,8 @@ export class SchermataEngine extends NavElement {
 
                     // immaginando che direzione = 0 corrisponde all'asse orrizontale orientato
                     // verso destra gli angoli sono positivi in senso antiorario
-                    _self.navi[i].pos.posx += _self.navi[i].comandi.velocity * Math.cos((_self.navi[i].pos.direzione - 90) * Math.PI / 180);
-                    _self.navi[i].pos.posy += _self.navi[i].comandi.velocity * Math.sin((_self.navi[i].pos.direzione - 90) * Math.PI / 180);
+                    _self.navi[i].pos.posx += (_self.navi[i].comandi.velocity * _self.moltiplicatoreVelocita) * Math.cos((_self.navi[i].pos.direzione - 90) * Math.PI / 180);
+                    _self.navi[i].pos.posy += (_self.navi[i].comandi.velocity * _self.moltiplicatoreVelocita) * Math.sin((_self.navi[i].pos.direzione - 90) * Math.PI / 180);
 
                     //tengo conto del vento (FIXME: futura scelta)
                     if (true) {
@@ -360,7 +362,7 @@ export class SchermataEngine extends NavElement {
         }
 
         //effettivo consumo di carburante
-        nave.pos.carb -= Math.abs(nave.comandi.velocity);
+        nave.pos.carb -= 0.005 * Math.pow(Math.abs(nave.comandi.velocity),2.204) + 0.2;
         if (nave.pos.carb <= 0) {
             //dovrebbe servire per i turni da fermo
             nave.pos.carb = -5;
