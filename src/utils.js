@@ -308,6 +308,8 @@ export class InterfacciaParametrizzata {
         this.intVento = 30;
         this.maxIntVento = 1;
         this.direzioneVento = 200;
+
+        this.motore = 0;
     }
 
     setDimensioni(width, height) {
@@ -405,25 +407,25 @@ export class InterfacciaParametrizzata {
         let coloreTriangoloVento = this.p.color(0, 0, 255);
         let baseVento = this.raggioAnelloBussola * 0.23;
         let altezzaVento = this.intVento / this.maxIntVento * 0.75 * this.raggioAnelloBussola;
-
+        let angoloVentoTotale = - this.direzione + this.direzioneVento;
         this.p.fill(this.p.color(255, 255, 255));
         let centroBaseTriangoloVento = {
-            x: this.centroBussola.x + (this.raggioAnelloBussola - this.spessoreAnelloBussola) * Math.sin(this.direzioneVento * Math.PI / 180),
-            y: this.centroBussola.y - (this.raggioAnelloBussola - this.spessoreAnelloBussola) * Math.cos(this.direzioneVento * Math.PI / 180)
+            x: this.centroBussola.x + (this.raggioAnelloBussola - this.spessoreAnelloBussola) * Math.sin(angoloVentoTotale * Math.PI / 180),
+            y: this.centroBussola.y - (this.raggioAnelloBussola - this.spessoreAnelloBussola) * Math.cos(angoloVentoTotale * Math.PI / 180)
         }
         //this.p.ellipse(centroBaseTriangoloVento.x, centroBaseTriangoloVento.y, 10, 10);
 
         let centroVerticeTriangoloVento = {
-            x: this.centroBussola.x + (this.raggioAnelloBussola - this.spessoreAnelloBussola - altezzaVento) * Math.sin(this.direzioneVento * Math.PI / 180),
-            y: this.centroBussola.y - (this.raggioAnelloBussola - this.spessoreAnelloBussola - altezzaVento) * Math.cos(this.direzioneVento * Math.PI / 180)
+            x: this.centroBussola.x + (this.raggioAnelloBussola - this.spessoreAnelloBussola - altezzaVento) * Math.sin(angoloVentoTotale * Math.PI / 180),
+            y: this.centroBussola.y - (this.raggioAnelloBussola - this.spessoreAnelloBussola - altezzaVento) * Math.cos(angoloVentoTotale * Math.PI / 180)
         }
         //this.p.ellipse(centroVerticeTriangoloVento.x, centroVerticeTriangoloVento.y, 10, 10);
 
         let puntiTriangoloVento = [
-            centroBaseTriangoloVento.x + (baseVento / 2) * Math.sin((this.direzioneVento - 90) * Math.PI / 180),
-            centroBaseTriangoloVento.y - (baseVento / 2) * Math.cos((this.direzioneVento - 90) * Math.PI / 180),
-            centroBaseTriangoloVento.x + (baseVento / 2) * Math.sin((this.direzioneVento + 90) * Math.PI / 180),
-            centroBaseTriangoloVento.y - (baseVento / 2) * Math.cos((this.direzioneVento + 90) * Math.PI / 180),
+            centroBaseTriangoloVento.x + (baseVento / 2) * Math.sin((angoloVentoTotale - 90) * Math.PI / 180),
+            centroBaseTriangoloVento.y - (baseVento / 2) * Math.cos((angoloVentoTotale - 90) * Math.PI / 180),
+            centroBaseTriangoloVento.x + (baseVento / 2) * Math.sin((angoloVentoTotale + 90) * Math.PI / 180),
+            centroBaseTriangoloVento.y - (baseVento / 2) * Math.cos((angoloVentoTotale + 90) * Math.PI / 180),
             centroVerticeTriangoloVento.x,
             centroVerticeTriangoloVento.y
         ]
@@ -480,7 +482,7 @@ export class InterfacciaParametrizzata {
 
         this.p.stroke(coloreRadar.contorno);
         for (let i = 0; i < 7; i++) {
-            if (this.radar[i] == false) {
+            if (this.radar[i] != 1) {
                 this.p.fill(coloreRadar.normal);
             }
             else {
@@ -513,14 +515,17 @@ export class InterfacciaParametrizzata {
         //testo carburante
         this.p.textSize(this.dimensioniTesti.piccoli);
         this.p.textAlign(this.p.CENTER, this.p.CENTER);
-        this.p.text("Carburante:\n" + this.carburante, this.posizioneCarburante.x, this.posizioneCarburante.y);
+        this.p.text("fuel: " + this.carburante + "\nMotore: " + this.motore, this.posizioneCarburante.x, this.posizioneCarburante.y);
 
         //testi velocità e direzione
         this.p.textSize(this.dimensioniTesti.grandi / 2);
         this.p.textAlign(this.p.RIGHT);
         this.p.text(this.direzione + " N", this.posizioneTestiVelEDirezione.xDir, this.posizioneTestiVelEDirezione.y);
         let velocitaMostrata = 0;
-        if (this.vel < 10) {
+        if (this.vel < 0) {
+            velocitaMostrata = "-00" + Math.abs(this.vel);
+        }
+        else if (this.vel < 10) {
             velocitaMostrata = "00" + this.vel;
         }
         else if (this.vel < 100) {
@@ -529,6 +534,7 @@ export class InterfacciaParametrizzata {
         else {
             velocitaMostrata = this.vel;
         }
+
 
         this.p.textAlign(this.p.LEFT);
         this.p.text(velocitaMostrata, this.posizioneTestiVelEDirezione.xVel, this.posizioneTestiVelEDirezione.y);
@@ -586,6 +592,7 @@ export class InterfacciaParametrizzata {
 
     //0 se esterno, 1 se aumento velocita, 2 de diminuisco, 3 se viro a dx, 4 se viro a sx, 5 se resetto timones
     whereIsClick(coloreNelPunto) {
+        console.log(coloreNelPunto);
         //console.log(coloreNelPunto);
         if (JSON.stringify(coloreNelPunto) == JSON.stringify(this.coloreAumentaVelocita)) {
             return 1;
@@ -682,6 +689,9 @@ export class GestoreInterfacceConsole {
 
     //array di true o false
     SetRadar(val) {
+        if (!val) {
+            val = [0, 0, 0, 0, 0, 0, 0];
+        }
         this.interfacciaTestuale.radar = val;
         this.interfacciaTestuale.requestUpdate();
         this.interfacciaParametrizzata.radar = val;
@@ -715,8 +725,7 @@ export class GestoreInterfacceConsole {
 
     SetMotore(val) {
         this.interfacciaTestuale.motore = val;
-        //TODO:
-        //this.interfacciaParametrizzata.motore = val;
+        this.interfacciaParametrizzata.motore = val;
     }
 
     SetCarburante(val) {
