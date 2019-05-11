@@ -6,8 +6,10 @@ export class HeaderTalentree extends NavElement {
 
     constructor() {
         super();
+        this.testMode = true;
+
         //quando premo login cambio schermata
-        this.vaiALogin = function(){
+        this.vaiALogin = function () {
             setGameContent("login-register");
         }
         //quando premo logout
@@ -18,7 +20,7 @@ export class HeaderTalentree extends NavElement {
         //stringa contenente l'html per far comparire il tasto login
         this.loginButton = html`
         <p class="subtitle">Non sei connesso!</p>
-        <a class="button is-link is-pulled-right" @click=${(e) => this.vaiALogin()}>Vai al login</a>
+        <a class="button is-link is-pulled-right" @click=${(e)=> this.vaiALogin()}>Vai al login</a>
         `
     }
 
@@ -29,7 +31,12 @@ export class HeaderTalentree extends NavElement {
         if (tokenUtente) {
             displayAutenticazione = html`
             <p class="subtitle">Benvenuto ${mailUtente}!!</p>
-            <a class="button is-link is-pulled-right" @click=${(e) => this.effettuaLogout()}>Logout</a>
+            <a class="button is-link is-pulled-right" @click=${(e)=> this.effettuaLogout()}>Logout</a>
+            `
+        }
+        if(this.testMode){
+            displayAutenticazione = html`
+            <p class="subtitle">Test mode</p>
             `
         }
         return html`
@@ -42,7 +49,7 @@ export class HeaderTalentree extends NavElement {
                         <h2 class="subtitle">
                             ${infoScheda}
                         </h2>
-                        <a class="button is-link" @click=${(e) => backToMainMenu()}>Main menu</a>
+                        <a class="button is-link" @click=${(e)=> backToMainMenu()}>Main menu</a>
                     </div>
                     <div class="column">
                         <div class="is-pulled-right">
