@@ -27,7 +27,7 @@ export class SchermataEngine extends NavElement {
         this.resolution = [1600, 1000];
         this.resolutionScale = 1;
 
-        this.moltiplicatoreVelocita = 0.5;
+        this.moltiplicatoreVelocita = 0.16;
     }
 
     render() {
@@ -153,22 +153,41 @@ export class SchermataEngine extends NavElement {
 
                     //tengo conto del vento (FIXME: futura scelta)
                     if (true) {
-                        _self.navi[i].pos.posx += wspeed * Math.cos((wdir - 90) * Math.PI / 180);
-                        _self.navi[i].pos.posy += wspeed * Math.sin((wdir - 90) * Math.PI / 180);
+                        _self.navi[i].pos.posx += (wspeed * _self.moltiplicatoreVelocita) * Math.cos((wdir - 90) * Math.PI / 180);
+                        _self.navi[i].pos.posy += (wspeed * _self.moltiplicatoreVelocita) * Math.sin((wdir - 90) * Math.PI / 180);
                     }
 
                     // aggiorno le velocita'
-                    // al momento si ferma e basta
+                    // la velocita raggiunge graduatamente l-acc con step di tre alla volta
                     let x = _self.navi[i].comandi.velocity;
                     if (x < _self.navi[i].comandi.accel) {
-                        x++;
+                        switch (_self.navi[i].comandi.accel - x) {
+                            case 1:
+                                x++;
+                                break;
+                            case 2:
+                                x += 2;
+                                break;
+                            default:
+                                x += 3;
+                        }
                     }
                     if (x > _self.navi[i].comandi.accel) {
-                        x--;
+                        switch (x - _self.navi[i].comandi.accel) {
+                            case 1:
+                                x--;
+                                break;
+                            case 2:
+                                x -= 2;
+                                break;
+                            default:
+                                x -= 3;
+                        }
                     }
                     if (x < -5) { x = -5 }
                     if (x > 20) { x = 20 }
                     _self.navi[i].comandi.velocity = x;
+
                     //aggiorno il carburante
                     _self.aggiornaCarb(_self.navi[i]);
 
@@ -186,7 +205,7 @@ export class SchermataEngine extends NavElement {
 
                     //alert
                     if (_self.navi[i].radar.statoNave == 4) {
-                        alert(_self.partita.squadre[i].nome + "ha vinto la gara!");
+                        alert(_self.partita.squadre[i].nome + " ha vinto la gara!");
                     }
                 });
 
@@ -309,7 +328,16 @@ export class SchermataEngine extends NavElement {
         posizioneDaControllare.x = this.navi[index].pos.posx + this.dimNave * Math.cos(direzioneInRadianti);
         posizioneDaControllare.y = this.navi[index].pos.posy + this.dimNave * Math.sin(direzioneInRadianti);
         //controllo il colore nel punto
-        this.navi[index].radar.statoNave = this.controllaPunto(posizioneDaControllare.x, posizioneDaControllare.y);
+        //this.navi[index].radar.statoNave = this.controllaPunto(posizioneDaControllare.x, posizioneDaControllare.y);
+        let x = this.controllaPunto(posizioneDaControllare.x, posizioneDaControllare.y)
+        if (x != 1) {
+            this.navi[index].radar.statoNave = this.controllaPunto(posizioneDaControllare.x, posizioneDaControllare.y);
+        } else {
+            this.navi[index].comandi.accel = 0;
+            this.navi[index].comandi.velocity = 0;
+            this.navi[index].pos.posx -= (10) * Math.cos((_self.navi[i].pos.direzione - 90) * Math.PI / 180);
+            this.navi[index].pos.posy -= (10) * Math.sin((_self.navi[i].pos.direzione - 90) * Math.PI / 180);
+        }
 
         //disegno un cerchio per mostrare prua
         this.referenceSketchp5.ellipse(posizioneDaControllare.x, posizioneDaControllare.y, 7, 7);
